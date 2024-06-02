@@ -1,0 +1,194 @@
+{
+  "north_flow": {
+    "zh": "北向",
+    "freq": "day",
+    "dbpath": false,
+    "fpath": "data_save/north_flow.csv",
+    "itempath": false,
+    "update_method": "write",
+    "morn_or_night": "22",
+    "max_date_idx": "2024-05-27",
+    "next_update_time": "2024-05-28 22:00",
+    "update_kwargs": {
+      "N": 20,
+      "MA_Fun": "ema",
+      "windows": [
+        60,
+        120,
+        200
+      ]
+    },
+    "update_kwargs_note": {
+      "note": "北向流入及其与均线的偏移量分位",
+      "N": "均线周期",
+      "MA_Fun": "均线类型, 可选ma,ema,wma",
+      "windows": "计算分位的时间周期"
+    },
+    "item_name": false,
+    "item_name_type": "str",
+    "append_item_args": false,
+    "warning_cond": [
+      "&",
+      {
+        "item": "purchase"
+      },
+      {
+        "Q60": [
+          15,
+          85
+        ]
+      }
+    ],
+    "warning_info": false
+  },
+  "high_low_legu": {
+    "zh": "新高新低",
+    "freq": "day",
+    "dbpath": false,
+    "fpath": "data_save/high_low_legu.csv",
+    "itempath": false,
+    "update_method": "append",
+    "morn_or_night": "22",
+    "max_date_idx": "2024-05-27",
+    "next_update_time": "2024-05-28 22:00",
+    "update_kwargs": "fpath",
+    "update_kwargs_note": {},
+    "item_name": false,
+    "item_name_type": "str",
+    "append_item_args": false,
+    "warning_cond": false,
+    "warning_info": false
+  },
+  "qvix_day": {
+    "zh": "恐慌指数",
+    "freq": "day",
+    "dbpath": false,
+    "fpath": "data_save/qvix_day.csv",
+    "itempath": false,
+    "update_method": "append",
+    "morn_or_night": "+8:30",
+    "max_date_idx": "2024-05-22",
+    "next_update_time": "2024-05-24 08:30",
+    "update_kwargs": "max_date_idx",
+    "update_kwargs_note": {},
+    "item_name": false,
+    "item_name_type": "str",
+    "append_item_args": false,
+    "warning_cond": [
+      "|",
+      [
+        "&",
+        {
+          "code": "50ETF"
+        },
+        [
+          "|",
+          {
+            "cp_div": [
+              0.95,
+              1.845
+            ]
+          },
+          {
+            "high": [
+              15.5,
+              22.8
+            ]
+          }
+        ]
+      ],
+      [
+        "&",
+        {
+          "code": "300ETF"
+        },
+        {
+          "high": [
+            14.9,
+            23
+          ]
+        }
+      ],
+      [
+        "&",
+        {
+          "code": "500ETF"
+        },
+        {
+          "high": [
+            15.6,
+            29.5
+          ]
+        }
+      ],
+      [
+        "&",
+        {
+          "code": "1000ETF"
+        },
+        {
+          "high": [
+            16.5,
+            30.5
+          ]
+        }
+      ],
+      [
+        "&",
+        {
+          "code": "CYB"
+        },
+        {
+          "high": [
+            19,
+            32
+          ]
+        }
+      ],
+      [
+        "&",
+        {
+          "code": "KCB"
+        },
+        {
+          "high": [
+            22,
+            37
+          ]
+        }
+      ]
+    ],
+    "warning_info": false
+  },
+  "baidu_search": {
+    "zh": "搜索指数",
+    "freq": "day",
+    "dbpath": false,
+    "fpath": "data_save/bsearch_calc.csv",
+    "itempath": "common/search_names.csv",
+    "update_method": "append",
+    "morn_or_night": "^9",
+    "max_date_idx": "2024-05-25",
+    "next_update_time": "2024-05-27 09:00",
+    "update_kwargs": [
+      "itempath",
+      "max_date_idx"
+    ],
+    "update_kwargs_note": "使用关键词列表",
+    "item_name": false,
+    "item_name_type": "str",
+    "append_item_args": false,
+    "warning_cond": "见itempath",
+    "warning_info": [
+      "2024-05-24",
+      {
+        "keyword": "铜价",
+        "count": [
+          5046.0,
+          2046.0
+        ],
+        "llt_diff": 70.751
+      }
+    ]
+  }
+}
