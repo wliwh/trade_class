@@ -1,2 +1,3 @@
-*/.cooks
+common/.cooks
 */__pycache__
+*/.*
