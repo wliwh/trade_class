@@ -114,7 +114,7 @@ class IndicatorGetter(object):
         near_trade_date = get_delta_trade_day(conf['max_date_idx'], 0, date_fmt='%Y-%m-%d')
         if near_trade_date is None:
             near_trade_date = get_delta_trade_day(conf['max_date_idx'], -1, date_fmt='%Y-%m-%d')
-        print('@@@', self.uppth)
+        # print('@@@', self.uppth)
         data = pd.read_csv(self.uppth, index_col=0)
         data = to_numeric(data.loc[near_trade_date])
         if isinstance(warn_cond, bool): return

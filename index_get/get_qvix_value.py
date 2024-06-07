@@ -135,6 +135,7 @@ def getter_qvix_day(max_date_idx:str) -> pd.DataFrame:
         if s in ('50ETF','300ETF'):
             p1 = _option_call_put_positon(p1,'510050' if s=='50ETF' else '510300')
         ss_pds.append(p1)
+    # print(dt_lst, p1['date'])
     ss_tb = pd.concat(ss_pds,axis=0)
     ss_tb.set_index('date',inplace=True)
     ss_tb.sort_index(inplace=True)
@@ -150,7 +151,9 @@ if __name__=='__main__':
     # option_call_put_positon(option_qvix('50'),'510050')
     # p1 = pd.DataFrame(pd.date_range('20240520',periods=10,freq='b'))
     # p1['date'] = p1[0]
-    # print(_option_call_put_positon(p1))
+    # print(_option_call_put_positon(p1,'510300'))
+    
+    # getter_qvix_day('2024-05-20')
     p1 = qvix_day_indicator()
     p1.update_data()
     p1.set_warn_info()
