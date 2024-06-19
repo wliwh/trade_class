@@ -333,6 +333,7 @@ def make_candle_echarts(ohlc:pd.DataFrame,
                  plt_volume:bool = True,
                  plt_add_ma:Union[List,Tuple,None] = None,
                  plt_add_lines:Union[List,Tuple,None] = None,
+                 plt_add_points:Union[List,Tuple,None] = None,
                  plt_add_drawdown:Union[List,Tuple,None] = None,
                  other_tbs:Union[List,Tuple,None] = None):
     ''' 输出使用echarts绘制的kline图形
@@ -385,10 +386,22 @@ def make_candle_echarts(ohlc:pd.DataFrame,
         _datazoom_opt.append(opts.DataZoomOpts(is_show=False, range_start=100-_range_len,
                     xaxis_index=[0,2+_n],range_end=100))
 
+    if isinstance(plt_add_points, Iterable) and len(plt_add_points):
+        _cand_symbols = {1:'triangle', 2:'triangle', 3:'circle'}
+        _cand_colors = {1:'#ffa500',2:'#ff6347',3:'#b22222'}
+        _candle_points = [
+            opts.MarkPointItem(
+                coord=[x, float(data.loc[x, 'Low'])-30], 
+                symbol=_cand_symbols[y],
+                symbol_size=15,
+                itemstyle_opts=opts.ItemStyleOpts(color=_cand_colors[y]))
+            for x,y in plt_add_points]
     kline = (
         Kline()
         .add_xaxis([d for d in data.index])
-        .add_yaxis("kline", data.values.tolist())
+        .add_yaxis("kline",
+                   data.values.tolist(),
+                   markpoint_opts=opts.MarkPointOpts(data=_candle_points))
         .set_global_opts(
             xaxis_opts=opts.AxisOpts(is_scale=True),
             yaxis_opts=opts.AxisOpts(

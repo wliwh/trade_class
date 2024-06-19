@@ -139,13 +139,14 @@ class bsearch_indicator(IndicatorGetter):
         p1.sort_index(inplace=True)
         p1.to_csv(self.uppth, mode='w',float_format='%.3f')
         
-    def set_warn_info(self):
+    def set_warn_info(self, beg=None):
         conf = self.cator_conf
-        near_trade_date = get_delta_trade_day(conf['max_date_idx'], 0, date_fmt='%Y-%m-%d')
-        if near_trade_date is None:
-            near_trade_date = get_delta_trade_day(conf['max_date_idx'], -1, date_fmt='%Y-%m-%d')
+        if beg is None:
+            near_trade_date = get_delta_trade_day(conf['max_date_idx'], 0, date_fmt='%Y-%m-%d')
+            if near_trade_date is None:
+                near_trade_date = get_delta_trade_day(conf['max_date_idx'], -1, date_fmt='%Y-%m-%d')
         data = pd.read_csv(conf['fpath'], index_col=0)
-        data = to_numeric(data.loc[near_trade_date])
+        data = to_numeric(data.loc[beg:] if beg else data.loc[near_trade_date])
         cond = pd.read_csv(conf['itempath'])
         cond = cond.query("count_th>0 or llt_th>0")
         warn_info = list()
@@ -153,13 +154,21 @@ class bsearch_indicator(IndicatorGetter):
             ws = data.query("keyword==@gs[0] and (count>=@gs[-2] or llt_diff>=@gs[-1])")
             if not ws.empty:
                 del ws['type']
-                wdict = ws.iloc[0].to_dict()
-                ct, ltd = wdict['count'], wdict['llt_diff']
-                if ct>gs[-2]: wdict['count'] = (ct, round(ct-gs[-2],3))
-                if ltd>gs[-1]: wdict['llt_diff'] = (ltd, round(ltd-gs[-1],3))
-                warn_info.append(wdict)
-        if warn_info: warn_info.insert(0, near_trade_date)
-        self.set_cator_conf(True, warning_info=warn_info if warn_info else False)
+                if beg:
+                    ws.loc[:,'thres'] = 2*(ws.loc[:,'count']>gs[-2]).astype('int') + (ws.loc[:,'llt_diff']>gs[-1]).astype('int')
+                    warn_info.append(ws)
+                else:
+                    wdict = ws.iloc[0].to_dict()
+                    ct, ltd = wdict['count'], wdict['llt_diff']
+                    if ct>gs[-2]: wdict['count'] = (ct, round(ct-gs[-2],3))
+                    if ltd>gs[-1]: wdict['llt_diff'] = (ltd, round(ltd-gs[-1],3))
+                    warn_info.append(wdict)
+        if warn_info:
+            if beg:
+                return pd.concat(warn_info)
+            else:
+                warn_info.insert(0, near_trade_date)
+                self.set_cator_conf(True, warning_info=warn_info if warn_info else False)
 
 if __name__=='__main__':
     # t1 = bd_search_nearday(Search_Name_Path, '2024-04-11')
@@ -167,7 +176,8 @@ if __name__=='__main__':
     # t2 = bd_search_tonow(['人民币汇率'],Search_Name_Path)
     # print(t2)
     q = bsearch_indicator()
-    q.update_data()
+    # q.update_data()
     # q.append_data(['人民币汇率'])
-    q.set_warn_info()
+    # ppp = q.set_warn_info('2022-01-01')
+    # ppp.to_csv('./data_save/bd_handle.csv')
     pass

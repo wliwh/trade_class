@@ -14,9 +14,11 @@ def draw_future_echart(code:str,name:str,tt:str, beg:str, end:str, minus:int=0):
         a1 = basic_index_getter(code, beg, end)
     p1 = pd.read_csv('../data_save/bsearch_calc.csv',index_col=0)
     p1 = p1.query("keyword=='{}'".format(name))
+    p2 = pd.read_csv('../data_save/bd_handle.csv')
+    p2 = p2.loc[p2['keyword']==name, ['date','thres']]
     a1['word_count'] = p1['count']
     a1['diff'] = p1['llt_diff']
-    tend = make_candle_echarts(a1, beg, end,'open high low close volume'.split(), plt_title_opts={'title':tt}, plt_add_ma=(20,60,240),other_tbs=[{'bar':a1['word_count']-minus},{'bar':a1['diff']}])
+    tend = make_candle_echarts(a1, beg, end,'open high low close volume'.split(), plt_title_opts={'title':tt}, plt_add_ma=(20,60,240), plt_add_points=p2.values, other_tbs=[{'bar':a1['word_count']-minus},{'bar':a1['diff']}])
     return tend
 
 def draw_echarts(beg:str, end:str):
@@ -39,7 +41,7 @@ def draw_echarts(beg:str, end:str):
         ('创业板指','399006','股指-创业板'),
     )
     tab = Tab()
-    for nm, code, tit, m in tbs:
+    for nm, code, tit in tb2:
         tend = draw_future_echart(code,nm,tit,beg,end)
         tab.add(tend,tit.split('-')[0])
     tab.render('rbs.html')
