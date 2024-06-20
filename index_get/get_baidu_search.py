@@ -165,7 +165,10 @@ class bsearch_indicator(IndicatorGetter):
                     warn_info.append(wdict)
         if warn_info:
             if beg:
-                return pd.concat(warn_info)
+                warn_info = pd.concat(warn_info)
+                warn_info = warn_info[warn_info['thres']>0]
+                warn_info.index.name = 'date'
+                warn_info.to_csv(Path(self.project_dir, conf['warning_info_path']))
             else:
                 warn_info.insert(0, near_trade_date)
                 self.set_cator_conf(True, warning_info=warn_info if warn_info else False)
@@ -176,8 +179,8 @@ if __name__=='__main__':
     # t2 = bd_search_tonow(['人民币汇率'],Search_Name_Path)
     # print(t2)
     q = bsearch_indicator()
-    # q.update_data()
+    q.update_data()
     # q.append_data(['人民币汇率'])
-    # ppp = q.set_warn_info('2022-01-01')
-    # ppp.to_csv('./data_save/bd_handle.csv')
+    # q.set_warn_info('2022-01-01')
+    q.set_warn_info()
     pass

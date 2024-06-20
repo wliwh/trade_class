@@ -35,15 +35,16 @@ def draw_echarts(beg:str, end:str):
     )
 
     tb2 = (
-        ('a股','000001','股指-a股'),
-        ('上证指数','000001','股指-上证'),
-        ('上证50','000016','股指-大盘'),
-        ('创业板指','399006','股指-创业板'),
+        ('a股','000001','股指-a股',0),
+        ('上证指数','000001','股指-上证',0),
+        ('上证50','000016','股指-大盘',0),
+        ('创业板指','399006','股指-创业板',0),
     )
     tab = Tab()
-    for nm, code, tit in tb2:
+    for nm, code, tit, m in tb2:
         tend = draw_future_echart(code,nm,tit,beg,end)
         tab.add(tend,tit.split('-')[0])
     tab.render('rbs.html')
 
-draw_echarts('2022-01-01','2024-06-05')
+if __name__=='__main__':
+    draw_echarts('2022-01-01','2024-06-05')

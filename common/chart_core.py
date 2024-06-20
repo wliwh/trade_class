@@ -395,13 +395,16 @@ def make_candle_echarts(ohlc:pd.DataFrame,
                 symbol=_cand_symbols[y],
                 symbol_size=15,
                 itemstyle_opts=opts.ItemStyleOpts(color=_cand_colors[y]))
-            for x,y in plt_add_points]
+            for x,y in plt_add_points if x in data.index]
+        _markpoint_data = opts.MarkPointOpts(data=_candle_points)
+    else:
+        _markpoint_data = None
     kline = (
         Kline()
         .add_xaxis([d for d in data.index])
         .add_yaxis("kline",
                    data.values.tolist(),
-                   markpoint_opts=opts.MarkPointOpts(data=_candle_points))
+                   markpoint_opts=_markpoint_data)
         .set_global_opts(
             xaxis_opts=opts.AxisOpts(is_scale=True),
             yaxis_opts=opts.AxisOpts(

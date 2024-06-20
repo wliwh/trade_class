@@ -7,8 +7,8 @@
     "itempath": false,
     "update_method": "write",
     "morn_or_night": "22",
-    "max_date_idx": "2024-06-14",
-    "next_update_time": "2024-06-17 22:00",
+    "max_date_idx": "2024-06-20",
+    "next_update_time": "2024-06-21 22:00",
     "update_kwargs": {
       "N": 20,
       "MA_Fun": "ema",
@@ -40,7 +40,7 @@
       }
     ],
     "warning_info": [
-      "2024-06-14",
+      "2024-06-20",
       {
         "Q60": 0.0,
         "item": "purchase"
@@ -55,8 +55,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-06-14",
-    "next_update_time": "2024-06-17 22:00",
+    "max_date_idx": "2024-06-20",
+    "next_update_time": "2024-06-21 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -73,8 +73,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-06-13",
-    "next_update_time": "2024-06-15 08:30",
+    "max_date_idx": "2024-06-20",
+    "next_update_time": "2024-06-22 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -165,11 +165,11 @@
       ]
     ],
     "warning_info": [
-      "2024-06-13",
+      "2024-06-20",
       {
-        "high": 14.52,
+        "high": 14.26,
         "code": "50ETF",
-        "cp_div": 1.4151128139633886
+        "cp_div": 1.435400460910334
       }
     ]
   },
@@ -179,10 +179,11 @@
     "dbpath": false,
     "fpath": "data_save/bsearch_calc.csv",
     "itempath": "common/search_names.csv",
+    "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-06-13",
-    "next_update_time": "2024-06-15 09:00",
+    "max_date_idx": "2024-06-19",
+    "next_update_time": "2024-06-21 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
