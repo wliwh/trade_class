@@ -7,8 +7,8 @@
     "itempath": false,
     "update_method": "write",
     "morn_or_night": "22",
-    "max_date_idx": "2024-06-20",
-    "next_update_time": "2024-06-21 22:00",
+    "max_date_idx": "2024-06-25",
+    "next_update_time": "2024-06-26 22:00",
     "update_kwargs": {
       "N": 20,
       "MA_Fun": "ema",
@@ -40,9 +40,9 @@
       }
     ],
     "warning_info": [
-      "2024-06-20",
+      "2024-06-25",
       {
-        "Q60": 0.0,
+        "Q60": 4.952,
         "item": "purchase"
       }
     ]
@@ -55,8 +55,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-06-20",
-    "next_update_time": "2024-06-21 22:00",
+    "max_date_idx": "2024-06-25",
+    "next_update_time": "2024-06-26 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -182,8 +182,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-06-21",
-    "next_update_time": "2024-06-23 09:00",
+    "max_date_idx": "2024-06-24",
+    "next_update_time": "2024-06-26 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -193,6 +193,40 @@
     "item_name_type": "str",
     "append_item_args": false,
     "warning_cond": "见itempath",
-    "warning_info": false
+    "warning_info": [
+      "2024-06-24",
+      {
+        "keyword": "a股",
+        "count": 70938.0,
+        "llt_diff": [
+          37178.278,
+          7178.278
+        ]
+      },
+      {
+        "keyword": "上证",
+        "count": 14024.0,
+        "llt_diff": [
+          6339.347,
+          339.347
+        ]
+      },
+      {
+        "keyword": "上证指数",
+        "count": 294650.0,
+        "llt_diff": [
+          87327.108,
+          17327.108
+        ]
+      },
+      {
+        "keyword": "上证50",
+        "count": 2203.0,
+        "llt_diff": [
+          677.538,
+          177.538
+        ]
+      }
+    ]
   }
 }
