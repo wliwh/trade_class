@@ -102,7 +102,8 @@ class bsearch_indicator(IndicatorGetter):
         tday_lst = get_trade_day_between(beg1_date,left=False,date_fmt='%Y-%m-%d')
         pp = bd_search_nearday(conf['itempath'], now_max_date)
         pp.index = pp.index.map(lambda x:x.strftime('%Y-%m-%d'))
-        pp['llt_diff'] = 0; pp.rename(columns={'index':'count'},inplace=True)
+        pp['llt_diff'] = 0
+        pp.rename(columns={'index':'count'},inplace=True)
         p_in = pp[pp.index.map(lambda x:x in tday_lst)]
         p_out = pp[pp.index.map(lambda x:x not in tday_lst)]
         if p_in.empty:
@@ -145,9 +146,9 @@ class bsearch_indicator(IndicatorGetter):
             near_trade_date = get_delta_trade_day(conf['max_date_idx'], 0, date_fmt='%Y-%m-%d')
             if near_trade_date is None:
                 near_trade_date = get_delta_trade_day(conf['max_date_idx'], -1, date_fmt='%Y-%m-%d')
-        data = pd.read_csv(conf['fpath'], index_col=0)
+        data = pd.read_csv(Path(self.project_dir,conf['fpath']), index_col=0)
         data = to_numeric(data.loc[beg:] if beg else data.loc[near_trade_date])
-        cond = pd.read_csv(conf['itempath'])
+        cond = pd.read_csv(Path(self.project_dir,conf['itempath']))
         cond = cond.query("count_th>0 or llt_th>0")
         warn_info = list()
         for gs in cond.values:
@@ -181,6 +182,6 @@ if __name__=='__main__':
     q = bsearch_indicator()
     q.update_data()
     # q.append_data(['人民币汇率'])
-    # q.set_warn_info('2022-01-01')
-    q.set_warn_info()
+    q.set_warn_info('2022-01-01')
+    # q.set_warn_info()
     pass

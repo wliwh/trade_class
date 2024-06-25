@@ -182,8 +182,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-06-19",
-    "next_update_time": "2024-06-21 09:00",
+    "max_date_idx": "2024-06-21",
+    "next_update_time": "2024-06-23 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
