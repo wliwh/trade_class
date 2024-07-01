@@ -126,7 +126,7 @@ def _make_option_day_pds():
 
 def getter_qvix_day(max_date_idx:str) -> pd.DataFrame:
     ''' 根据时间列表填充qvix数据 '''
-    dt_lst = get_trade_day_between(max_date_idx,left=False)
+    dt_lst = get_trade_day_between(max_date_idx, left=False)
     ss_pds = list()
     for s in SymbolLists:
         p1 = option_qvix(s)
@@ -157,6 +157,6 @@ if __name__=='__main__':
     p1 = qvix_day_indicator()
     p1.update_data()
     p1.set_warn_info()
-    print(p1.get_warn_info())
+    # print(p1.get_warn_info())
     pass
 

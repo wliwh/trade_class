@@ -73,8 +73,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-06-20",
-    "next_update_time": "2024-06-22 08:30",
+    "max_date_idx": "2024-06-28",
+    "next_update_time": "2024-07-02 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -165,11 +165,16 @@
       ]
     ],
     "warning_info": [
-      "2024-06-20",
+      "2024-06-28",
       {
-        "high": 14.26,
+        "code": "300ETF",
+        "cp_div": 1.2640179906985476,
+        "high": 14.6
+      },
+      {
         "code": "50ETF",
-        "cp_div": 1.435400460910334
+        "cp_div": 1.1558415472244938,
+        "high": 13.71705644
       }
     ]
   },

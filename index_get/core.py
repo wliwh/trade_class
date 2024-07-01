@@ -125,7 +125,7 @@ class IndicatorGetter(object):
             tt = data.query(qstr)
         if not tt.empty:
             print(f"{self.cator_name} warning info update.")
-            cond_lst = [tt.loc[tt.index[i], list(keys)].to_dict() for i in range(len(tt))]
+            cond_lst = [tt.iloc[i].loc[list(keys)].to_dict() for i in range(len(tt))]
             cond_lst.insert(0,near_trade_date)
             self.set_cator_conf(True, warning_info=cond_lst)
         else:

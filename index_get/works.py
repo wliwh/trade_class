@@ -12,9 +12,9 @@ nt = north_flow_indicator()
 print(nt.update_data())
 nt.set_warn_info()
 
-# qd = qvix_day_indicator()
-# print(qd.update_data())
-# qd.set_warn_info()
+qd = qvix_day_indicator()
+print(qd.update_data())
+qd.set_warn_info()
 
 bd = bsearch_indicator()
 print(bd.update_data())
