@@ -182,6 +182,6 @@ if __name__=='__main__':
     q = bsearch_indicator()
     q.update_data()
     # q.append_data(['人民币汇率'])
-    q.set_warn_info('2022-01-01')
+    # q.set_warn_info('2022-01-01')
     # q.set_warn_info()
     pass

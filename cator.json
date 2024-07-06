@@ -7,8 +7,8 @@
     "itempath": false,
     "update_method": "write",
     "morn_or_night": "22",
-    "max_date_idx": "2024-06-25",
-    "next_update_time": "2024-06-26 22:00",
+    "max_date_idx": "2024-07-05",
+    "next_update_time": "2024-07-08 22:00",
     "update_kwargs": {
       "N": 20,
       "MA_Fun": "ema",
@@ -40,9 +40,9 @@
       }
     ],
     "warning_info": [
-      "2024-06-25",
+      "2024-07-05",
       {
-        "Q60": 4.952,
+        "Q60": 5.764,
         "item": "purchase"
       }
     ]
@@ -55,8 +55,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-06-25",
-    "next_update_time": "2024-06-26 22:00",
+    "max_date_idx": "2024-07-05",
+    "next_update_time": "2024-07-08 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -73,8 +73,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-06-28",
-    "next_update_time": "2024-07-02 08:30",
+    "max_date_idx": "2024-07-05",
+    "next_update_time": "2024-07-09 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -165,16 +165,11 @@
       ]
     ],
     "warning_info": [
-      "2024-06-28",
+      "2024-07-05",
       {
-        "code": "300ETF",
-        "cp_div": 1.2640179906985476,
-        "high": 14.6
-      },
-      {
+        "high": 14.39,
         "code": "50ETF",
-        "cp_div": 1.1558415472244938,
-        "high": 13.71705644
+        "cp_div": 1.2917350209295402
       }
     ]
   },
@@ -187,8 +182,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-06-24",
-    "next_update_time": "2024-06-26 09:00",
+    "max_date_idx": "2024-07-05",
+    "next_update_time": "2024-07-07 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -199,37 +194,13 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2024-06-24",
+      "2024-07-05",
       {
-        "keyword": "a股",
-        "count": 70938.0,
+        "keyword": "纸浆",
+        "count": 308.0,
         "llt_diff": [
-          37178.278,
-          7178.278
-        ]
-      },
-      {
-        "keyword": "上证",
-        "count": 14024.0,
-        "llt_diff": [
-          6339.347,
-          339.347
-        ]
-      },
-      {
-        "keyword": "上证指数",
-        "count": 294650.0,
-        "llt_diff": [
-          87327.108,
-          17327.108
-        ]
-      },
-      {
-        "keyword": "上证50",
-        "count": 2203.0,
-        "llt_diff": [
-          677.538,
-          177.538
+          57.51,
+          7.51
         ]
       }
     ]
