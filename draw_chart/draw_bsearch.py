@@ -47,4 +47,4 @@ def draw_echarts(beg:str, end:str):
     tab.render('rbs.html')
 
 if __name__=='__main__':
-    draw_echarts('2022-01-01','2024-06-21')
+    draw_echarts('2022-01-01','2024-07-05')

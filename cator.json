@@ -7,8 +7,8 @@
     "itempath": false,
     "update_method": "write",
     "morn_or_night": "22",
-    "max_date_idx": "2024-07-05",
-    "next_update_time": "2024-07-08 22:00",
+    "max_date_idx": "2024-07-09",
+    "next_update_time": "2024-07-10 22:00",
     "update_kwargs": {
       "N": 20,
       "MA_Fun": "ema",
@@ -39,13 +39,7 @@
         ]
       }
     ],
-    "warning_info": [
-      "2024-07-05",
-      {
-        "Q60": 5.764,
-        "item": "purchase"
-      }
-    ]
+    "warning_info": false
   },
   "high_low_legu": {
     "zh": "新高新低",
@@ -55,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-07-05",
-    "next_update_time": "2024-07-08 22:00",
+    "max_date_idx": "2024-07-09",
+    "next_update_time": "2024-07-10 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -73,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-07-05",
-    "next_update_time": "2024-07-09 08:30",
+    "max_date_idx": "2024-07-09",
+    "next_update_time": "2024-07-11 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -165,11 +159,11 @@
       ]
     ],
     "warning_info": [
-      "2024-07-05",
+      "2024-07-09",
       {
-        "high": 14.39,
         "code": "50ETF",
-        "cp_div": 1.2917350209295402
+        "high": 14.28,
+        "cp_div": 1.2278285108064817
       }
     ]
   },
@@ -182,8 +176,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-07-05",
-    "next_update_time": "2024-07-07 09:00",
+    "max_date_idx": "2024-07-08",
+    "next_update_time": "2024-07-10 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
