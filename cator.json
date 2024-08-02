@@ -7,8 +7,8 @@
     "itempath": false,
     "update_method": "write",
     "morn_or_night": "22",
-    "max_date_idx": "2024-07-23",
-    "next_update_time": "2024-07-24 22:00",
+    "max_date_idx": "2024-08-02",
+    "next_update_time": "2024-08-05 22:00",
     "update_kwargs": {
       "N": 20,
       "MA_Fun": "ema",
@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-07-23",
-    "next_update_time": "2024-07-24 22:00",
+    "max_date_idx": "2024-08-02",
+    "next_update_time": "2024-08-05 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-07-23",
-    "next_update_time": "2024-07-25 08:30",
+    "max_date_idx": "2024-08-02",
+    "next_update_time": "2024-08-06 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -159,16 +159,11 @@
       ]
     ],
     "warning_info": [
-      "2024-07-23",
+      "2024-08-02",
       {
-        "code": "300ETF",
-        "cp_div": 1.1603966629938611,
-        "high": 13.97
-      },
-      {
+        "high": 14.87,
         "code": "50ETF",
-        "cp_div": 1.0986235449621538,
-        "high": 13.42
+        "cp_div": 1.3309288910000154
       }
     ]
   },
@@ -181,8 +176,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-07-22",
-    "next_update_time": "2024-07-24 09:00",
+    "max_date_idx": "2024-08-01",
+    "next_update_time": "2024-08-03 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -193,14 +188,14 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2024-07-05",
+      "2024-08-01",
       {
-        "keyword": "纸浆",
-        "count": 308.0,
-        "llt_diff": [
-          57.51,
-          7.51
-        ]
+        "keyword": "纳斯达克指数",
+        "count": [
+          18650.0,
+          5650.0
+        ],
+        "llt_diff": 2887.221
       }
     ]
   }
