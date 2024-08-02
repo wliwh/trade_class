@@ -157,6 +157,6 @@ if __name__=='__main__':
     p1 = qvix_day_indicator()
     p1.update_data()
     p1.set_warn_info()
-    # print(p1.get_warn_info())
+    print(p1.get_warn_info())
     pass
 

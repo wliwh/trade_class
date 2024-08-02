@@ -193,5 +193,5 @@ if __name__=='__main__':
     # tt.to_sql('funds', cx, if_exists='append')
     # tt.to_csv('../data_save/funds_csi.csv',float_format='%.3f')
     # print(future_index_getter('rb0','2024-01-01'))
-    print(other_index_getter('USDCNH','20220101','20240520'))
+    # print(other_index_getter('USDCNH','20220101','20240520'))
     pass

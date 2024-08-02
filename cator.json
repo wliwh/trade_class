@@ -7,8 +7,8 @@
     "itempath": false,
     "update_method": "write",
     "morn_or_night": "22",
-    "max_date_idx": "2024-07-09",
-    "next_update_time": "2024-07-10 22:00",
+    "max_date_idx": "2024-07-23",
+    "next_update_time": "2024-07-24 22:00",
     "update_kwargs": {
       "N": 20,
       "MA_Fun": "ema",
@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-07-09",
-    "next_update_time": "2024-07-10 22:00",
+    "max_date_idx": "2024-07-23",
+    "next_update_time": "2024-07-24 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-07-09",
-    "next_update_time": "2024-07-11 08:30",
+    "max_date_idx": "2024-07-23",
+    "next_update_time": "2024-07-25 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -159,11 +159,16 @@
       ]
     ],
     "warning_info": [
-      "2024-07-09",
+      "2024-07-23",
+      {
+        "code": "300ETF",
+        "cp_div": 1.1603966629938611,
+        "high": 13.97
+      },
       {
         "code": "50ETF",
-        "high": 14.28,
-        "cp_div": 1.2278285108064817
+        "cp_div": 1.0986235449621538,
+        "high": 13.42
       }
     ]
   },
@@ -176,8 +181,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-07-08",
-    "next_update_time": "2024-07-10 09:00",
+    "max_date_idx": "2024-07-22",
+    "next_update_time": "2024-07-24 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
