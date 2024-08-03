@@ -1,4 +1,4 @@
-from index_get.get_funds_value import basic_index_getter
+from index_get.get_index_value import basic_index_getter
 import pandas as pd
 from common.chart_core import make_candle_echarts
 from pyecharts.charts import Tab

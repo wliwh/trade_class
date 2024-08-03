@@ -1,5 +1,5 @@
 from common.chart_core import make_candle_echarts
-from index_get.get_funds_value import future_index_getter, basic_index_getter, other_index_getter
+from index_get.get_index_value import future_index_getter, basic_index_getter, other_index_getter
 import pandas as pd
 from pyecharts.charts import Tab
 
