@@ -4,6 +4,8 @@
 import akshare as ak
 import pandas as pd
 import talib
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 from common.smooth_tool import MM_Dist_Ser
 from core import IndicatorGetter
 
@@ -22,12 +24,14 @@ def calc_winds_bias(p:pd.Series, N:int, MA_Fun:str, windows:tuple):
 
 def get_north_acc_flow():
     ''' inflow data '''
+    # TODO: stock_hsgt_north_acc_flow_in_em 被移除
     north_acc_flow = ak.stock_hsgt_north_acc_flow_in_em('北上')
     north_acc_flow.set_index('date', inplace=True)
     north_acc_flow /= 1e4
     north_acc_flow.fillna(method='ffill', inplace=True)
     north_acc_flow.sort_index(inplace=True)
     return north_acc_flow['value']
+
 
 def get_hsgt_north():
     ''' purchase data '''
@@ -68,6 +72,6 @@ if __name__=='__main__':
     # print(getter_north_flow(20,'ema',(60,120,200)).tail(10))
     p1 = north_flow_indicator()
     p1.update_data()
-    p1.set_warn_info()
+    # p1.set_warn_info()
     print(p1.get_warn_info())
     pass

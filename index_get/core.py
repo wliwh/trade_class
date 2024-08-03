@@ -7,7 +7,8 @@ from typing import List, Tuple, Union, Optional, Callable, Iterable
 from config import (INDICATOR_CONFIG_PATH,
                     BASIC_INDICATOR_CONFIG,
                     Update_Cond,
-                    DateTime_FMT)
+                    DateTime_FMT,
+                    _logger)
 from common.trade_date import (get_trade_day,
                                get_delta_trade_day,
                                get_next_update_time)
@@ -86,6 +87,7 @@ class IndicatorGetter(object):
         else:
             self.uppth = Path(self.project_dir, conf['fpath'])
         if self.now_datetime <= nupdate_time:
+            _logger.info(f"{self.cator_name} is up to date.")
             return Update_Cond.Updated
         else:
             # TODO: 添加函数/添加款项名字？
@@ -106,6 +108,7 @@ class IndicatorGetter(object):
             else:
                 data.to_csv(self.uppth, mode='w',float_format='%.3f')
             self.set_cator_conf(True, **conf)
+            _logger.info(f"{self.cator_name} is updating to {near_up_date}.")
             return Update_Cond.Updating
 
     def set_warn_info(self):
@@ -124,7 +127,7 @@ class IndicatorGetter(object):
             keys, qstr = lexpr2str(warn_cond)
             tt = data.query(qstr)
         if not tt.empty:
-            print(f"{self.cator_name} warning info update.")
+            _logger.info(f"{self.cator_name} warning info update.")
             cond_lst = [tt.iloc[i].loc[list(keys)].to_dict() for i in range(len(tt))]
             cond_lst.insert(0,near_trade_date)
             self.set_cator_conf(True, warning_info=cond_lst)

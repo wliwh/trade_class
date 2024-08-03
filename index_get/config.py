@@ -1,5 +1,6 @@
 from enum import Enum
 from pathlib import Path
+import logging
 
 INDICATOR_CONFIG_PATH = \
     Path.joinpath(Path(__file__).parent, '..', 'cator.json')
@@ -35,4 +36,18 @@ BASIC_INDICATOR_CONFIG = dict(
     warning_info = False
 )
 
+# 设置logging
 
+_logger = logging.getLogger(__name__)
+console_log = logging.StreamHandler()
+console_log.setLevel(logging.DEBUG)
+_logger.addHandler(console_log)
+
+file_log = logging.FileHandler(
+    Path.joinpath(Path(__file__).parent, '..', 'log.txt'), encoding='utf-8')
+file_log.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+_logger.setLevel(logging.INFO)
+_logger.addHandler(file_log)
+
+
+# _logger.info('config.py is loaded')

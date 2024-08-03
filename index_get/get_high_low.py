@@ -4,6 +4,8 @@
 
 import pandas as pd
 import requests
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 from common.trade_date import Trade_List, get_trade_day_between
 from core import IndicatorGetter
 

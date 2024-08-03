@@ -6,6 +6,8 @@ import time
 import numpy as np
 import akshare as ak
 import pandas as pd
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 from common.trade_date import get_trade_day_between
 from core import IndicatorGetter
 
