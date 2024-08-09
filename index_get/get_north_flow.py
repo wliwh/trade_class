@@ -1,5 +1,6 @@
 """
 获取北向流入数据
+note: akshare==1.12.1
 """
 import akshare as ak
 import pandas as pd
@@ -50,7 +51,7 @@ def get_hsgt_north():
 
 def getter_north_flow(N:int, MA_Fun:str, windows:tuple):
     ''' 北向流入数据, 包含偏移量及其分位 '''
-    p1 = calc_winds_bias(get_north_acc_flow(), N, MA_Fun, windows)
+    p1 = calc_winds_bias(get_north_acc_flow().iloc[:-1], N, MA_Fun, windows)
     p1.insert(0, 'item', 'inflow')
     p2 = calc_winds_bias(get_hsgt_north(), N, MA_Fun, windows)
     p2.insert(0, 'item', 'purchase')
@@ -68,10 +69,10 @@ class north_flow_indicator(IndicatorGetter):
 
 
 if __name__=='__main__':
-    # print(get_hsgt_north())
+    # print(get_north_acc_flow().iloc[:-1])
     # print(getter_north_flow(20,'ema',(60,120,200)).tail(10))
     p1 = north_flow_indicator()
     p1.update_data()
-    # p1.set_warn_info()
+    p1.set_warn_info()
     print(p1.get_warn_info())
     pass

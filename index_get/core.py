@@ -1,8 +1,11 @@
 import json
+import os
+import sys
 import pandas as pd
 from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple, Union, Optional, Callable, Iterable
+sys.path.append(Path(__file__).parents[1])
 
 from config import (INDICATOR_CONFIG_PATH,
                     BASIC_INDICATOR_CONFIG,
@@ -127,7 +130,7 @@ class IndicatorGetter(object):
             keys, qstr = lexpr2str(warn_cond)
             tt = data.query(qstr)
         if not tt.empty:
-            _logger.info(f"{self.cator_name} warning info update.")
+            _logger.info(f"{self.cator_name} warning info updating to {near_trade_date}.")
             cond_lst = [tt.iloc[i].loc[list(keys)].to_dict() for i in range(len(tt))]
             cond_lst.insert(0,near_trade_date)
             self.set_cator_conf(True, warning_info=cond_lst)

@@ -7,10 +7,11 @@ import numpy as np
 from pytdx.hq import TdxHq_API
 import pandas as pd
 import efinance as ef
+from pathlib import Path
 import os, sys
 from typing import Optional, Union, List
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(Path(__file__).parents[1])
 from common.trade_date import (
     get_trade_day,
     get_trade_day_between, 
@@ -18,7 +19,7 @@ from common.trade_date import (
 from common.smooth_tool import drawdown_details
 from common.chart_core import make_candle_echarts, make_line_echarts
 
-os.chdir(os.path.dirname(__file__))
+os.chdir(Path(__file__).parent)
 Tdx_Getter = TdxHq_API()
 
 from pytdx.config.hosts import hq_hosts
@@ -37,7 +38,7 @@ Tdx_Connect_List = (
     ('122.192.35.44', 7709)
 )
 
-All_Index_Tb = pd.read_csv('../common/csi_index.csv')
+All_Index_Tb = pd.read_csv(os.path.join('..','common','csi_index.csv'))
 
 def csi_index_getter(code:str, beg:Optional[str], end:Optional[str]):
     ''' 中证指数系列 '''

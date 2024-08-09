@@ -1,7 +1,11 @@
+import os
+import sys
 import time
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
+
+sys.path.append(Path(__file__).parents[1])
 
 from core import IndicatorGetter
 from config import Update_Cond, DateTime_FMT, _logger
@@ -16,6 +20,8 @@ from common.baidu_utils import (
     baidu_search_index,
     choose_cookie,
     Search_Name_Path)
+
+# os.chdir(Path(__file__).parent)
 
 def get_bd_search_table(fpth=Search_Name_Path):
     ''' 生成待检索词列表 '''
@@ -185,8 +191,8 @@ if __name__=='__main__':
     # print(t1)
     # t2 = bd_search_tonow(['人民币汇率'],Search_Name_Path)
     # print(t2)
-    q = bsearch_indicator()
-    q.update_data()
+    # q = bsearch_indicator()
+    # q.update_data()
     # q.append_data(['人民币汇率'])
     # q.set_warn_info('2022-01-01')
     # q.set_warn_info()
