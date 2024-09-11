@@ -7,8 +7,8 @@
     "itempath": false,
     "update_method": "write",
     "morn_or_night": "22",
-    "max_date_idx": "2024-08-02",
-    "next_update_time": "2024-08-05 22:00",
+    "max_date_idx": "2024-09-11",
+    "next_update_time": "2024-09-12 22:00",
     "update_kwargs": {
       "N": 20,
       "MA_Fun": "ema",
@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-08-02",
-    "next_update_time": "2024-08-05 22:00",
+    "max_date_idx": "2024-09-11",
+    "next_update_time": "2024-09-12 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-08-02",
-    "next_update_time": "2024-08-06 08:30",
+    "max_date_idx": "2024-09-10",
+    "next_update_time": "2024-09-12 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -158,14 +158,7 @@
         }
       ]
     ],
-    "warning_info": [
-      "2024-08-02",
-      {
-        "high": 14.87,
-        "code": "50ETF",
-        "cp_div": 1.3309288910000154
-      }
-    ]
+    "warning_info": false
   },
   "baidu_search": {
     "zh": "搜索指数",
@@ -176,8 +169,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-08-01",
-    "next_update_time": "2024-08-03 09:00",
+    "max_date_idx": "2024-09-10",
+    "next_update_time": "2024-09-12 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -188,14 +181,38 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2024-08-01",
+      "2024-09-10",
       {
         "keyword": "纳斯达克指数",
         "count": [
-          18650.0,
-          5650.0
+          17583.0,
+          4583.0
         ],
-        "llt_diff": 2887.221
+        "llt_diff": 318.577
+      },
+      {
+        "keyword": "螺纹钢",
+        "count": [
+          1009.0,
+          9.0
+        ],
+        "llt_diff": 49.361
+      },
+      {
+        "keyword": "豆粕价格",
+        "count": [
+          273.0,
+          1.0
+        ],
+        "llt_diff": 25.425
+      },
+      {
+        "keyword": "原油",
+        "count": 1119.0,
+        "llt_diff": [
+          203.875,
+          43.875
+        ]
       }
     ]
   }
