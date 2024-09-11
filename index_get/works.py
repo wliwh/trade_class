@@ -13,14 +13,14 @@ nt = north_flow_indicator()
 nt.update_data()
 nt.set_warn_info()
 
-# qd = qvix_day_indicator()
-# qd.update_data()
-# qd.set_warn_info()
+qd = qvix_day_indicator()
+qd.update_data()
+qd.set_warn_info()
 
-# try:
-#     bd = bsearch_indicator()
-#     bd.update_data()
-#     bd.set_warn_info()
-# except FileNotFoundError as nfe:
-#     _logger.error('bd_search cooks file not found.')
-#     # pass
+try:
+    bd = bsearch_indicator()
+    bd.update_data()
+    bd.set_warn_info()
+except FileNotFoundError as nfe:
+    _logger.error('bd_search cooks file not found.')
+    # pass
