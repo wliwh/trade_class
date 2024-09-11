@@ -7,13 +7,8 @@
     "itempath": false,
     "update_method": "write",
     "morn_or_night": "22",
-<<<<<<< HEAD
     "max_date_idx": "2024-09-11",
     "next_update_time": "2024-09-12 22:00",
-=======
-    "max_date_idx": "2024-08-08",
-    "next_update_time": "2024-08-09 22:00",
->>>>>>> 7982a29e3105559a445d605993163b481c667213
     "update_kwargs": {
       "N": 20,
       "MA_Fun": "ema",
@@ -54,13 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-<<<<<<< HEAD
     "max_date_idx": "2024-09-11",
     "next_update_time": "2024-09-12 22:00",
-=======
-    "max_date_idx": "2024-08-09",
-    "next_update_time": "2024-08-12 22:00",
->>>>>>> 7982a29e3105559a445d605993163b481c667213
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -77,13 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-<<<<<<< HEAD
     "max_date_idx": "2024-09-10",
     "next_update_time": "2024-09-12 08:30",
-=======
-    "max_date_idx": "2024-08-08",
-    "next_update_time": "2024-08-10 08:30",
->>>>>>> 7982a29e3105559a445d605993163b481c667213
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -184,13 +169,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-<<<<<<< HEAD
     "max_date_idx": "2024-09-10",
     "next_update_time": "2024-09-12 09:00",
-=======
-    "max_date_idx": "2024-08-08",
-    "next_update_time": "2024-08-10 09:00",
->>>>>>> 7982a29e3105559a445d605993163b481c667213
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -201,7 +181,6 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-<<<<<<< HEAD
       "2024-09-10",
       {
         "keyword": "纳斯达克指数",
@@ -234,16 +213,6 @@
           203.875,
           43.875
         ]
-=======
-      "2024-08-08",
-      {
-        "keyword": "纳斯达克指数",
-        "count": [
-          23165.0,
-          10165.0
-        ],
-        "llt_diff": -210.959
->>>>>>> 7982a29e3105559a445d605993163b481c667213
       }
     ]
   }
