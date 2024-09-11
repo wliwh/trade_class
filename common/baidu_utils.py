@@ -39,8 +39,8 @@ from pathlib import Path
 #                  'KC50':['股市', '科创50'],
 #                  'RB0':['螺纹钢']}
 
-Basic_Cookie_Path = Path(Path(__file__).parent, '.cooks')
-Search_Name_Path = Path(Path(__file__).parent, 'search_names.csv')
+Basic_Cookie_Path = Path(Path(__file__).parent, '.cooks').absolute()
+Search_Name_Path = Path(Path(__file__).parent, 'search_names.csv').absolute()
 
 class ErrorCode(int, Enum):
     UNKNOWN = 10002
@@ -434,5 +434,5 @@ def choose_cookie():
 
 
 if __name__=='__main__':
-    print(choose_cookie())
+    print(Search_Name_Path)
     pass

@@ -1,10 +1,14 @@
+import os
+import sys
 import time
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
 
+sys.path.append(Path(__file__).parents[1])
+
 from core import IndicatorGetter
-from config import Update_Cond, DateTime_FMT
+from config import Update_Cond, DateTime_FMT, _logger
 from common.walk_conds import to_numeric
 from common.smooth_tool import LLT_MA
 from common.trade_date import (
@@ -16,6 +20,8 @@ from common.baidu_utils import (
     baidu_search_index,
     choose_cookie,
     Search_Name_Path)
+
+# os.chdir(Path(__file__).parent)
 
 def get_bd_search_table(fpth=Search_Name_Path):
     ''' 生成待检索词列表 '''
@@ -98,6 +104,7 @@ class bsearch_indicator(IndicatorGetter):
         beg1_date = str(int(now_max_date[:4])-1)+now_max_date[4:]
         self.uppth = Path(self.project_dir, conf['fpath'])
         if self.now_datetime <= nupdate_time:
+            _logger.info(f"{self.cator_name} no data to Update")
             return Update_Cond.Updated
         tday_lst = get_trade_day_between(beg1_date,left=False,date_fmt='%Y-%m-%d')
         pp = bd_search_nearday(conf['itempath'], now_max_date)
@@ -112,6 +119,7 @@ class bsearch_indicator(IndicatorGetter):
             conf['next_update_time'] = get_next_update_time(
                 conf['max_date_idx'], conf['morn_or_night'], date_fmt=DateTime_FMT)
             self.set_cator_conf(True, **conf)
+            _logger.info(f"{len(pp)} rows data Update to {self.cator_name}")
         else:
             p1 = pd.read_csv(self.uppth, index_col=0)
             p1 = p1.loc[beg1_date:]
@@ -129,16 +137,20 @@ class bsearch_indicator(IndicatorGetter):
             conf['next_update_time'] = get_next_update_time(
                 conf['max_date_idx'], conf['morn_or_night'], date_fmt=DateTime_FMT)
             self.set_cator_conf(True, **conf)
+            _logger.info(f"{len(p_ret)} rows data Update to {self.cator_name}")
 
     def append_data(self, words):
         conf = self.cator_conf
         self.uppth = Path(self.project_dir, conf['fpath'])
         app_data = bd_search_tonow(words, conf['itempath'])
-        if app_data is None or app_data.empty: return None
+        if app_data is None or app_data.empty:
+            _logger.info(f"{self.cator_name} no data to Append")
+            return None
         p1 = pd.read_csv(self.uppth,index_col=0)
         p1 = pd.concat([p1,app_data],axis=0)
         p1.sort_index(inplace=True)
         p1.to_csv(self.uppth, mode='w',float_format='%.3f')
+        _logger.info(f"{len(app_data)} rows data append to {self.cator_name}")
         
     def set_warn_info(self, beg=None):
         conf = self.cator_conf
@@ -179,8 +191,8 @@ if __name__=='__main__':
     # print(t1)
     # t2 = bd_search_tonow(['人民币汇率'],Search_Name_Path)
     # print(t2)
-    q = bsearch_indicator()
-    q.update_data()
+    # q = bsearch_indicator()
+    # q.update_data()
     # q.append_data(['人民币汇率'])
     # q.set_warn_info('2022-01-01')
     # q.set_warn_info()

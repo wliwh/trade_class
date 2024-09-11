@@ -1,0 +1,13 @@
+2024-08-03 17:58:30,220 - INFO - qvix_day is updating to 2024-08-02.
+2024-08-03 18:01:14,280 - INFO - qvix_day is up to date.
+2024-08-03 18:01:14,295 - INFO - qvix_day warning info update.
+2024-08-05 15:01:51,834 - INFO - north_flow is updating to 2024-08-02.
+2024-08-05 15:06:46,634 - INFO - high_low_legu is updating to 2024-08-02.
+2024-08-05 17:04:44,839 - ERROR - search cooks file not found.
+2024-08-09 16:59:10,402 - ERROR - bd_search cooks file not found.
+2024-08-09 17:14:28,577 - INFO - 493 rows data Update to baidu_search
+2024-08-09 17:16:41,709 - INFO - baidu_search no data to Update
+2024-08-09 17:19:53,707 - INFO - qvix_day is updating to 2024-08-08.
+2024-08-09 17:19:53,721 - INFO - baidu_search no data to Update
+2024-08-09 17:20:22,482 - INFO - high_low_legu is updating to 2024-08-09.
+2024-08-09 17:20:29,502 - INFO - north_flow is updating to 2024-08-08.

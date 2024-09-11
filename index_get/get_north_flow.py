@@ -1,9 +1,12 @@
 """
 获取北向流入数据
+note: akshare==1.12.1
 """
 import akshare as ak
 import pandas as pd
 import talib
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 from common.smooth_tool import MM_Dist_Ser
 from core import IndicatorGetter
 
@@ -22,12 +25,14 @@ def calc_winds_bias(p:pd.Series, N:int, MA_Fun:str, windows:tuple):
 
 def get_north_acc_flow():
     ''' inflow data '''
+    # TODO: stock_hsgt_north_acc_flow_in_em 被移除
     north_acc_flow = ak.stock_hsgt_north_acc_flow_in_em('北上')
     north_acc_flow.set_index('date', inplace=True)
     north_acc_flow /= 1e4
     north_acc_flow.fillna(method='ffill', inplace=True)
     north_acc_flow.sort_index(inplace=True)
     return north_acc_flow['value']
+
 
 def get_hsgt_north():
     ''' purchase data '''
@@ -46,7 +51,7 @@ def get_hsgt_north():
 
 def getter_north_flow(N:int, MA_Fun:str, windows:tuple):
     ''' 北向流入数据, 包含偏移量及其分位 '''
-    p1 = calc_winds_bias(get_north_acc_flow(), N, MA_Fun, windows)
+    p1 = calc_winds_bias(get_north_acc_flow().iloc[:-1], N, MA_Fun, windows)
     p1.insert(0, 'item', 'inflow')
     p2 = calc_winds_bias(get_hsgt_north(), N, MA_Fun, windows)
     p2.insert(0, 'item', 'purchase')
@@ -64,7 +69,7 @@ class north_flow_indicator(IndicatorGetter):
 
 
 if __name__=='__main__':
-    # print(get_hsgt_north())
+    # print(get_north_acc_flow().iloc[:-1])
     # print(getter_north_flow(20,'ema',(60,120,200)).tail(10))
     p1 = north_flow_indicator()
     p1.update_data()
