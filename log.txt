@@ -15,3 +15,11 @@
 2024-09-11 23:57:24,159 - INFO - north_flow is up to date.
 2024-09-11 23:57:24,176 - INFO - qvix_day is up to date.
 2024-09-11 23:57:24,201 - INFO - baidu_search no data to Update
+2024-11-18 22:42:25,920 - INFO - high_low_legu is updating to 2024-11-18.
+2024-11-18 22:43:43,836 - INFO - north_flow is updating to 2024-11-15.
+2024-11-18 23:06:21,995 - INFO - high_low_legu is up to date.
+2024-11-18 23:06:43,715 - INFO - north_flow is updating to 2024-11-15.
+2024-11-18 23:09:24,439 - INFO - qvix_day is updating to 2024-11-15.
+2024-11-18 23:09:24,483 - INFO - qvix_day warning info updating to 2024-11-15.
+2024-11-18 23:09:32,851 - INFO - 1972 rows data Update to baidu_search
+2024-11-18 23:13:47,325 - INFO - qvix_day is up to date.
