@@ -14,6 +14,53 @@ MA_List = dict(ma=talib.MA,
                ema=talib.EMA,
                wma=talib.WMA)
 
+try:
+    hsgt_north_acc_flow = ak.stock_hsgt_north_acc_flow_in_em
+except AttributeError as e:
+    import requests
+    import json
+    def hsgt_north_acc_flow(symbol: str = "沪股通") -> pd.DataFrame:
+        url = "http://push2his.eastmoney.com/api/qt/kamt.kline/get"
+        params = {
+            "fields1": "f1,f3,f5",
+            "fields2": "f51,f54",
+            "klt": "101",
+            "lmt": "5000",
+            "ut": "b2884a393a59ad64002292a3e90d46a5",
+            "cb": "jQuery18305732402561585701_1584961751919",
+            "_": "1584962164273",
+        }
+        r = requests.get(url, params=params)
+        data_text = r.text
+        data_json = json.loads(data_text[data_text.find("{") : -2])
+        if symbol == "沪股通":
+            temp_df = (
+                pd.DataFrame(data_json["data"]["hk2sh"])
+                .iloc[:, 0]
+                .str.split(",", expand=True)
+            )
+            temp_df.columns = ["date", "value"]
+            temp_df['value'] = pd.to_numeric(temp_df['value'])
+            return temp_df
+        if symbol == "深股通":
+            temp_df = (
+                pd.DataFrame(data_json["data"]["hk2sz"])
+                .iloc[:, 0]
+                .str.split(",", expand=True)
+            )
+            temp_df.columns = ["date", "value"]
+            temp_df['value'] = pd.to_numeric(temp_df['value'])
+            return temp_df
+        if symbol == "北上":
+            temp_df = (
+                pd.DataFrame(data_json["data"]["s2n"])
+                .iloc[:, 0]
+                .str.split(",", expand=True)
+            )
+            temp_df.columns = ["date", "value"]
+            temp_df['value'] = pd.to_numeric(temp_df['value'])
+            return temp_df
+
 def calc_winds_bias(p:pd.Series, N:int, MA_Fun:str, windows:tuple):
     ma_fun = MA_List.get(MA_Fun.lower(), 'ma')
     ret = pd.DataFrame({'value':p.values}, index=p.index)
@@ -26,7 +73,7 @@ def calc_winds_bias(p:pd.Series, N:int, MA_Fun:str, windows:tuple):
 def get_north_acc_flow():
     ''' inflow data '''
     # TODO: stock_hsgt_north_acc_flow_in_em 被移除
-    north_acc_flow = ak.stock_hsgt_north_acc_flow_in_em('北上')
+    north_acc_flow = hsgt_north_acc_flow('北上')
     north_acc_flow.set_index('date', inplace=True)
     north_acc_flow /= 1e4
     north_acc_flow.fillna(method='ffill', inplace=True)
@@ -73,6 +120,6 @@ if __name__=='__main__':
     # print(getter_north_flow(20,'ema',(60,120,200)).tail(10))
     p1 = north_flow_indicator()
     p1.update_data()
-    p1.set_warn_info()
+    # p1.set_warn_info()
     print(p1.get_warn_info())
     pass

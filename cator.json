@@ -7,8 +7,8 @@
     "itempath": false,
     "update_method": "write",
     "morn_or_night": "22",
-    "max_date_idx": "2024-11-15",
-    "next_update_time": "2024-11-18 22:00",
+    "max_date_idx": "2024-11-21",
+    "next_update_time": "2024-11-22 22:00",
     "update_kwargs": {
       "N": 20,
       "MA_Fun": "ema",
@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-11-18",
-    "next_update_time": "2024-11-19 22:00",
+    "max_date_idx": "2024-11-21",
+    "next_update_time": "2024-11-22 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-11-15",
-    "next_update_time": "2024-11-19 08:30",
+    "max_date_idx": "2024-11-21",
+    "next_update_time": "2024-11-23 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -159,31 +159,36 @@
       ]
     ],
     "warning_info": [
-      "2024-11-15",
+      "2024-11-21",
       {
-        "cp_div": NaN,
-        "high": 44.99,
-        "code": "CYB"
+        "code": "1000ETF",
+        "high": 31.12,
+        "cp_div": NaN
       },
       {
-        "cp_div": 1.1710393384377005,
-        "high": 25.64,
-        "code": "300ETF"
+        "code": "500ETF",
+        "high": 29.61,
+        "cp_div": NaN
       },
       {
-        "cp_div": 1.474530840423719,
-        "high": 25.64,
-        "code": "50ETF"
+        "code": "300ETF",
+        "high": 24.33,
+        "cp_div": 1.1485284198427672
       },
       {
-        "cp_div": NaN,
-        "high": 31.06,
-        "code": "1000ETF"
+        "code": "50ETF",
+        "high": 24.8,
+        "cp_div": 1.5310234015475102
       },
       {
-        "cp_div": NaN,
-        "high": 56.26,
-        "code": "KCB"
+        "code": "CYB",
+        "high": 42.78,
+        "cp_div": NaN
+      },
+      {
+        "code": "KCB",
+        "high": 51.44,
+        "cp_div": NaN
       }
     ]
   },
@@ -196,8 +201,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-11-17",
-    "next_update_time": "2024-11-19 09:00",
+    "max_date_idx": "2024-11-21",
+    "next_update_time": "2024-11-23 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -208,118 +213,78 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2024-11-15",
-      {
-        "keyword": "股市",
-        "count": [
-          52139.0,
-          7139.0
-        ],
-        "llt_diff": -11807.492
-      },
-      {
-        "keyword": "股票",
-        "count": [
-          49437.0,
-          4437.0
-        ],
-        "llt_diff": -24603.092
-      },
-      {
-        "keyword": "a股",
-        "count": [
-          138124.0,
-          18124.0
-        ],
-        "llt_diff": -55715.32
-      },
-      {
-        "keyword": "上证",
-        "count": [
-          27504.0,
-          2504.0
-        ],
-        "llt_diff": -8297.271
-      },
+      "2024-11-21",
       {
         "keyword": "上证指数",
         "count": [
-          559061.0,
-          159061.0
+          457564.0,
+          57564.0
         ],
-        "llt_diff": -91047.681
-      },
-      {
-        "keyword": "牛市",
-        "count": [
-          816.0,
-          66.0
-        ],
-        "llt_diff": -270.233
-      },
-      {
-        "keyword": "熊市",
-        "count": 439.0,
-        "llt_diff": [
-          95.789,
-          15.789
-        ]
+        "llt_diff": -155201.592
       },
       {
         "keyword": "港股",
         "count": [
-          10927.0,
-          6827.0
+          6511.0,
+          2411.0
         ],
-        "llt_diff": -1464.258
+        "llt_diff": -4493.257
       },
       {
         "keyword": "恒生指数",
         "count": [
-          43899.0,
-          21899.0
+          28105.0,
+          6105.0
         ],
-        "llt_diff": -206.421
-      },
-      {
-        "keyword": "恒生科技指数",
-        "count": [
-          19759.0,
-          3759.0
-        ],
-        "llt_diff": -619.773
+        "llt_diff": -13104.927
       },
       {
         "keyword": "纳斯达克指数",
         "count": [
-          15704.0,
-          2704.0
+          14694.0,
+          1694.0
         ],
-        "llt_diff": -9.539
+        "llt_diff": -163.233
       },
       {
         "keyword": "创业板指",
         "count": [
-          30332.0,
-          10332.0
+          26529.0,
+          6529.0
         ],
-        "llt_diff": -2542.296
+        "llt_diff": -6060.765
       },
       {
         "keyword": "科创50",
         "count": [
-          8279.0,
-          3079.0
+          7796.0,
+          2596.0
         ],
-        "llt_diff": -2475.279
+        "llt_diff": -2342.13
       },
       {
         "keyword": "沪深300",
         "count": [
-          11343.0,
-          3343.0
+          9333.0,
+          1333.0
         ],
-        "llt_diff": -4814.81
+        "llt_diff": -5341.701
+      },
+      {
+        "keyword": "热卷",
+        "count": 219.0,
+        "llt_diff": [
+          38.597,
+          3.597
+        ]
+      },
+      {
+        "keyword": "豆粕价格",
+        "count": [
+          274.0,
+          2.0
+        ],
+        "llt_diff": 8.289
       }
     ]
   }

@@ -9,9 +9,9 @@ hl = high_low_legu_indicator()
 hl.update_data()
 hl.set_warn_info()
 
-nt = north_flow_indicator()
-nt.update_data()
-nt.set_warn_info()
+# nt = north_flow_indicator()
+# nt.update_data()
+# nt.set_warn_info()
 
 qd = qvix_day_indicator()
 qd.update_data()

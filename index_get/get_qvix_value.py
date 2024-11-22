@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 from common.trade_date import get_trade_day_between
 from core import IndicatorGetter
 
-SymbolLists = ('50ETF','300ETF','500ETF','CYB','1000ETF','KCB')
+SymbolLists = ('50ETF','300ETF','500ETF','1000ETF','CYB','KCB')
 
 def parse_symbol_str(symbol: str, minute: bool = False):
     ''' symbol 输出 '''

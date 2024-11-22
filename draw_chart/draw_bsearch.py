@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 from common.chart_core import make_candle_echarts
 from index_get.get_index_value import future_index_getter, basic_index_getter, other_index_getter
 import pandas as pd
@@ -18,7 +20,9 @@ def draw_future_echart(code:str,name:str,tt:str, beg:str, end:str, minus:int=0):
     p2 = p2.loc[p2['keyword']==name, ['date','thres']]
     a1['word_count'] = p1['count']
     a1['diff'] = p1['llt_diff']
-    tend = make_candle_echarts(a1, beg, end,'open high low close volume'.split(), plt_title_opts={'title':tt}, plt_add_ma=(20,60,240), plt_add_points=p2.values, other_tbs=[{'bar':a1['word_count']-minus},{'bar':a1['diff']}])
+    tend = make_candle_echarts(a1, beg, end,'open high low close volume'.split(), plt_shape={'plt_height':1250},
+                               plt_title_opts={'title':tt}, plt_add_ma=(20,60,240), plt_add_points=p2.values, 
+                               other_tbs=[{'bar':a1['word_count']},{'bar':a1['diff']}])
     return tend
 
 def draw_echarts(beg:str, end:str):
@@ -44,7 +48,7 @@ def draw_echarts(beg:str, end:str):
     for nm, code, tit, m in tbs:
         tend = draw_future_echart(code,nm,tit,beg,end)
         tab.add(tend,tit.split('-')[0])
-    tab.render('rbs.html')
+    tab.render(os.path.join(os.path.dirname(__file__), 'rbs.html'))
 
 if __name__=='__main__':
-    draw_echarts('2022-01-01','2024-07-05')
+    draw_echarts('2024-01-01','2024-11-20')

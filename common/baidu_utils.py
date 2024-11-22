@@ -434,5 +434,6 @@ def choose_cookie():
 
 
 if __name__=='__main__':
-    print(Search_Name_Path)
+    # print(Search_Name_Path)
+    print(choose_cookie())
     pass
