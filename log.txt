@@ -32,3 +32,11 @@
 2024-11-22 14:18:35,979 - INFO - qvix_day warning info updating to 2024-11-21.
 2024-11-22 14:18:42,657 - INFO - 116 rows data Update to baidu_search
 2024-11-22 17:22:31,187 - INFO - qvix_day is up to date.
+2024-11-26 17:32:50,940 - INFO - high_low_legu is updating to 2024-11-26.
+2024-11-26 17:33:03,165 - INFO - qvix_day is updating to 2024-11-25.
+2024-11-26 17:33:03,178 - INFO - qvix_day warning info updating to 2024-11-25.
+2024-11-26 17:33:09,244 - INFO - 116 rows data Update to baidu_search
+2024-11-26 17:57:36,723 - INFO - high_low_legu is up to date.
+2024-11-26 17:57:36,728 - INFO - qvix_day is up to date.
+2024-11-26 17:57:36,740 - INFO - qvix_day warning info updating to 2024-11-25.
+2024-11-26 17:57:36,742 - INFO - baidu_search no data to Update

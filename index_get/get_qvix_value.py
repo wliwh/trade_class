@@ -72,7 +72,8 @@ def option_qvix(symbol: str = '50ETF') -> pd.DataFrame:
     temp_df["date"] = pd.to_datetime(temp_df["date"]).dt.date
     temp_df.dropna(inplace=True)
     temp_df.replace({'#NUM!':np.nan},inplace=True)
-    temp_df.fillna(method='ffill',inplace=True)
+    # temp_df.fillna(method='ffill',inplace=True)
+    temp_df.ffill(inplace=True)
     return temp_df
 
 

@@ -71,8 +71,8 @@ def st_metrics(n,l):
 if __name__ == '__main__':
     # print(get_all_warnings())
 
-    # st.title("信息提示")
-    # infos = get_all_warnings()
-    # for cap, info in infos.items():
-    #     st_metrics(cap, info)
+    st.title("信息提示")
+    infos = get_all_warnings()
+    for cap, info in infos.items():
+        st_metrics(cap, info)
     pass
