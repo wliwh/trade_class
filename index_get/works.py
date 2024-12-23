@@ -6,7 +6,7 @@ from config import _logger
 
 
 hl = high_low_legu_indicator()
-hl.update_data()
+hl.update_data() 
 hl.set_warn_info()
 
 # nt = north_flow_indicator()

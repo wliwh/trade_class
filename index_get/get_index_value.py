@@ -11,7 +11,7 @@ from pathlib import Path
 import os, sys
 from typing import Optional, Union, List
 
-sys.path.append(Path(__file__).parents[1])
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from common.trade_date import (
     get_trade_day,
     get_trade_day_between, 
@@ -120,6 +120,7 @@ def other_index_getter(code:str,
     aa = ef.stock.get_quote_history(code, beg, end)
     aa.columns = ['name_zh', 'code', 'date', 'open', 'close','high', 'low', 'volume', 'amount', 'amp', 'pct', 'inc', 'turnrate']
     aa.set_index('date', inplace=True)
+    aa.insert(1,'type','other-index')
     return aa
 
 def future_index_getter(code:str,
@@ -141,7 +142,7 @@ def basic_index_getter(code:str, beg:Optional[str], end:Optional[str]):
         tdx_pd = tdx_index_getter(code, beg, end)
         aa['up_count'] = tdx_pd['up_count'].values
         aa['down_count'] = tdx_pd['down_count'].values
-    except ValueError as e:
+    except (ValueError, AttributeError) as e:
         pass
     zh_name = All_Index_Tb.loc[All_Index_Tb['code'].apply(lambda x:x.strip()==code), 'name_zh'].values[0]
     aa.insert(1,'code', code)
@@ -197,5 +198,6 @@ if __name__=='__main__':
     # tt.to_sql('funds', cx, if_exists='append')
     # tt.to_csv('../data_save/funds_csi.csv',float_format='%.3f')
     # print(future_index_getter('rb0','2024-01-01'))
-    # print(other_index_getter('USDCNH','20220101','20240520'))
+    # print(basic_index_getter('399317', beg='2020-10-30', end='2024-03-22'))
+    print(other_index_getter('HSTECH','20220101','20240520'))
     pass

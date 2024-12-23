@@ -7,8 +7,8 @@ from pyecharts.charts import Tab
 
 # os.chdir(os.path.dirname(__file__))
 
-def draw_future_echart(code:str,name:str,tt:str, beg:str, end:str, minus:int=0):
-    if code.upper()=='USDCNH':
+def draw_future_echart(code:str,name:str,tt:str, beg:str, end:str, type:int=0):
+    if type in (1,2) or code.upper()=='USDCNH':
         a1 = other_index_getter(code, beg, end)
     elif len(code)<4:
         a1 = future_index_getter(code, beg, end)

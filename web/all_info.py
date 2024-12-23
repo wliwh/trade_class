@@ -1,12 +1,15 @@
+from collections import defaultdict
 import json
 import os, sys
 from datetime import datetime
-import time
+import pandas as pd
 import streamlit as st
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from index_get.config import INDICATOR_CONFIG_PATH
 from common.baidu_utils import Search_Name_Path
-
+from draw_chart.draw_bsearch import draw_future_echart
+from pyecharts.charts import Tab
+from streamlit_echarts import st_pyecharts
 
 def get_keywords():
     keys = list()
@@ -21,6 +24,9 @@ Arange_Info = dict(
     qvix_day = ('50ETF','300ETF','500ETF','1000ETF','CYB','KCB'),
     baidu_search = get_keywords()
 )
+
+Bsearch_Page_Name = {0:'大陆',1:'香港',2:'海外',3:'大宗'}
+Draw_Echarts_Path = os.path.join(os.path.dirname(__file__),'..','draw_chart')
 
 
 def get_all_warnings():
@@ -68,11 +74,42 @@ def st_metrics(n,l):
                 c.metric(nm, val)
 
 
-if __name__ == '__main__':
-    # print(get_all_warnings())
+def echart_page(infos):
+    p = pd.read_csv(Search_Name_Path,index_col=0)
+    tend_dic = defaultdict(list)
+    for i in infos['搜索指数'][1:]:
+        nm = i['keyword']
+        date, code, tp = p.loc[p.index==nm,['neardate','code','type']].values[0]
+        beg_date = str(int(date[:4])-1)+date[4:]
+        if tp>=0: 
+            tend_dic[tp].append((nm, code, beg_date, date))
+    tends = dict()
+    for k,v in tend_dic.items():
+        tab = Tab()
+        for nm,cd,beg,end in v:
+            tend = draw_future_echart(cd,nm,f'{nm}-{cd}',beg,end,k)
+            tab.add(tend,Bsearch_Page_Name[k])
+        tab.render(os.path.join(Draw_Echarts_Path,Bsearch_Page_Name[k]+'.html'))
+        # tends[Bsearch_Page_Name[k]] = tab
+    # return tends
+    
 
+def main_page(infos):
     st.title("信息提示")
     infos = get_all_warnings()
-    for cap, info in infos.items():
+    for cap, info in infos.items(): 
         st_metrics(cap, info)
+
+
+if __name__ == '__main__':
+    infos = get_all_warnings()
+    echart_page(infos)
+    # pgs = [st.Page(lambda :main_page(infos), title='汇总')]
+    # for k,v in echart_page(infos):
+    #     fun = lambda :st_pyecharts(v)
+    #     fun.__name__ = k+'page'
+    #     pgs.append(st.Page(fun, title=k))
+    # pg = st.navigation(pgs)
+    # pg.run()
+    # main_page()
     pass

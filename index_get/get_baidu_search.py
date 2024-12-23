@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 
-sys.path.append(Path(__file__).parents[1])
+sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 
 from core import IndicatorGetter
 from config import Update_Cond, DateTime_FMT, _logger
@@ -168,7 +168,8 @@ class bsearch_indicator(IndicatorGetter):
             if not ws.empty:
                 del ws['type']
                 if beg:
-                    ws.loc[:,'thres'] = 2*(ws.loc[:,'count']>gs[-2]).astype('int') + (ws.loc[:,'llt_diff']>gs[-1]).astype('int')
+                    # ws.loc[:,'thres'] = 2*(ws.loc[:,'count']>gs[-2]).astype('int') + (ws.loc[:,'llt_diff']>gs[-1]).astype('int')
+                    ws['thres'] = 2*(ws['count']>gs[-2]).astype('int') + (ws['llt_diff']>gs[-1]).astype('int')
                     warn_info.append(ws)
                 else:
                     wdict = ws.iloc[0].to_dict()
@@ -186,14 +187,15 @@ class bsearch_indicator(IndicatorGetter):
                 warn_info.insert(0, near_trade_date)
                 self.set_cator_conf(True, warning_info=warn_info if warn_info else False)
 
+
 if __name__=='__main__':
     # t1 = bd_search_nearday(Search_Name_Path, '2024-04-11')
     # print(t1)
     # t2 = bd_search_tonow(['人民币汇率'],Search_Name_Path)
     # print(t2)
-    # q = bsearch_indicator()
-    # q.update_data()
+    q = bsearch_indicator()
+    q.update_data()
     # q.append_data(['人民币汇率'])
-    # q.set_warn_info('2022-01-01')
+    q.set_warn_info('2022-01-01')
     # q.set_warn_info()
     pass
