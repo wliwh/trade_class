@@ -13,7 +13,7 @@ def draw_future_echart(code:str,name:str,tt:str, beg:str, end:str, type:int=0):
     elif len(code)<4:
         a1 = future_index_getter(code, beg, end)
     else:
-        a1 = basic_index_getter(code, beg, end)
+        a1 = basic_index_getter(code, beg, end, usetdx=False)
     p1 = pd.read_csv('../data_save/bsearch_calc.csv',index_col=0)
     p1 = p1.query("keyword=='{}'".format(name))
     p2 = pd.read_csv('../data_save/bd_handle.csv')

@@ -25,7 +25,7 @@ Arange_Info = dict(
     baidu_search = get_keywords()
 )
 
-Bsearch_Page_Name = {0:'大陆',1:'香港',2:'海外',3:'大宗'}
+Bsearch_Page_Name = {0:'国内',1:'香港',2:'海外',3:'大宗'}
 Draw_Echarts_Path = os.path.join(os.path.dirname(__file__),'..','draw_chart')
 
 
@@ -84,15 +84,21 @@ def main_page(infos=Warning_Infos):
         st_metrics(cap, info)
 
 
-def echart_all_page(infos=Warning_Infos):
+def echart_all_page(allpage:bool=False, infos=Warning_Infos):
     p = pd.read_csv(Search_Name_Path,index_col=0)
     tend_dic = defaultdict(list)
-    for i in infos['搜索指数'][1:]:
-        nm = i['keyword']
-        date, code, tp = p.loc[p.index==nm,['neardate','code','type']].values[0]
-        beg_date = str(int(date[:4])-1)+date[4:]
-        if tp>=0: 
-            tend_dic[tp].append((nm, code, beg_date, date))
+    if allpage:
+        p = p.loc[p['type']>=0]
+        p['date'] = p['neardate'].map(lambda x:str(int(x[:4])-1)+x[4:])
+        for nm, row in p.transpose().to_dict().items():
+            tend_dic[row['type']].append((nm, row['code'], row['date'], row['neardate']))
+    else:
+        for i in infos['搜索指数'][1:]:
+            nm = i['keyword']
+            date, code, tp = p.loc[p.index==nm,['neardate','code','type']].values[0]
+            beg_date = str(int(date[:4])-1)+date[4:]
+            if tp>=0: 
+                tend_dic[tp].append((nm, code, beg_date, date))
     tends = dict()
     for k,v in tend_dic.items():
         tab = Tab()
@@ -118,9 +124,11 @@ def echart_page(infos, set_id=0):
     # return tab
 
 
-
-# pgs = [st.Page(lambda :main_page(infos), title='汇总')]
-# for k,v in echart_page(infos):
-#     fun = lambda :st_pyecharts(v)
-#     fun.__name__ = k+'page'
-#     pgs.append(st.Page(fun, title=k))
+if __name__ == '__main__':
+    # pgs = [st.Page(lambda :main_page(infos), title='汇总')]
+    # for k,v in echart_page(infos):
+    #     fun = lambda :st_pyecharts(v)
+    #     fun.__name__ = k+'page'
+    #     pgs.append(st.Page(fun, title=k))
+    # print(Warning_Infos)
+    echart_all_page(True)

@@ -20,7 +20,7 @@ qd.set_warn_info()
 try:
     bd = bsearch_indicator()
     bd.update_data()
-    bd.set_warn_info()
+    bd.set_warn_info('2024-01-01')
 except FileNotFoundError as nfe:
     _logger.error('bd_search cooks file not found.')
     # pass

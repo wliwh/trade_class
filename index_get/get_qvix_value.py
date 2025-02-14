@@ -61,7 +61,7 @@ def option_qvix(symbol: str = '50ETF') -> pd.DataFrame:
         'Index1000': [0, 25, 26, 27, 28],
         'KCB': [0, 83, 84, 85, 86]
     }
-    temp_df = pd.read_csv(url).iloc[:, index_col_dict[symbol]]
+    temp_df = pd.read_csv(url,encoding='unicode_escape').iloc[:, index_col_dict[symbol]]
     temp_df.columns = [
         "date",
         "open",

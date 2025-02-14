@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-12-24",
-    "next_update_time": "2024-12-25 22:00",
+    "max_date_idx": "2025-02-13",
+    "next_update_time": "2025-02-14 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-12-24",
-    "next_update_time": "2024-12-26 08:30",
+    "max_date_idx": "2025-02-13",
+    "next_update_time": "2025-02-15 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -158,19 +158,7 @@
         }
       ]
     ],
-    "warning_info": [
-      "2024-12-24",
-      {
-        "code": "CYB",
-        "cp_div": NaN,
-        "high": 32.25
-      },
-      {
-        "code": "KCB",
-        "cp_div": NaN,
-        "high": 37.93
-      }
-    ]
+    "warning_info": false
   },
   "baidu_search": {
     "zh": "搜索指数",
@@ -181,8 +169,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2024-12-22",
-    "next_update_time": "2024-12-24 09:00",
+    "max_date_idx": "2025-02-13",
+    "next_update_time": "2025-02-15 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -193,65 +181,82 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2024-12-18",
+      "2025-02-13",
       {
         "keyword": "港股",
         "count": [
-          5792.0,
-          1692.0
+          10243.0,
+          6143.0
         ],
-        "llt_diff": -2381.306
+        "llt_diff": [
+          4777.313,
+          3777.313
+        ]
       },
       {
         "keyword": "恒生指数",
         "count": [
-          26252.0,
-          4252.0
+          42180.0,
+          20180.0
         ],
-        "llt_diff": -8795.905
+        "llt_diff": [
+          17949.65,
+          14349.65
+        ]
+      },
+      {
+        "keyword": "恒生科技指数",
+        "count": [
+          25127.0,
+          9127.0
+        ],
+        "llt_diff": [
+          11645.436,
+          9145.436
+        ]
       },
       {
         "keyword": "纳斯达克指数",
         "count": [
-          16355.0,
-          3355.0
+          16711.0,
+          3711.0
         ],
-        "llt_diff": [
-          3971.703,
-          971.703
-        ]
+        "llt_diff": 659.106
       },
       {
         "keyword": "创业板指",
         "count": [
-          20851.0,
-          851.0
+          21024.0,
+          1024.0
         ],
-        "llt_diff": -4100.818
+        "llt_diff": 1491.026
       },
       {
         "keyword": "科创50",
         "count": [
-          6427.0,
-          1227.0
+          6694.0,
+          1494.0
         ],
-        "llt_diff": -834.397
-      },
-      {
-        "keyword": "沪深300",
-        "count": [
-          8662.0,
-          662.0
-        ],
-        "llt_diff": -1015.2
+        "llt_diff": 658.323
       },
       {
         "keyword": "豆粕价格",
         "count": [
-          317.0,
-          45.0
+          450.0,
+          178.0
         ],
-        "llt_diff": 39.01
+        "llt_diff": [
+          156.89,
+          111.89
+        ]
+      },
+      {
+        "keyword": "铜价",
+        "count": 2457.0,
+        "llt_diff": [
+          790.227,
+          440.227
+        ]
       }
     ]
   }

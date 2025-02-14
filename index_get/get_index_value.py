@@ -133,17 +133,18 @@ def future_index_getter(code:str,
     return aa
 
 
-def basic_index_getter(code:str, beg:Optional[str], end:Optional[str]):
+def basic_index_getter(code:str, beg:Optional[str], end:Optional[str], usetdx:bool=True):
     beg = beg.replace('-','').replace('/','')
     end = end.replace('-','').replace('/','')
     aa = ak.index_zh_a_hist(code, start_date=beg, end_date=end)
     aa.columns = ['date', 'open', 'close','high', 'low', 'volume', 'amount', 'amp', 'pct', 'inc', 'turnrate']
-    try:
-        tdx_pd = tdx_index_getter(code, beg, end)
-        aa['up_count'] = tdx_pd['up_count'].values
-        aa['down_count'] = tdx_pd['down_count'].values
-    except (ValueError, AttributeError) as e:
-        pass
+    if usetdx:
+        try:
+            tdx_pd = tdx_index_getter(code, beg, end)
+            aa['up_count'] = tdx_pd['up_count'].values
+            aa['down_count'] = tdx_pd['down_count'].values
+        except (ValueError, AttributeError) as e:
+            pass
     zh_name = All_Index_Tb.loc[All_Index_Tb['code'].apply(lambda x:x.strip()==code), 'name_zh'].values[0]
     aa.insert(1,'code', code)
     aa.insert(2,'type','basic-index')

@@ -387,13 +387,13 @@ def make_candle_echarts(ohlc:pd.DataFrame,
                     xaxis_index=[0,2+_n],range_end=100))
 
     if isinstance(plt_add_points, Iterable) and len(plt_add_points):
-        _cand_symbols = {1:'triangle', 2:'triangle', 3:'circle'}
-        _cand_colors = {1:'#ffa500',2:'#ff6347',3:'#b22222'}
+        _cand_symbols = {1:'triangle', 2:'rect', 3:'circle'}
+        _cand_colors = {1:'#cccc00',2:'#ff9933',3:'#b22222'}
         _candle_points = [
             opts.MarkPointItem(
                 coord=[x, float(data.loc[x, 'Low'])-30], 
                 symbol=_cand_symbols[y],
-                symbol_size=15,
+                symbol_size=12,
                 itemstyle_opts=opts.ItemStyleOpts(color=_cand_colors[y]))
             for x,y in plt_add_points if x in data.index]
         _markpoint_data = opts.MarkPointOpts(data=_candle_points)

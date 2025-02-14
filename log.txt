@@ -50,3 +50,11 @@
 2024-12-25 09:07:11,592 - INFO - high_low_legu is updating to 2024-12-24.
 2024-12-25 09:07:24,933 - INFO - qvix_day is updating to 2024-12-24.
 2024-12-25 09:07:24,946 - INFO - qvix_day warning info updating to 2024-12-24.
+2025-02-14 09:55:28,032 - INFO - high_low_legu is updating to 2025-02-13.
+2025-02-14 09:55:58,129 - INFO - high_low_legu is up to date.
+2025-02-14 10:03:26,460 - INFO - high_low_legu is up to date.
+2025-02-14 10:05:16,445 - INFO - qvix_day is updating to 2025-02-13.
+2025-02-14 10:05:22,916 - INFO - 1537 rows data Update to baidu_search
+2025-02-14 10:16:24,342 - INFO - high_low_legu is up to date.
+2025-02-14 10:16:24,348 - INFO - qvix_day is up to date.
+2025-02-14 10:16:24,361 - INFO - baidu_search no data to Update
