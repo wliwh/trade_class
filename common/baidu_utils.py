@@ -430,7 +430,8 @@ def choose_cookie():
         bs = baidu_search_index(word,'2024-01-01','2024-'+m_d,r.strip())
         if isinstance(bs, pd.DataFrame):
             return r.strip()
-    return None
+    raise GopupError(ErrorCode.REQUEST_LIMITED)
+    # return None
 
 
 if __name__=='__main__':

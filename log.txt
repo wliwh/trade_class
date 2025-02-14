@@ -47,3 +47,6 @@
 2024-12-23 08:59:22,347 - INFO - 87 rows data Update to baidu_search
 2024-12-23 10:23:20,524 - INFO - 29 rows data Update to baidu_search
 2024-12-23 10:38:15,218 - INFO - baidu_search no data to Update
+2024-12-25 09:07:11,592 - INFO - high_low_legu is updating to 2024-12-24.
+2024-12-25 09:07:24,933 - INFO - qvix_day is updating to 2024-12-24.
+2024-12-25 09:07:24,946 - INFO - qvix_day warning info updating to 2024-12-24.

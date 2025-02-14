@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2024-12-19",
-    "next_update_time": "2024-12-20 22:00",
+    "max_date_idx": "2024-12-24",
+    "next_update_time": "2024-12-25 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2024-12-19",
-    "next_update_time": "2024-12-21 08:30",
+    "max_date_idx": "2024-12-24",
+    "next_update_time": "2024-12-26 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -159,16 +159,16 @@
       ]
     ],
     "warning_info": [
-      "2024-12-19",
+      "2024-12-24",
       {
         "code": "CYB",
         "cp_div": NaN,
-        "high": 33.13
+        "high": 32.25
       },
       {
         "code": "KCB",
         "cp_div": NaN,
-        "high": 45.02
+        "high": 37.93
       }
     ]
   },
