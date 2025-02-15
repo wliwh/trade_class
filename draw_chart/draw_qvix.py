@@ -40,5 +40,5 @@ def draw_qvix_echarts():
         tab.add(tend,c)
     tab.render('rbs.html')
 
-
-draw_qvix_echarts()
+if __name__ == '__main__':
+    draw_qvix_echarts()

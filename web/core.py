@@ -130,5 +130,5 @@ if __name__ == '__main__':
     #     fun = lambda :st_pyecharts(v)
     #     fun.__name__ = k+'page'
     #     pgs.append(st.Page(fun, title=k))
-    # print(Warning_Infos)
-    echart_all_page(True)
+    print(Warning_Infos)
+    # echart_all_page(True)
