@@ -7,6 +7,13 @@ from index_get.get_index_value import other_index_getter
 import numpy as np
 import matplotlib.pyplot as plt
 
+Search_Index = {
+    '道琼斯':'道琼斯',
+    '标普500':'标普500',
+    '纳斯达克':'NDX',
+    '纳指100':'NDX100'
+}
+
 def recurrence_plot(data, threshold=0.1):
     """
     Generate a recurrence plot from a time series.
