@@ -50,13 +50,15 @@ class PriceAnalyzer:
             window_data = df.iloc[start_idx:end_idx]
             min_low_idx = window_data['low'].idxmin()
             
-            breakthrough_points.append({
-                'start_date': period[0],
-                'end_date': period[-1],
-                'lowest_date': min_low_idx,
-                'lowest_price': df.loc[min_low_idx, 'low'],
-                'ma_value': df.loc[min_low_idx, 'ma']
-            })
+            # 重复元素不要添加进去
+            if period[0] < min_low_idx < period[-1]:
+                breakthrough_points.append({
+                    'start_date': period[0],
+                    'end_date': period[-1],
+                    'lowest_date': min_low_idx,
+                    'lowest_price': df.loc[min_low_idx, 'low'],
+                    'ma_value': df.loc[min_low_idx, 'ma']
+                })
             
         return pd.DataFrame(breakthrough_points)
 

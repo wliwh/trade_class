@@ -44,21 +44,17 @@ def format_breakthrough_points(points_df: pd.DataFrame) -> str:
 
 if __name__ == '__main__':
     # 示例：获取指数数据并分析
-    from get_index_value import index_day_indicator
+    from get_index_value import other_index_getter
     
     # 获取指数数据
-    index_getter = index_day_indicator()
-    index_data = index_getter.get_data()
-    
-    # 选择上证指数进行分析
-    sh_index = index_data[index_data['code'] == 'sh000001']
-    sh_index = sh_index.set_index('date').sort_index()
+    index_getter = other_index_getter('标普500','20160101')
+    index_getter.index = pd.to_datetime(index_getter.index)
     
     # 分析最近一年的数据
-    start_date = (pd.Timestamp.now() - pd.DateOffset(years=1)).strftime('%Y-%m-%d')
-    results = analyze_index_ma_points(sh_index, start_date)
+    start_date = (pd.Timestamp.now() - pd.DateOffset(years=8)).strftime('%Y-%m-%d')
+    results = analyze_index_ma_points(index_getter, start_date)
     
-    print("=== 上证指数均线分析结果 ===")
+    print("=== 指数均线分析结果 ===")
     print("\n240日均线突破点:")
     print(format_breakthrough_points(results['ma240_points']))
     print("\n60日均线突破点:")
