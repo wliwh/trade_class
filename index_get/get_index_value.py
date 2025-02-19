@@ -115,8 +115,14 @@ def tdx_index_getter(code:str,
 def other_index_getter(code:str,                               
                        beg:Optional[str]=None,
                        end:Optional[str]=None):
-    beg = beg.replace('/','').replace('-','')
-    end = end.replace('/','').replace('-','')
+    if beg:
+        beg = beg.replace('/','').replace('-','')
+    else:
+        beg = '19000101'
+    if end:
+        end = end.replace('/','').replace('-','')
+    else:
+        end = '205001001'
     aa = ef.stock.get_quote_history(code, beg, end)
     aa.columns = ['name_zh', 'code', 'date', 'open', 'close','high', 'low', 'volume', 'amount', 'amp', 'pct', 'inc', 'turnrate']
     aa.set_index('date', inplace=True)

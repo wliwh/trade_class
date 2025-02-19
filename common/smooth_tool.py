@@ -192,7 +192,7 @@ def High_Low_Ndays2(ser:pd.Series,
     rkn = pd.Series(np.zeros_like(ser,dtype='int'))
     for i,tmp in enumerate(ser.iloc[start_idx:]):
         sgn, tmpi, j, vrkn = 0, i+start_idx, i+start_idx-1, 0
-        while j>-1:
+        while j> -1:
             jval = ser.iloc[j]
             vrkn = rkn.iloc[j]
             if sgn>=0 and tmp>clr*jval:
@@ -323,19 +323,19 @@ def _to_drawup_series(returns):
 
 def drawdown_details(drawdown, is_up:bool=True):
 
+    if isinstance(drawdown.index[0], str):
+        drawdown.index = pd.to_datetime(drawdown.index)
     if is_up:
         clm_name = [
-            "start","valley","end","days","vdays","max drawdown","99% max drawdown"
+            "start","valley","end","vdays","days","max drawdown","99% max drawdown"
         ]
         drawdown = to_drawdown_series(drawdown)
     else:
         clm_name = [
-            "start","top","end","days","tdays","max rebound","99% max rebound"
+            "start","top","end","tdays","days","max rebound","99% max rebound"
         ]
         drawdown = _to_drawup_series(drawdown)
     
-    if isinstance(drawdown.index[0], str):
-        drawdown.index = pd.to_datetime(drawdown.index)
 
     def _drawdown_details(drawdown):
         # mark no drawdown
@@ -382,8 +382,8 @@ def drawdown_details(drawdown, is_up:bool=True):
                     starts[i],
                     dd.idxmin() if is_up else dd.idxmax(),
                     ends[i],
-                    (ends[i] - starts[i]).days + 1,
                     ((dd.idxmin() if is_up else dd.idxmax())-starts[i]).days+1,
+                    (ends[i] - starts[i]).days + 1,
                     dd.min() * 100 if is_up else dd.max()*100,
                     clean_dd.min() * 100 if is_up else -clean_dd.min()*100,
                 )
@@ -416,3 +416,11 @@ def drawdown_details(drawdown, is_up:bool=True):
         return pd.concat(_dfs, axis=1)
 
     return _drawdown_details(drawdown)
+
+
+def drawdown_series(ser, most:int=4, is_up:bool=True):
+    detail = drawdown_details(ser, is_up)
+    detail.sort_values('max drawdown' if is_up else 'max rebound',inplace=True,ascending=is_up)
+    detail = detail.iloc[:most]
+    detail.sort_index(inplace=True)
+    return detail
