@@ -60,7 +60,7 @@ def find_ma_breakthrough_points(df: pd.DataFrame, ma_period: int, min_days_below
         # if period[0] <= min_low_idx <= period[-1]:
         breakthrough_points.append({
             'start_date': period[0],
-            'start_price': df.loc[period[0], 'close'],
+            'start_price': df.loc[period[0], 'ma'],
             'end_date': period[-1],
             'lowest_date': min_low_idx,
             'lowest_price': df.loc[min_low_idx, 'low'],
@@ -127,7 +127,7 @@ def format_breakthrough_points(points_df: pd.DataFrame) -> str:
         info = (f"突破区间: {row['start_date'].strftime('%Y-%m-%d')} 到 "
                 f"{row['end_date'].strftime('%Y-%m-%d')}\n"
                 f"最低点日期: {row['lowest_date'].strftime('%Y-%m-%d')}\n"
-                f"起点处价格: {row['start_price']:.2f}\n"
+                f"起点处均线: {row['start_price']:.2f}\n"
                 f"最低价: {row['lowest_price']:.2f}\n"
                 f"当时均线值: {row['ma_value']:.2f}\n"
                 f"偏离均线: {((row['lowest_price'] / row['ma_value'] - 1) * 100):.2f}%\n")
