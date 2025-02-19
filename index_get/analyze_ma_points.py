@@ -5,8 +5,100 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 import pandas as pd
-from common.price_analyzer import PriceAnalyzer
-from common.trade_date import get_trade_day_between
+
+
+def find_ma_breakthrough_points(df: pd.DataFrame, ma_period: int, min_days_below: int = 5, 
+                                window_days: int = None) -> pd.DataFrame:
+    """
+    查找指数跌破均线的关键点位
+    
+    参数:
+        df: 包含 'close' 和 'low' 列的DataFrame，index为日期
+        ma_period: 均线周期（如60，240）
+        min_days_below: 连续低于均线的最小天数
+        window_days: 前后寻找最低点的窗口天数
+    
+    返回:
+        包含突破点信息的DataFrame
+    """
+    if window_days is None:
+        window_days = ma_period // 4  # 默认窗口为均线周期的1/4
+        
+    # 计算移动平均线
+    df['ma'] = df['close'].rolling(window=ma_period).mean()
+    
+    # 计算是否低于均线
+    df['below_ma'] = df['close'] < df['ma']
+    
+    # 找出连续低于均线的区间
+    below_periods = []
+    current_period = []
+    
+    for date, row in df.iterrows():
+        if row['below_ma']:
+            current_period.append(date)
+        else:
+            if len(current_period) >= min_days_below:
+                below_periods.append(current_period)
+            current_period = []
+    
+    if len(current_period) >= min_days_below:
+        below_periods.append(current_period)
+    
+    # print(below_periods)
+        
+    # 对每个区间找出最低点
+    breakthrough_points = []
+    for period in below_periods:
+        start_idx = max(0, df.index.get_loc(period[0]) - window_days)
+        end_idx = min(len(df), df.index.get_loc(period[-1]) + window_days + 1)
+        
+        window_data = df.iloc[start_idx:end_idx]
+        min_low_idx = window_data['low'].idxmin()
+        
+        # 重复元素不要添加进去
+        # if period[0] <= min_low_idx <= period[-1]:
+        breakthrough_points.append({
+            'start_date': period[0],
+            'start_price': df.loc[period[0], 'close'],
+            'end_date': period[-1],
+            'lowest_date': min_low_idx,
+            'lowest_price': df.loc[min_low_idx, 'low'],
+            'ma_value': df.loc[min_low_idx, 'ma']
+        })
+        
+    return pd.DataFrame(breakthrough_points)
+
+def analyze_price_series(df: pd.DataFrame) -> dict:
+    """
+    分析价格序列，找出跌破240日和60日均线的关键点位
+    
+    参数:
+        df: 包含 'close' 和 'low' 列的DataFrame，index为日期
+        
+    返回:
+        包含两种均线突破点的字典
+    """
+    # 240日均线分析
+    ma240_points = find_ma_breakthrough_points(
+        df, 
+        ma_period=240, 
+        min_days_below=5,
+        window_days=120  # 前后半年
+    )
+    
+    # 60日均线分析
+    ma60_points = find_ma_breakthrough_points(
+        df, 
+        ma_period=60, 
+        min_days_below=5,
+        window_days=30  # 前后1.5个月
+    )
+    
+    return {
+        'ma240_points': ma240_points,
+        'ma60_points': ma60_points
+    } 
 
 def analyze_index_ma_points(index_df: pd.DataFrame, start_date: str = None) -> dict:
     """
@@ -23,7 +115,7 @@ def analyze_index_ma_points(index_df: pd.DataFrame, start_date: str = None) -> d
     if len(index_df) < 240:
         raise ValueError("数据长度不足240个交易日，无法进行240日均线分析")
         
-    return PriceAnalyzer.analyze_price_series(index_df)
+    return analyze_price_series(index_df)
 
 def format_breakthrough_points(points_df: pd.DataFrame) -> str:
     """格式化突破点信息"""
@@ -35,6 +127,7 @@ def format_breakthrough_points(points_df: pd.DataFrame) -> str:
         info = (f"突破区间: {row['start_date'].strftime('%Y-%m-%d')} 到 "
                 f"{row['end_date'].strftime('%Y-%m-%d')}\n"
                 f"最低点日期: {row['lowest_date'].strftime('%Y-%m-%d')}\n"
+                f"起点处价格: {row['start_price']:.2f}\n"
                 f"最低价: {row['lowest_price']:.2f}\n"
                 f"当时均线值: {row['ma_value']:.2f}\n"
                 f"偏离均线: {((row['lowest_price'] / row['ma_value'] - 1) * 100):.2f}%\n")
