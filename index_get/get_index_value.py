@@ -195,6 +195,26 @@ def draw_echart_test1():
     tend.render('ggg.html')
 
 
+def check_other_index_file_day(fpth:str):
+    hl_day = pd.read_csv(fpth,index_col=0).index.max()
+    befor_day = pd.to_datetime(hl_day) - pd.offsets.Day(n=400)
+    return befor_day.strftime('%Y-%m-%d')
+
+def getter_other_index(shift_day:int=250, ma_lst:tuple=(60,120,250)):
+    p = All_Index_Tb[All_Index_Tb['type_name']=='other-index']
+    all_other_idx = list()
+    for _, row in p.iterrows():
+        idx = other_index_getter(row['code'],'20240101')
+        for c in ma_lst:
+            idx[f'ma{c}'] = idx['close'].rolling(c).mean()
+        idx['yoy'] = (idx['close'] / idx['close'].shift(shift_day)-1)*100
+        _log_close = np.log10(idx['close'])
+        idx['log-yoy'] = (_log_close/_log_close.shift(shift_day)-1)*100
+        all_other_idx.append(idx)
+    p1 = pd.concat(all_other_idx, axis=0)
+    p1.sort_index(inplace=True)
+    return p1
+
 
 if __name__=='__main__':
     # print(get_bond_index('931203'))
@@ -206,5 +226,7 @@ if __name__=='__main__':
     # tt.to_csv('../data_save/funds_csi.csv',float_format='%.3f')
     # print(future_index_getter('rb0','2024-01-01'))
     # print(basic_index_getter('399317', beg='2020-10-30', end='2024-03-22'))
-    print(other_index_getter('HSTECH','20220101','20240520'))
+    # print(other_index_getter('HSTECH','20220101','20240520'))
+    tt = getter_other_index()
+    print(tt.describe())
     pass

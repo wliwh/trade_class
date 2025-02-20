@@ -38,7 +38,7 @@ def recurrence_plot(data, threshold=0.1):
     return recurrence_plot
 
 
-def detect_cycle_lows(df, price_col='price', window_size=100, cycle_range=(33,49)):
+def detect_cycle_lows(df, price_col='price', window_size=60, cycle_range=(35,54)):
     """
     分析日频金融数据，识别周期性低点
     参数：
@@ -101,7 +101,7 @@ def detect_cycle_lows(df, price_col='price', window_size=100, cycle_range=(33,49
     #     now_idx = df.loc[(df['date']>=left_date) & (df['date']<=right_date),col1].idxmin()
     #     now_date = df.iloc[now_idx]['date']
     #     cycle_lows.append(now_date)
-    # print(cycle_lows)
+    print(cycle_lows)
     cycles = pd.DataFrame(cycle_lows + cycle_highs)
     cycles.sort_values('date', inplace=True)
     cycles.reset_index(drop=True, inplace=True)
@@ -142,9 +142,9 @@ def plot_cycles(df, cycles, df_name='price'):
     plt.show() 
 
 if __name__ == '__main__':
-    df = other_index_getter(Search_Index['标普500'],'2001-01-01')
+    df = other_index_getter(Search_Index['标普500'],'1990-01-01','2008-01-01')
     # df['date'] = pd.to_datetime(df.index)
     cycles = detect_cycle_lows(df, price_col='close')
-    # print(cycles)
-    print(drawdown_series(df.loc[df['date']>=cycles.iloc[-2,0],'close']))
+    print(cycles)
+    # print(drawdown_series(df.loc[df['date']>=cycles.iloc[-2,0],'close']))
     # plot_cycles(df, cycles, df_name='close')
