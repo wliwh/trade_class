@@ -38,7 +38,8 @@ Tdx_Connect_List = (
     ('122.192.35.44', 7709)
 )
 
-All_Index_Tb = pd.read_csv(os.path.join('..','common','csi_index.csv'))
+All_Index_Pth = os.path.join('..','common','csi_index.csv')
+All_Index_Tb = pd.read_csv(All_Index_Pth)
 
 def csi_index_getter(code:str, beg:Optional[str], end:Optional[str]):
     ''' 中证指数系列 '''
@@ -191,28 +192,67 @@ def draw_echart_test1():
     gg = csi_index_getter('931080', beg='2012-10-30',end='2024-03-22')
     zz = pd.DataFrame({'全A':tt.close/gg.close,'偏股':tt2.close/gg.close})
     zz /= zz.head(400).min()
-    tend = make_line_echarts(pd.DataFrame({'全A':tt.close,'偏股':tt2.close,'30年债':gg.close}),'2012-10-30','2024-03-22',plt_title_opts={'title':'股债比较','subtitle':'国证A指、偏股基金与30年国债'}, plt_volume=False, other_tbs=[{'line':zz.round(3)}, {'line':gg.close.pct_change(60).round(4)*100}])
+    tend = make_line_echarts(pd.DataFrame({'全A':tt.close,'偏股':tt2.close,'30年债':gg.close}),\
+                             '2012-10-30','2024-03-22',plt_title_opts={'title':'股债比较','subtitle':'国证A指、偏股基金与30年国债'},\
+                             plt_volume=False, other_tbs=[{'line':zz.round(3)}, {'line':gg.close.pct_change(60).round(4)*100}])
     tend.render('ggg.html')
 
 
 def check_other_index_file_day(fpth:str):
     hl_day = pd.read_csv(fpth,index_col=0).index.max()
     befor_day = pd.to_datetime(hl_day) - pd.offsets.Day(n=400)
-    return befor_day.strftime('%Y-%m-%d')
+    return befor_day.strftime('%Y-%m-%d'), hl_day
 
-def getter_other_index(shift_day:int=250, ma_lst:tuple=(60,120,250)):
-    p = All_Index_Tb[All_Index_Tb['type_name']=='other-index']
+
+def getter_other_index(fpth:Optional[str]=None,
+                       itempath:str=All_Index_Pth,
+                       shift_day:int=250,
+                       ma_lst:tuple=(60,120,250)):
+    """
+    获取其他类型指数的技术指标数据
+    
+    参数:
+        shift_day: 计算同比变化的天数，默认为250个交易日
+        ma_lst: 需要计算的移动平均线周期，默认为(60,120,250)
+    
+    返回:
+        包含所有其他类型指数技术指标的DataFrame
+    """
+    max_day = None
+    p = pd.read_csv(itempath)
+    p = p[p['type_name'].str.startswith('other-')]
+    
+    # 初始化列表用于存储所有指数的数据
     all_other_idx = list()
+    # 遍历每个指数
     for _, row in p.iterrows():
-        idx = other_index_getter(row['code'],'20240101')
+        if fpth==None:
+            idx = other_index_getter(row['code'],'2024-01-01')
+        else:
+            beg_day, max_day = check_other_index_file_day(fpth)
+            idx = other_index_getter(row['code'], beg_day)
+        idx['type'] = row['type_name']
         for c in ma_lst:
             idx[f'ma{c}'] = idx['close'].rolling(c).mean()
+            # 从最后一行开始计算连续低于均线的天数
+            up_ma = idx['close'] > idx[f'ma{c}']
+            consecutive_days = [-1 for _ in range(len(up_ma))]
+            beg_up_ma_idx = up_ma.argmax()
+            for i in range(beg_up_ma_idx, len(up_ma)):
+                if up_ma.iloc[i]:
+                    consecutive_days[i] = 0
+                else:
+                    consecutive_days[i] = consecutive_days[i-1]+1
+            idx[f'ld{c}'] = consecutive_days
+        # idx[f'below_ma{c}_days'] = consecutive_days
         idx['yoy'] = (idx['close'] / idx['close'].shift(shift_day)-1)*100
         _log_close = np.log10(idx['close'])
         idx['log-yoy'] = (_log_close/_log_close.shift(shift_day)-1)*100
         all_other_idx.append(idx)
     p1 = pd.concat(all_other_idx, axis=0)
     p1.sort_index(inplace=True)
+    if max_day!=None:
+        p1 = p1[p1.index > max_day]
     return p1
 
 
@@ -227,6 +267,8 @@ if __name__=='__main__':
     # print(future_index_getter('rb0','2024-01-01'))
     # print(basic_index_getter('399317', beg='2020-10-30', end='2024-03-22'))
     # print(other_index_getter('HSTECH','20220101','20240520'))
-    tt = getter_other_index()
-    print(tt.describe())
+    fname = os.path.join('/home/hh01/Documents/trade_class/data_save','global_index.csv')
+    tt = getter_other_index(fname)
+    tt.to_csv(fname)
+    # print(tt.loc[(tt.index>'2025-01-04'),['name_zh', 'code','close','ma60','ld60']].head(20))
     pass

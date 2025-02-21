@@ -259,5 +259,30 @@
         ]
       }
     ]
+  },
+  "global_index": {
+    "zh": "全球指数",
+    "freq": "day",
+    "dbpath": false,
+    "fpath": "data_save/global_index.csv",
+    "itempath": "common/csi_index.csv",
+    "update_method": "append",
+    "morn_or_night": "+8:30",
+    "max_date_idx": "2025-02-20",
+    "next_update_time": "2025-02-22 08:30",
+    "update_kwargs": [
+      "fpath",
+      "itempath",
+      "shift_day",
+      "ma_lst"
+    ],
+    "shift_day": 250,
+    "ma_lst": [60, 120, 250],
+    "update_kwargs_note": {},
+    "item_name": false,
+    "item_name_type": "str",
+    "append_item_args": false,
+    "warning_cond": false,
+    "warning_info": false
   }
 }
