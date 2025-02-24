@@ -47,11 +47,14 @@ def get_trade_day(cut_hour:int=16,
     return Trade_List.loc[n_idx-1,'trade_date']
 
 @_date_fmt
-def get_delta_trade_day(day:str,
+def get_delta_trade_day(day:str='',
                         delta:int=1,
                         date_fmt:Union[str, None]=None) -> Union[date, str, None]:
     ''' 获取某一日的相隔若干个交易日的日期 '''
-    ndate = pd.to_datetime(day).date()
+    if day:
+        ndate = pd.to_datetime(day).date()
+    else:
+        ndate = datetime.today().date()
     n_idx = (Trade_List.trade_date>ndate).argmax()
     if delta>0: 
         return Trade_List.loc[n_idx+delta-1,'trade_date']
@@ -59,7 +62,7 @@ def get_delta_trade_day(day:str,
     if delta==0:
         return n_trade
     else: 
-        return Trade_List.loc[n_idx+delta-(1 if n_trade else 0),'trade_date']
+        return Trade_List.loc[n_idx+delta-(1 if n_trade!=None else 0),'trade_date']
 
 @_date_fmt
 def get_next_update_time(day:str, sft_tm:Union[int,str],
@@ -74,7 +77,7 @@ def get_next_update_time(day:str, sft_tm:Union[int,str],
     if isinstance(sft_tm, int):
         return trade_tm+timedelta(hours=sft_tm)
     else:
-        tm_cpr = '^(\+|#|\^)?(\d{1,2})[^\d\w]?(\d{1,2})?'
+        tm_cpr = r'^(\+|#|\^)?(\d{1,2})[^\d\w]?(\d{1,2})?'
         p, h, m = re.match(tm_cpr, sft_tm).groups()
         h, m = int(h), (int(m) if m else 0)
         if p is None:

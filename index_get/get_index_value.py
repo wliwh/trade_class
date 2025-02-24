@@ -219,6 +219,8 @@ def getter_other_index(fpth:Optional[str]=None,
         包含所有其他类型指数技术指标的DataFrame
     """
     max_day = None
+    yesterday = get_delta_trade_day(delta=-1,date_fmt='%Y-%m-%d')
+
     p = pd.read_csv(itempath)
     p = p[p['type_name'].str.startswith('other-')]
     
@@ -227,10 +229,10 @@ def getter_other_index(fpth:Optional[str]=None,
     # 遍历每个指数
     for _, row in p.iterrows():
         if fpth==None:
-            idx = other_index_getter(row['code'],'2024-01-01')
+            idx = other_index_getter(row['code'], end=yesterday)
         else:
             beg_day, max_day = check_other_index_file_day(fpth)
-            idx = other_index_getter(row['code'], beg_day)
+            idx = other_index_getter(row['code'], beg_day, yesterday)
         idx['type'] = row['type_name']
         for c in ma_lst:
             idx[f'ma{c}'] = idx['close'].rolling(c).mean()
@@ -256,6 +258,37 @@ def getter_other_index(fpth:Optional[str]=None,
     return p1
 
 
+def show_us_warning(fpth:str, ma_lst:tuple=(60,120,250)):
+    ws = pd.read_csv(fpth)
+    ws = ws[ws['type']=='other-am']
+    now_data = ws[ws.date==ws.date.max()]
+    us_leng = len(now_data)
+    print(us_leng)
+    warning_info = dict()
+    for dtm in ma_lst[::-1]:
+        tocheck_codes = now_data.loc[now_data[f'ld{dtm}']>0,['code',f'ld{dtm}']]
+        # print(dtm, tocheck_codes)
+        for _,row in tocheck_codes.iterrows():
+            k = row[f'ld{dtm}']
+            hg = ws.iloc[-us_leng*(k+dtm):].loc[ws['code']==row['code']]
+            idmax = hg['high'].argmax()
+            if not warning_info.get(row['code']):
+                lmin = float(hg.iloc[-k:]['low'].min())
+                crossV, highV=float(round(hg.iloc[-k][f'ma{dtm}'],3)), float(round(hg.iloc[idmax]['high'] ,3))
+                warning_info[row['code']] = dict(
+                    down_day = k,
+                    cross=dtm,
+                    high_date=hg.iloc[idmax]['date'],
+                    high_value=highV,
+                    cross_date=hg.iloc[-k]['date'],
+                    cross_ma=crossV,
+                    low_value=lmin,
+                    ratio = round((crossV-lmin)/(highV-crossV),3),
+                    tovalue = [round(c,3) for c in (2.2*crossV-1.2*highV, 2*crossV-highV, 1.8*crossV-0.8*highV)]
+                )
+    return warning_info
+
+
 if __name__=='__main__':
     # print(get_bond_index('931203'))
     # print(All_Index_Tb['type_name']=='base-index')
@@ -268,7 +301,7 @@ if __name__=='__main__':
     # print(basic_index_getter('399317', beg='2020-10-30', end='2024-03-22'))
     # print(other_index_getter('HSTECH','20220101','20240520'))
     fname = os.path.join('/home/hh01/Documents/trade_class/data_save','global_index.csv')
-    tt = getter_other_index(fname)
-    tt.to_csv(fname)
-    # print(tt.loc[(tt.index>'2025-01-04'),['name_zh', 'code','close','ma60','ld60']].head(20))
+    # tt = getter_other_index()
+    # tt.to_csv(fname)
+    print(show_us_warning(fname))
     pass
