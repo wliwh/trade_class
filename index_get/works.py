@@ -2,6 +2,7 @@ from get_high_low import high_low_legu_indicator
 from get_north_flow import north_flow_indicator
 from get_qvix_value import qvix_day_indicator
 from get_baidu_search import bsearch_indicator
+from get_index_value import global_index_indicator
 from config import _logger
 
 
@@ -17,9 +18,14 @@ qd = qvix_day_indicator()
 qd.update_data()
 qd.set_warn_info()
 
+glb = global_index_indicator()
+glb.update_data()
+glb.set_warn_info()
+
 try:
     bd = bsearch_indicator()
     bd.update_data()
+    bd.set_warn_info()
     bd.set_warn_info('2024-01-01')
 except FileNotFoundError as nfe:
     _logger.error('bd_search cooks file not found.')

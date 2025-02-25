@@ -9,9 +9,12 @@ import pandas as pd
 import efinance as ef
 from pathlib import Path
 import os, sys
+from pprint import pprint
 from typing import Optional, Union, List
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from core import IndicatorGetter
+from config import _logger
 from common.trade_date import (
     get_trade_day,
     get_trade_day_between, 
@@ -19,7 +22,7 @@ from common.trade_date import (
 from common.smooth_tool import drawdown_details
 from common.chart_core import make_candle_echarts, make_line_echarts
 
-os.chdir(Path(__file__).parent)
+os.chdir(Path(__file__).parents[1])
 Tdx_Getter = TdxHq_API()
 
 from pytdx.config.hosts import hq_hosts
@@ -38,7 +41,7 @@ Tdx_Connect_List = (
     ('122.192.35.44', 7709)
 )
 
-All_Index_Pth = os.path.join('..','common','csi_index.csv')
+All_Index_Pth = os.path.join(os.path.dirname(__file__),'..','common','csi_index.csv')
 All_Index_Tb = pd.read_csv(All_Index_Pth)
 
 def csi_index_getter(code:str, beg:Optional[str], end:Optional[str]):
@@ -204,7 +207,7 @@ def check_other_index_file_day(fpth:str):
     return befor_day.strftime('%Y-%m-%d'), hl_day
 
 
-def getter_other_index(fpth:Optional[str]=None,
+def getter_other_index(max_date_idx:Optional[str]=None,
                        itempath:str=All_Index_Pth,
                        shift_day:int=250,
                        ma_lst:tuple=(60,120,250)):
@@ -218,7 +221,7 @@ def getter_other_index(fpth:Optional[str]=None,
     返回:
         包含所有其他类型指数技术指标的DataFrame
     """
-    max_day = None
+    # max_day = None
     yesterday = get_delta_trade_day(delta=-1,date_fmt='%Y-%m-%d')
 
     p = pd.read_csv(itempath)
@@ -228,10 +231,12 @@ def getter_other_index(fpth:Optional[str]=None,
     all_other_idx = list()
     # 遍历每个指数
     for _, row in p.iterrows():
-        if fpth==None:
+        if max_date_idx==None:
             idx = other_index_getter(row['code'], end=yesterday)
         else:
-            beg_day, max_day = check_other_index_file_day(fpth)
+            # beg_day, max_day = check_other_index_file_day(fpth)
+            beg_day = pd.to_datetime(max_date_idx) - pd.offsets.Day(n=400)
+            beg_day = beg_day.strftime('%Y-%m-%d')
             idx = other_index_getter(row['code'], beg_day, yesterday)
         idx['type'] = row['type_name']
         for c in ma_lst:
@@ -253,8 +258,8 @@ def getter_other_index(fpth:Optional[str]=None,
         all_other_idx.append(idx)
     p1 = pd.concat(all_other_idx, axis=0)
     p1.sort_index(inplace=True)
-    if max_day!=None:
-        p1 = p1[p1.index > max_day]
+    if max_date_idx!=None:
+        p1 = p1[p1.index > max_date_idx]
     return p1
 
 
@@ -263,7 +268,6 @@ def show_us_warning(fpth:str, ma_lst:tuple=(60,120,250)):
     ws = ws[ws['type']=='other-am']
     now_data = ws[ws.date==ws.date.max()]
     us_leng = len(now_data)
-    print(us_leng)
     warning_info = dict()
     for dtm in ma_lst[::-1]:
         tocheck_codes = now_data.loc[now_data[f'ld{dtm}']>0,['code',f'ld{dtm}']]
@@ -289,6 +293,51 @@ def show_us_warning(fpth:str, ma_lst:tuple=(60,120,250)):
     return warning_info
 
 
+class global_index_indicator(IndicatorGetter):
+    def __init__(self, cator_name: str = 'global_index') -> None:
+        super().__init__(cator_name)
+        self.update_fun = getter_other_index
+    
+    def set_warn_info(self):
+        conf = self.cator_conf
+        ws = pd.read_csv(self.uppth)
+        ws = ws[ws['type']=='other-am']
+        near_trade_date = ws.date.max()
+        now_data = ws[ws.date==near_trade_date]
+        us_leng = len(now_data)
+        warning_info = list()
+        warning_saved_set = set()
+        for dtm in conf['ma_lst'][::-1]:
+            tocheck_codes = now_data.loc[now_data[f'ld{dtm}']>0,['code',f'ld{dtm}']]
+            # print(dtm, tocheck_codes)
+            for _,row in tocheck_codes.iterrows():
+                k = row[f'ld{dtm}']
+                hg = ws.iloc[-us_leng*(k+dtm):].loc[ws['code']==row['code']]
+                idmax = hg['high'].argmax()
+                if row['code'] not in warning_saved_set:
+                    lmin = float(hg.iloc[-k:]['low'].min())
+                    crossV, highV=float(round(hg.iloc[-k][f'ma{dtm}'],3)), float(round(hg.iloc[idmax]['high'] ,3))
+                    warning_info.append(dict(
+                        code=row['code'],
+                        down_day = k,
+                        cross=dtm,
+                        high_date=hg.iloc[idmax]['date'],
+                        high_value=highV,
+                        cross_date=hg.iloc[-k]['date'],
+                        cross_ma=crossV,
+                        low_value=lmin,
+                        ratio = round((crossV-lmin)/(highV-crossV),3),
+                        tovalue = [round(c,3) for c in (2.2*crossV-1.2*highV, 2*crossV-highV, 1.8*crossV-0.8*highV)]
+                    ))
+        if warning_info:
+            _logger.info(f"{self.cator_name} warning info updating to {near_trade_date}.")
+            warning_info.insert(0,near_trade_date)
+            self.set_cator_conf(True, warning_info=warning_info)
+        else:
+            self.set_cator_conf(True, warning_info=False)
+        return warning_info
+
+
 if __name__=='__main__':
     # print(get_bond_index('931203'))
     # print(All_Index_Tb['type_name']=='base-index')
@@ -300,8 +349,11 @@ if __name__=='__main__':
     # print(future_index_getter('rb0','2024-01-01'))
     # print(basic_index_getter('399317', beg='2020-10-30', end='2024-03-22'))
     # print(other_index_getter('HSTECH','20220101','20240520'))
-    fname = os.path.join('/home/hh01/Documents/trade_class/data_save','global_index.csv')
+    # fname = os.path.join('/home/hh01/Documents/trade_class/data_save','global_index.csv')
     # tt = getter_other_index()
     # tt.to_csv(fname)
-    print(show_us_warning(fname))
+    p1 = global_index_indicator()
+    p1.update_data()
+    p1.set_warn_info()
+    # pprint(p1.get_warn_info())
     pass
