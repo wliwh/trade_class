@@ -226,7 +226,6 @@ def detect_cycle_lows(df, price_col='price', window_size=60, cycle_range=(35,54)
     cycles.reset_index(drop=True, inplace=True)
     return cycles
 
-
 def plot_cycles(df, cycles, df_name='price'):
     # 采用上下布局
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12,10))
@@ -260,7 +259,6 @@ def plot_cycles(df, cycles, df_name='price'):
     plt.grid(True)
     plt.show()
 
-
 def show_cross_ma():
     # 获取指数数据
     index_getter = other_index_getter('IXIC','20160101')
@@ -275,6 +273,61 @@ def show_cross_ma():
     print(format_breakthrough_points(results['ma240_points']))
     print("\n60日均线突破点:")
     print(format_breakthrough_points(results['ma60_points'])) 
+
+
+def plot_candlestick_with_lines(df: pd.DataFrame, line_dict: dict):
+    """
+    使用plotly绘制K线图，并标注水平线
+    
+    参数:
+        df: DataFrame，包含OHLC数据
+        line_dict: 字典，格式为 {日期: 价格水平}
+    """
+    import plotly.graph_objects as go
+    
+    # 创建K线图对象
+    fig = go.Figure(data=[go.Candlestick(x=df.index,
+                                        open=df['open'],
+                                        high=df['high'],
+                                        low=df['low'],
+                                        close=df['close'])])
+    
+    # 添加水平线
+    for date, price in line_dict.items():
+        fig.add_shape(
+            type='line',
+            x0=date,
+            y0=price,
+            x1=df.index[-1],  # 延伸到图表最右端
+            y1=price,
+            line=dict(
+                color='rgba(255, 0, 0, 0.5)',
+                width=1,
+                dash='dash'
+            )
+        )
+        
+        # 添加标注
+        fig.add_annotation(
+            x=date,
+            y=price,
+            text=f'{price:.2f}',
+            showarrow=True,
+            arrowhead=1,
+            ax=40,
+            ay=-40
+        )
+    
+    # 更新布局
+    fig.update_layout(
+        title='股票K线图',
+        yaxis_title='价格',
+        xaxis_title='日期',
+        template='plotly_white'
+    )
+    
+    # 显示图表
+    fig.show()
 
 if __name__ == '__main__':
     df = other_index_getter(Search_Index['标普500'],'1990-01-01','2008-01-01')
