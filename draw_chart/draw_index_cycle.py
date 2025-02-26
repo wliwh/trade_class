@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
-from index_get.get_index_value import other_index_getter
+from index_get.get_index_value import other_index_getter, global_index_indicator
 from common.smooth_tool import drawdown_series
 import matplotlib.pyplot as plt
 from scipy.signal import argrelextrema
@@ -275,25 +275,46 @@ def show_cross_ma():
     print(format_breakthrough_points(results['ma60_points'])) 
 
 
-def plot_candlestick_with_lines(df: pd.DataFrame, line_dict: dict):
+def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: int):
     """
     使用plotly绘制K线图，并标注水平线
     
     参数:
         df: DataFrame，包含OHLC数据
-        line_dict: 字典，格式为 {日期: 价格水平}
+        line_tuple: 字典，格式为 {日期: 价格水平}
     """
     import plotly.graph_objects as go
+
+    # 去除日期中的空隙
+    beg_, end_ = df.index.min(), df.index.max()
+    all_days = set(x.strftime('%Y-%m-%d') for x in pd.date_range(start=beg_,end=end_,freq='D'))
+    rm_days = all_days - set(df.index)
     
     # 创建K线图对象
     fig = go.Figure(data=[go.Candlestick(x=df.index,
                                         open=df['open'],
                                         high=df['high'],
                                         low=df['low'],
-                                        close=df['close'])])
+                                        close=df['close'],
+                                        increasing_line_color='#FF4136',
+                                        decreasing_line_color='#3D9970',
+                                        increasing_fillcolor='#FF9F9A',
+                                        decreasing_fillcolor='#9DCCB7'
+                                        )])
+    fig.update_xaxes(
+        rangeslider_visible=True,
+        rangebreaks=[
+            # NOTE: Below values are bound (not single values), ie. hide x to y
+            # dict(bounds=["sat", "mon"]),  # hide weekends, eg. hide sat to before mon
+            # dict(bounds=[16, 9.5], pattern="hour"),  # hide hours outside of 9.30am-4pm
+            dict(values=list(rm_days))  # hide holidays (Christmas and New Year's, etc)
+        ]
+    )
+    fig.add_trace(go.Scatter(x=df.index,y=df[f'ma{cross_ma}'],line={'color':'orange'},name=f'ma{cross_ma}'))
     
     # 添加水平线
-    for date, price in line_dict.items():
+    line_colors = ['rgba(255,0,0,0.8)','rgba(0,0,192,0.8)','rgba(0,192,64,0.8)','rgba(255,128,0,0.6)']
+    for j,(date, price) in enumerate(line_tuple):
         fig.add_shape(
             type='line',
             x0=date,
@@ -301,38 +322,63 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_dict: dict):
             x1=df.index[-1],  # 延伸到图表最右端
             y1=price,
             line=dict(
-                color='rgba(255, 0, 0, 0.5)',
-                width=1,
-                dash='dash'
+                color=line_colors[j] if j<3 else line_colors[3],
+                width=2,
+                dash='solid' if j<3 else 'dash'
             )
         )
         
         # 添加标注
         fig.add_annotation(
-            x=date,
+            x=date if j<3 else df.index[-1],
             y=price,
             text=f'{price:.2f}',
-            showarrow=True,
+            showarrow=True if j<3 else False,
             arrowhead=1,
-            ax=40,
+            ax=-40,
             ay=-40
         )
     
     # 更新布局
     fig.update_layout(
-        title='股票K线图',
-        yaxis_title='价格',
-        xaxis_title='日期',
+        # title='title',
+        # yaxis_title='价格',
+        # xaxis_title='日期',
+        xaxis=dict(
+            rangeslider=dict(visible=False),  # 关闭主导航条
+            rangeselector=dict(visible=False) # 关闭日期选择按钮（可选）
+        ),
         template='plotly_white'
     )
+
     
     # 显示图表
     fig.show()
 
+
+def plot_cand_test(choose_n:int=1):
+    glb = global_index_indicator()
+    conf = glb.get_cator_conf()
+    fpath = conf['fpath']
+    warn_info = conf['warning_info'][choose_n]
+    p1 = pd.read_csv(fpath,index_col=0)
+    p1 = p1[p1.code==warn_info['code']]
+    high_day = warn_info['high_date']
+    if (pd.to_datetime(conf['max_date_idx']) - pd.to_datetime(high_day)).days<50:
+        beg_day = p1.index[-55]
+    else:
+        beg_day = (pd.to_datetime(high_day)-pd.offsets.Day(10)).strftime('%Y-%m-%d')
+    p1 = p1[p1.index>beg_day]
+    days_dict = [warn_info['high_value'],warn_info['cross_ma'], warn_info['low_value']]+warn_info['tovalue']
+    days_dict = ((high_day,d) for d in days_dict)
+    plot_candlestick_with_lines(p1, days_dict, warn_info['cross'])
+
 if __name__ == '__main__':
-    df = other_index_getter(Search_Index['标普500'],'1990-01-01','2008-01-01')
-    # df['date'] = pd.to_datetime(df.index)
-    cycles = detect_cycle_lows(df, price_col='close')
-    print(cycles)
+    # df = other_index_getter(Search_Index['标普500'],'1990-01-01','2008-01-01')
+    # # df['date'] = pd.to_datetime(df.index)
+    # cycles = detect_cycle_lows(df, price_col='close')
+    # print(cycles)
     # print(drawdown_series(df.loc[df['date']>=cycles.iloc[-2,0],'close']))
     # plot_cycles(df, cycles, df_name='close')
+    plot_cand_test(2)
+    pass

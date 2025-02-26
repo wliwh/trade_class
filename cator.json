@@ -259,8 +259,8 @@
     "itempath": "common/csi_index.csv",
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-02-24",
-    "next_update_time": "2025-02-26 08:30",
+    "max_date_idx": "2025-02-25",
+    "next_update_time": "2025-02-27 08:30",
     "update_kwargs": [
       "max_date_idx",
       "itempath",
@@ -279,33 +279,20 @@
     "append_item_args": false,
     "warning_cond": "见具体条件",
     "warning_info": [
-      "2025-02-24",
-      {
-        "code": "NDX",
-        "down_day": 2,
-        "cross": 60,
-        "high_date": "2024-12-16",
-        "high_value": 20204.58,
-        "cross_date": "2025-02-21",
-        "cross_ma": 19630.958,
-        "low_value": 19275.46,
-        "ratio": 0.62,
-        "tovalue": [
-          18942.612,
-          19057.336,
-          19172.06
-        ]
-      },
+      "2025-02-25",
       {
         "code": "SPX",
-        "down_day": 2,
+        "down_day": 3,
         "cross": 60,
         "high_date": "2025-02-19",
         "high_value": 6147.43,
         "cross_date": "2025-02-21",
         "cross_ma": 6014.222,
-        "low_value": 5977.83,
-        "ratio": 0.273,
+        "low_value": 5908.49,
+        "pct1": 3.887,
+        "pct2": 3.074,
+        "minvalue": 133.208,
+        "ratio": 0.794,
         "tovalue": [
           5854.372,
           5881.014,
@@ -313,35 +300,60 @@
         ]
       },
       {
-        "code": "DJIA",
-        "down_day": 2,
-        "cross": 60,
-        "high_date": "2024-12-04",
-        "high_value": 45073.63,
-        "cross_date": "2025-02-21",
-        "cross_ma": 43886.018,
-        "low_value": 43343.67,
-        "ratio": 0.457,
-        "tovalue": [
-          42460.884,
-          42698.406,
-          42935.928
-        ]
-      },
-      {
         "code": "NDX100",
-        "down_day": 1,
+        "down_day": 2,
         "cross": 60,
         "high_date": "2025-02-19",
         "high_value": 22222.61,
         "cross_date": "2025-02-24",
         "cross_ma": 21461.634,
-        "low_value": 21341.96,
-        "ratio": 0.157,
+        "low_value": 20930.58,
+        "pct1": 5.814,
+        "pct2": 4.908,
+        "minvalue": 760.976,
+        "ratio": 0.698,
         "tovalue": [
           20548.463,
           20700.658,
           20852.853
+        ]
+      },
+      {
+        "code": "NDX",
+        "down_day": 3,
+        "cross": 60,
+        "high_date": "2024-12-16",
+        "high_value": 20204.58,
+        "cross_date": "2025-02-21",
+        "cross_ma": 19630.958,
+        "low_value": 18871.52,
+        "pct1": 6.598,
+        "pct2": 5.688,
+        "minvalue": 573.622,
+        "ratio": 1.324,
+        "tovalue": [
+          18942.612,
+          19057.336,
+          19172.06
+        ]
+      },
+      {
+        "code": "DJIA",
+        "down_day": 3,
+        "cross": 60,
+        "high_date": "2024-12-04",
+        "high_value": 45073.63,
+        "cross_date": "2025-02-21",
+        "cross_ma": 43886.018,
+        "low_value": 43282.98,
+        "pct1": 3.973,
+        "pct2": 3.523,
+        "minvalue": 1187.612,
+        "ratio": 0.508,
+        "tovalue": [
+          42460.884,
+          42698.406,
+          42935.928
         ]
       }
     ]

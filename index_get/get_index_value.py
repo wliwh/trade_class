@@ -13,6 +13,7 @@ from pprint import pprint
 from typing import Optional, Union, List
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 from core import IndicatorGetter
 from config import _logger
 from common.trade_date import (
@@ -316,6 +317,7 @@ class global_index_indicator(IndicatorGetter):
                 idmax = hg['high'].argmax()
                 if row['code'] not in warning_saved_set:
                     lmin = float(hg.iloc[-k:]['low'].min())
+                    close_hl = (hg['close'].max(), hg.iloc[-k:]['close'].min())
                     crossV, highV=float(round(hg.iloc[-k][f'ma{dtm}'],3)), float(round(hg.iloc[idmax]['high'] ,3))
                     warning_info.append(dict(
                         code=row['code'],
@@ -326,6 +328,9 @@ class global_index_indicator(IndicatorGetter):
                         cross_date=hg.iloc[-k]['date'],
                         cross_ma=crossV,
                         low_value=lmin,
+                        pct1 = round(100*(1-lmin/highV),3),
+                        pct2 = round(100*(1-close_hl[1]/close_hl[0]), 3),
+                        minvalue = round(highV-crossV,3),
                         ratio = round((crossV-lmin)/(highV-crossV),3),
                         tovalue = [round(c,3) for c in (2.2*crossV-1.2*highV, 2*crossV-highV, 1.8*crossV-0.8*highV)]
                     ))
