@@ -310,7 +310,13 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: i
             dict(values=list(rm_days))  # hide holidays (Christmas and New Year's, etc)
         ]
     )
-    fig.add_trace(go.Scatter(x=df.index,y=df[f'ma{cross_ma}'],line={'color':'orange'},name=f'ma{cross_ma}'))
+    if cross_ma < 180:
+        fig.add_trace(go.Scatter(x=df.index,y=df[f'ma60'],line={'color':'orange'},name=f'ma60'))
+        if cross_ma>90:
+            fig.add_trace(go.Scatter(x=df.index,y=df[f'ma{cross_ma}'],line={'color':'green'},name=f'ma{cross_ma}'))
+    else:
+        fig.add_trace(go.Scatter(x=df.index,y=df[f'ma120'],line={'color':'orange'},name=f'ma120'))
+        fig.add_trace(go.Scatter(x=df.index,y=df[f'ma{cross_ma}'],line={'color':'green'},name=f'ma{cross_ma}'))
     
     # 添加水平线
     line_colors = ['rgba(255,0,0,0.8)','rgba(0,0,192,0.8)','rgba(0,192,64,0.8)','rgba(255,128,0,0.6)']
@@ -330,11 +336,11 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: i
         
         # 添加标注
         fig.add_annotation(
-            x=date if j<3 else df.index[-1],
+            x=date if j<3 else df.index[-3],
             y=price,
             text=f'{price:.2f}',
             showarrow=True if j<3 else False,
-            arrowhead=1,
+            arrowhead=2,
             ax=-40,
             ay=-40
         )
@@ -357,6 +363,19 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: i
 
 
 def plot_cand_test(choose_n:int=1):
+    """
+    获取并绘制指定代码的K线图，并标注相关价格水平线。
+
+    参数:
+        choose_n (int): 选择要分析的警告信息索引，默认为1。
+
+    功能描述:
+        1. 从全局配置中获取数据路径和警告信息。
+        2. 加载CSV数据文件，筛选出与警告信息中代码相同的记录。
+        3. 根据警告信息中的高点日期确定起始日期，以确保图表包含足够的数据。
+        4. 准备要标注的价格水平线，包括高点、交叉MA值、低点和任意其他指定值。
+        5. 使用 `plot_candlestick_with_lines` 函数绘制K线图，并添加标水平线。
+    """
     glb = global_index_indicator()
     conf = glb.get_cator_conf()
     fpath = conf['fpath']
@@ -373,6 +392,7 @@ def plot_cand_test(choose_n:int=1):
     days_dict = ((high_day,d) for d in days_dict)
     plot_candlestick_with_lines(p1, days_dict, warn_info['cross'])
 
+
 if __name__ == '__main__':
     # df = other_index_getter(Search_Index['标普500'],'1990-01-01','2008-01-01')
     # # df['date'] = pd.to_datetime(df.index)
@@ -380,5 +400,5 @@ if __name__ == '__main__':
     # print(cycles)
     # print(drawdown_series(df.loc[df['date']>=cycles.iloc[-2,0],'close']))
     # plot_cycles(df, cycles, df_name='close')
-    plot_cand_test(2)
+    plot_cand_test(4)
     pass

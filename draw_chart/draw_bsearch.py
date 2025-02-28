@@ -1,11 +1,11 @@
 import sys, os
+import pandas as pd
+from pyecharts.charts import Tab
 sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 from common.chart_core import make_candle_echarts
 from index_get.get_index_value import future_index_getter, basic_index_getter, other_index_getter
-import pandas as pd
-from pyecharts.charts import Tab
 
-# os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.dirname(__file__))
 
 def draw_future_echart(code:str,name:str,tt:str, beg:str, end:str, type:int=0):
     if type in (1,2) or code.upper()=='USDCNH':

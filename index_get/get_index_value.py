@@ -2,6 +2,7 @@
 获取每日指数(基金)净值
 """
 
+import time
 import akshare as ak
 import numpy as np
 from pytdx.hq import TdxHq_API
@@ -9,13 +10,14 @@ import pandas as pd
 import efinance as ef
 from pathlib import Path
 import os, sys
+import pandas_market_calendars as mcal
 from pprint import pprint
 from typing import Optional, Union, List
 
+# sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
-from core import IndicatorGetter
-from config import _logger
+from index_get.core import IndicatorGetter
+from index_get.config import _logger
 from common.trade_date import (
     get_trade_day,
     get_trade_day_between, 
@@ -208,6 +210,97 @@ def check_other_index_file_day(fpth:str):
     return befor_day.strftime('%Y-%m-%d'), hl_day
 
 
+def get_week_trade_info(dates_index: pd.Index, beg_date: str):
+    """
+    计算每个交易日所在周的交易日数量和该日为当周第几个交易日
+
+    参数:
+        dates_index: pd.Index, 交易日序列
+    """
+    day_of_weekday = None
+    # 处理最后一周
+    Nyse = mcal.get_calendar('NYSE')
+    max_date = pd.to_datetime(dates_index.max())
+    max_monday = max_date - pd.Timedelta(days=max_date.weekday())
+    max_mond = max_monday.strftime('%Y-%m-%d')
+    week_schedule = Nyse.schedule(start_date=max_monday, end_date=max_monday+pd.Timedelta(days=6))
+    week_starts = {max_mond:len(week_schedule)}
+    total_trading_days, day_of_trade_week = dict(), dict()
+    for d in dates_index[dates_index>beg_date]:
+        dt = pd.to_datetime(d)
+        monday = dt - pd.Timedelta(days=dt.weekday())
+        mond = monday.strftime('%Y-%m-%d')
+        if mond in week_starts:
+            if d>=max_mond: day_of_weekday = len(dates_index[(dates_index>=max_mond) & (dates_index<=d)])
+            else: day_of_weekday += 1
+        else:
+            sund = (monday + pd.Timedelta(days=6)).strftime('%Y-%m-%d')
+            week_starts[mond] = len(dates_index[(dates_index>=mond) & (dates_index<=sund)])
+            day_of_weekday = len(dates_index[(dates_index>=mond) & (dates_index<=d)])
+        total_trading_days[d] = week_starts[mond]
+        day_of_trade_week[d] = day_of_weekday
+    # 处理第一周
+    # print(total_trading_days, day_of_trade_week)
+    return pd.DataFrame({'total_trading_days': total_trading_days, 'day_of_trade_week': day_of_trade_week})
+
+
+def get_us_week_trade_info(dates_index: pd.DatetimeIndex) -> pd.DataFrame:
+    """
+    计算美股每个交易日所在周的交易日数量和该日为当周第几个交易日
+    
+    参数:
+        dates_index: pd.DatetimeIndex，包含交易日期
+        
+    返回:
+        pd.DataFrame，包含两列：
+        - week_trade_days: 该周的总交易日数
+        - day_of_week: 该日为本周第几个交易日
+    """
+    # 获取NYSE日历
+    nyse = mcal.get_calendar('NYSE')
+    
+    # 确保日期索引是datetime格式
+    if not isinstance(dates_index, pd.DatetimeIndex):
+        dates_index = pd.to_datetime(dates_index)
+    
+    # # 获取日期范围内的所有周的起止时间
+    # start_date = dates_index.min()
+    # end_date = dates_index.max()
+    
+    # 获取每周的第一天（周一）和最后一天（周日）
+    week_starts = dates_index.map(lambda x: x - pd.Timedelta(days=x.weekday()))
+    week_ends = week_starts + pd.Timedelta(days=6)
+    
+    # 创建结果DataFrame
+    result = pd.DataFrame(index=dates_index)
+    
+    # 计算每周的交易日
+    unique_weeks = pd.DataFrame({
+        'week_start': week_starts.unique(),
+        'week_end': week_ends.unique()
+    }).sort_values('week_start')
+    
+    # 获取每周的交易日
+    week_trade_days = {}
+    day_of_week = {}
+    
+    for _, week in unique_weeks.iterrows():
+        # 获取该周的所有交易日
+        week_schedule = nyse.schedule(start_date=week['week_start'], end_date=week['week_end'])
+        trade_days = pd.DatetimeIndex(week_schedule.index)
+        
+        # 记录该周的交易日数量
+        for day in trade_days:
+            week_trade_days[day] = len(trade_days)
+            day_of_week[day] = trade_days.get_loc(day) + 1
+    
+    # 填充结果
+    result['total_trading_days'] = pd.Series(week_trade_days, dtype=np.uint8)
+    result['day_of_trade_week'] = pd.Series(day_of_week,dtype=np.uint8)
+    
+    return result
+
+
 def getter_other_index(max_date_idx:Optional[str]=None,
                        itempath:str=All_Index_Pth,
                        shift_day:int=250,
@@ -256,11 +349,15 @@ def getter_other_index(max_date_idx:Optional[str]=None,
         idx['yoy'] = (idx['close'] / idx['close'].shift(shift_day)-1)*100
         _log_close = np.log10(idx['close'])
         idx['log-yoy'] = (_log_close/_log_close.shift(shift_day)-1)*100
+        # if max_date_idx!=None and row['type_name']=='other-am':
+        #     idx = idx.join(get_week_trade_info(idx.index, max_date_idx),how='left')
+        #     pass
         all_other_idx.append(idx)
     p1 = pd.concat(all_other_idx, axis=0)
     p1.sort_index(inplace=True)
     if max_date_idx!=None:
         p1 = p1[p1.index > max_date_idx]
+    # p1['day-of-week'] = pd.to_datetime(p1.index).day_of_week+1
     return p1
 
 
@@ -319,6 +416,7 @@ class global_index_indicator(IndicatorGetter):
                     lmin = float(hg.iloc[-k:]['low'].min())
                     close_hl = (hg['close'].max(), hg.iloc[-k:]['close'].min())
                     crossV, highV=float(round(hg.iloc[-k][f'ma{dtm}'],3)), float(round(hg.iloc[idmax]['high'] ,3))
+                    warning_saved_set.add(row['code'])
                     warning_info.append(dict(
                         code=row['code'],
                         down_day = k,
@@ -355,10 +453,14 @@ if __name__=='__main__':
     # print(basic_index_getter('399317', beg='2020-10-30', end='2024-03-22'))
     # print(other_index_getter('HSTECH','20220101','20240520'))
     # fname = os.path.join('/home/hh01/Documents/trade_class/data_save','global_index.csv')
-    # tt = getter_other_index()
+    tt = getter_other_index('2025-02-25')
+    print(tt.tail(10))
+    # beg_ = time.time()
+    # print(get_week_trade_info(tt[tt.code=='NDX'].index, '2025-01-01'))
+    # print(time.time()-beg_)
     # tt.to_csv(fname)
-    p1 = global_index_indicator()
-    p1.update_data()
-    p1.set_warn_info()
+    # p1 = global_index_indicator()
+    # p1.update_data()
+    # p1.set_warn_info()
     # pprint(p1.get_warn_info())
     pass

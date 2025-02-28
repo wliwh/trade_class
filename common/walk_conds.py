@@ -60,10 +60,10 @@ def walk_conds_lru(table: pd.DataFrame, condition: dict):
 
 def lexpr2str(l:Iterable) -> str:
 
-    warning_keys = set()
+    warning_keys = list()
     def node(d:dict) -> str:
         k,v = next(iter(d.items()))
-        warning_keys.add(k)
+        if k not in warning_keys: warning_keys.append(k)
         if isinstance(v, str):
             return f"({k} == '{v}')"
         elif isinstance(v, (int, float)):
@@ -98,7 +98,8 @@ def lexpr2str(l:Iterable) -> str:
         return sgn.join((node(wks[i]) if isinstance(wks[i], dict) else '('+run_exp2(idx+(i,))+')' for i in range(1, len(wks))))
 
     Sent = l
-    return warning_keys, run_exp2()
+    sents = run_exp2()
+    return warning_keys, sents
 
 
 def to_numeric(values:Union[pd.Series, pd.DataFrame]) -> Union[pd.Series, pd.DataFrame]:
@@ -138,5 +139,5 @@ if __name__=='__main__':
       ],
       ["&",{"code": "300ETF"},{"high": 23}]
       ]
-    print(lexpr2str(ss)[1])
+    print(lexpr2str(ss)[0])
     pass

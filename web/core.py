@@ -21,15 +21,20 @@ def get_keywords():
 
 
 Arange_Info = dict(
-    qvix_day = ('50ETF','300ETF','500ETF','1000ETF','CYB','KCB'),
-    baidu_search = get_keywords()
+    page1 = dict(
+        qvix_day = ('50ETF','300ETF','500ETF','1000ETF','CYB','KCB'),
+        baidu_search = get_keywords(),
+    ),
+    page2 = dict(
+        global_index = ('SPX','NDX','DJIA','NDX100')
+    )
 )
 
 Bsearch_Page_Name = {0:'国内',1:'香港',2:'海外',3:'大宗'}
 Draw_Echarts_Path = os.path.join(os.path.dirname(__file__),'..','draw_chart')
 
 
-def get_all_warnings():
+def get_all_warnings(arange_info):
     warning_infos = dict()
     with open(INDICATOR_CONFIG_PATH, 'r', encoding='UTF-8') as f:
         try:
@@ -38,8 +43,8 @@ def get_all_warnings():
             jread = dict()
     for k,v in jread.items():
         warns = v['warning_info']
-        if warns:
-            arange = Arange_Info[k]
+        if warns and arange_info.get(k):
+            arange = arange_info[k]
             ar_warns = [warns[0]]
             nms = [next(iter(n.values())) for n in warns[1:]]
             for nm in arange:
@@ -48,7 +53,7 @@ def get_all_warnings():
             warning_infos[v["zh"]] = ar_warns
     return warning_infos
 
-Warning_Infos = get_all_warnings()
+Warning_Infos = get_all_warnings(Arange_Info['page2'])
 
 
 @st.cache_data
@@ -84,51 +89,6 @@ def main_page(infos=Warning_Infos):
         st_metrics(cap, info)
 
 
-def echart_all_page(allpage:bool=False, infos=Warning_Infos):
-    p = pd.read_csv(Search_Name_Path,index_col=0)
-    tend_dic = defaultdict(list)
-    if allpage:
-        p = p.loc[p['type']>=0]
-        p['date'] = p['neardate'].map(lambda x:str(int(x[:4])-1)+x[4:])
-        for nm, row in p.transpose().to_dict().items():
-            tend_dic[row['type']].append((nm, row['code'], row['date'], row['neardate']))
-    else:
-        for i in infos['搜索指数'][1:]:
-            nm = i['keyword']
-            date, code, tp = p.loc[p.index==nm,['neardate','code','type']].values[0]
-            beg_date = str(int(date[:4])-1)+date[4:]
-            if tp>=0: 
-                tend_dic[tp].append((nm, code, beg_date, date))
-    tends = dict()
-    for k,v in tend_dic.items():
-        tab = Tab()
-        for nm,cd,beg,end in v:
-            tend = draw_future_echart(cd,nm,False,beg,end,k)
-            tab.add(tend,nm+'-'+cd)
-        tab.render(os.path.join(Draw_Echarts_Path,Bsearch_Page_Name[k]+'.html'))
-        # tends[Bsearch_Page_Name[k]] = tab
-    # return tends
-
-
-def echart_page(infos, set_id=0):
-    tab = Tab()
-    p = pd.read_csv(Search_Name_Path,index_col=0)
-    for i in infos['搜索指数'][1:]:
-        nm = i['keyword']
-        date, code, tp = p.loc[p.index==nm,['neardate','code','type']].values[0]
-        if tp==set_id: 
-            beg_date = str(int(date[:4])-1)+date[4:]
-            tend = draw_future_echart(code, nm, False, beg_date,date, tp)
-            return tend
-            # tab.add(tend, f'{nm}-{code}')
-    # return tab
-
 
 if __name__ == '__main__':
-    # pgs = [st.Page(lambda :main_page(infos), title='汇总')]
-    # for k,v in echart_page(infos):
-    #     fun = lambda :st_pyecharts(v)
-    #     fun.__name__ = k+'page'
-    #     pgs.append(st.Page(fun, title=k))
     print(Warning_Infos)
-    # echart_all_page(True)

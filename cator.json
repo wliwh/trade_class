@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2025-02-24",
-    "next_update_time": "2025-02-25 22:00",
+    "max_date_idx": "2025-02-27",
+    "next_update_time": "2025-02-28 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-02-24",
-    "next_update_time": "2025-02-26 08:30",
+    "max_date_idx": "2025-02-27",
+    "next_update_time": "2025-03-01 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -159,11 +159,11 @@
       ]
     ],
     "warning_info": [
-      "2025-02-24",
+      "2025-02-27",
       {
-        "high": 41.71,
-        "cp_div": 0,
-        "code": "KCB"
+        "code": "KCB",
+        "cp_div": NaN,
+        "high": 41.76
       }
     ]
   },
@@ -176,8 +176,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2025-02-24",
-    "next_update_time": "2025-02-26 09:00",
+    "max_date_idx": "2025-02-27",
+    "next_update_time": "2025-03-01 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -188,66 +188,77 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2025-02-24",
+      "2025-02-27",
       {
         "keyword": "港股",
         "count": [
-          9274.0,
-          5174.0
+          13248.0,
+          9148.0
         ],
         "llt_diff": [
-          1575.392,
-          575.392
+          4649.469,
+          3649.469
         ]
       },
       {
         "keyword": "恒生指数",
         "count": [
-          40284.0,
-          18284.0
+          50105.0,
+          28105.0
         ],
         "llt_diff": [
-          7268.615,
-          3668.615
+          13955.321,
+          10355.321
         ]
       },
       {
         "keyword": "恒生科技指数",
         "count": [
-          25405.0,
-          9405.0
+          34581.0,
+          18581.0
         ],
         "llt_diff": [
-          5387.35,
-          2887.35
+          11460.443,
+          8960.443
+        ]
+      },
+      {
+        "keyword": "纳斯达克指数",
+        "count": [
+          23421.0,
+          8421.0
+        ],
+        "llt_diff": [
+          6642.816,
+          3642.816
         ]
       },
       {
         "keyword": "创业板指",
         "count": [
-          21209.0,
-          1209.0
+          20764.0,
+          764.0
         ],
-        "llt_diff": 1567.668
+        "llt_diff": 1142.499
       },
       {
         "keyword": "科创50",
         "count": [
-          9089.0,
-          3889.0
+          9133.0,
+          3933.0
         ],
         "llt_diff": [
-          2360.364,
-          1510.364
+          1813.628,
+          963.628
         ]
       },
       {
         "keyword": "豆粕价格",
         "count": [
-          302.0,
-          30.0
+          314.0,
+          42.0
         ],
-        "llt_diff": -13.809
+        "llt_diff": 1.918
       }
     ]
   },
@@ -259,8 +270,8 @@
     "itempath": "common/csi_index.csv",
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-02-25",
-    "next_update_time": "2025-02-27 08:30",
+    "max_date_idx": "2025-02-27",
+    "next_update_time": "2025-03-01 08:30",
     "update_kwargs": [
       "max_date_idx",
       "itempath",
@@ -279,77 +290,77 @@
     "append_item_args": false,
     "warning_cond": "见具体条件",
     "warning_info": [
-      "2025-02-25",
+      "2025-02-27",
       {
         "code": "SPX",
-        "down_day": 3,
-        "cross": 60,
+        "down_day": 1,
+        "cross": 120,
         "high_date": "2025-02-19",
         "high_value": 6147.43,
-        "cross_date": "2025-02-21",
-        "cross_ma": 6014.222,
-        "low_value": 5908.49,
-        "pct1": 3.887,
-        "pct2": 3.074,
-        "minvalue": 133.208,
-        "ratio": 0.794,
+        "cross_date": "2025-02-27",
+        "cross_ma": 5898.316,
+        "low_value": 5858.78,
+        "pct1": 4.695,
+        "pct2": 4.599,
+        "minvalue": 249.114,
+        "ratio": 0.159,
         "tovalue": [
-          5854.372,
-          5881.014,
-          5907.656
-        ]
-      },
-      {
-        "code": "NDX100",
-        "down_day": 2,
-        "cross": 60,
-        "high_date": "2025-02-19",
-        "high_value": 22222.61,
-        "cross_date": "2025-02-24",
-        "cross_ma": 21461.634,
-        "low_value": 20930.58,
-        "pct1": 5.814,
-        "pct2": 4.908,
-        "minvalue": 760.976,
-        "ratio": 0.698,
-        "tovalue": [
-          20548.463,
-          20700.658,
-          20852.853
+          5599.379,
+          5649.202,
+          5699.025
         ]
       },
       {
         "code": "NDX",
-        "down_day": 3,
-        "cross": 60,
+        "down_day": 1,
+        "cross": 120,
         "high_date": "2024-12-16",
         "high_value": 20204.58,
-        "cross_date": "2025-02-21",
-        "cross_ma": 19630.958,
-        "low_value": 18871.52,
-        "pct1": 6.598,
-        "pct2": 5.688,
-        "minvalue": 573.622,
-        "ratio": 1.324,
+        "cross_date": "2025-02-27",
+        "cross_ma": 18971.17,
+        "low_value": 18535.22,
+        "pct1": 8.262,
+        "pct2": 8.077,
+        "minvalue": 1233.41,
+        "ratio": 0.353,
         "tovalue": [
-          18942.612,
-          19057.336,
-          19172.06
+          17491.078,
+          17737.76,
+          17984.442
+        ]
+      },
+      {
+        "code": "NDX100",
+        "down_day": 1,
+        "cross": 120,
+        "high_date": "2025-02-19",
+        "high_value": 22222.61,
+        "cross_date": "2025-02-27",
+        "cross_ma": 20803.062,
+        "low_value": 20540.68,
+        "pct1": 7.569,
+        "pct2": 7.326,
+        "minvalue": 1419.548,
+        "ratio": 0.185,
+        "tovalue": [
+          19099.604,
+          19383.514,
+          19667.424
         ]
       },
       {
         "code": "DJIA",
-        "down_day": 3,
+        "down_day": 5,
         "cross": 60,
         "high_date": "2024-12-04",
         "high_value": 45073.63,
         "cross_date": "2025-02-21",
         "cross_ma": 43886.018,
-        "low_value": 43282.98,
-        "pct1": 3.973,
-        "pct2": 3.523,
+        "low_value": 43224.53,
+        "pct1": 4.102,
+        "pct2": 3.942,
         "minvalue": 1187.612,
-        "ratio": 0.508,
+        "ratio": 0.557,
         "tovalue": [
           42460.884,
           42698.406,

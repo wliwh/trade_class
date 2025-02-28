@@ -89,3 +89,11 @@
 2025-02-26 17:25:41,025 - INFO - global_index warning info updating to 2025-02-25.
 2025-02-26 17:29:06,461 - INFO - global_index is up to date.
 2025-02-26 17:29:06,597 - INFO - global_index warning info updating to 2025-02-25.
+2025-02-28 09:39:05,465 - INFO - global_index is updating to 2025-02-27.
+2025-02-28 09:39:05,620 - INFO - global_index warning info updating to 2025-02-27.
+2025-02-28 09:56:47,367 - INFO - global_index is up to date.
+2025-02-28 09:56:47,504 - INFO - global_index warning info updating to 2025-02-27.
+2025-02-28 15:27:00,104 - INFO - high_low_legu is updating to 2025-02-27.
+2025-02-28 15:27:21,862 - INFO - qvix_day is updating to 2025-02-27.
+2025-02-28 15:27:21,874 - INFO - qvix_day warning info updating to 2025-02-27.
+2025-02-28 15:27:27,493 - INFO - 87 rows data Update to baidu_search

@@ -4,6 +4,7 @@ import akshare as ak
 from typing import Optional, Union, Tuple, List, AnyStr, TypeVar
 from functools import wraps
 from datetime import datetime, date, time, timedelta
+import pandas_market_calendars as mcal
 
 Trade_List = ak.tool_trade_date_hist_sina()
 
@@ -144,5 +145,6 @@ if __name__ == '__main__':
     # t7 = get_trade_day_between('2024-01-11', left=False, date_fmt='%Y#%m#%d')
     # print(t7[0], t7[-1],type(t7[-3]))
 
-    t8 = get_next_update_time('2024-01-25','*22',date_fmt='%Y-%m-%d %H:%M')
-    print(t8)
+    # t8 = get_next_update_time('2024-01-25','*22',date_fmt='%Y-%m-%d %H:%M')
+    # print(t8)
+    pass
