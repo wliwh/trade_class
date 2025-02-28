@@ -192,7 +192,15 @@ def get_bond_index(code:str, beg:str='2018-12-31', end:str='2024-01-30'):
     return round((np.power(aa.close[-1]/aa.close[0],243/len(aa))-1)*100.0,2), round(-draw.iloc[0,5],2)
 
 
-def draw_echart_test1():
+def _test1_get_index():
+    print(get_bond_index('931203'))
+    print(All_Index_Tb['type_name']=='base-index')
+    print(future_index_getter('rb0','2024-01-01'))
+    print(basic_index_getter('399317', beg='2020-10-30', end='2024-03-22'))
+    print(other_index_getter('HSTECH','20220101','20240520'))
+
+
+def _test1_draw_echart():
     tt = basic_index_getter('399317', beg='2012-10-30', end='2024-03-22')
     tt2 = csi_index_getter('932055', beg='2012-10-30', end='2024-03-22')
     gg = csi_index_getter('931080', beg='2012-10-30',end='2024-03-22')
@@ -301,6 +309,22 @@ def get_us_week_trade_info(dates_index: pd.DatetimeIndex) -> pd.DataFrame:
     return result
 
 
+def _test_global_index_append_trade():
+    fpth = os.path.join(os.path.dirname(__file__),'..','data_save','global_index.csv')
+    save_pth = fpth.replace('index.csv','index+.csv')
+    p1 = pd.read_csv(fpth, index_col=0)
+    pam = p1[p1.type=='other-am']
+    poth = p1[p1.type!='other-am']
+    app_trade = get_us_week_trade_info(pam.index)
+    app_trade.index = [x.strftime('%Y-%m-%d') for x in app_trade.index]
+    pam = pam.join(app_trade,how='left')
+    pam.drop_duplicates(inplace=True)
+    p2 = pd.concat([poth,pam],axis=0)
+    p2.sort_index(inplace=True)
+    p2['day_of_week'] = pd.to_datetime(p2.index).day_of_week+1
+    p2.to_csv(save_pth)
+
+
 def getter_other_index(max_date_idx:Optional[str]=None,
                        itempath:str=All_Index_Pth,
                        shift_day:int=250,
@@ -349,15 +373,15 @@ def getter_other_index(max_date_idx:Optional[str]=None,
         idx['yoy'] = (idx['close'] / idx['close'].shift(shift_day)-1)*100
         _log_close = np.log10(idx['close'])
         idx['log-yoy'] = (_log_close/_log_close.shift(shift_day)-1)*100
-        # if max_date_idx!=None and row['type_name']=='other-am':
-        #     idx = idx.join(get_week_trade_info(idx.index, max_date_idx),how='left')
-        #     pass
+        if max_date_idx!=None and row['type_name']=='other-am':
+            idx = idx.join(get_week_trade_info(idx.index, max_date_idx),how='left')
+            pass
         all_other_idx.append(idx)
     p1 = pd.concat(all_other_idx, axis=0)
     p1.sort_index(inplace=True)
     if max_date_idx!=None:
         p1 = p1[p1.index > max_date_idx]
-    # p1['day-of-week'] = pd.to_datetime(p1.index).day_of_week+1
+    p1['day_of_week'] = pd.to_datetime(p1.index).day_of_week+1
     return p1
 
 
@@ -442,23 +466,8 @@ class global_index_indicator(IndicatorGetter):
 
 
 if __name__=='__main__':
-    # print(get_bond_index('931203'))
-    # print(All_Index_Tb['type_name']=='base-index')
-    # import sqlite3
-    # cx = sqlite3.connect(r'../data_save/funds_index.db')
-    # tt = table_index_getter(None, None, All_Index_Tb[All_Index_Tb['type_name']=='csi-index'])
-    # tt.to_sql('funds', cx, if_exists='append')
-    # tt.to_csv('../data_save/funds_csi.csv',float_format='%.3f')
-    # print(future_index_getter('rb0','2024-01-01'))
-    # print(basic_index_getter('399317', beg='2020-10-30', end='2024-03-22'))
-    # print(other_index_getter('HSTECH','20220101','20240520'))
-    # fname = os.path.join('/home/hh01/Documents/trade_class/data_save','global_index.csv')
     tt = getter_other_index('2025-02-25')
     print(tt.tail(10))
-    # beg_ = time.time()
-    # print(get_week_trade_info(tt[tt.code=='NDX'].index, '2025-01-01'))
-    # print(time.time()-beg_)
-    # tt.to_csv(fname)
     # p1 = global_index_indicator()
     # p1.update_data()
     # p1.set_warn_info()
