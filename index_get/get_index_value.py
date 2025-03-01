@@ -401,6 +401,8 @@ def show_us_warning(fpth:str, ma_lst:tuple=(60,120,250)):
             if not warning_info.get(row['code']):
                 lmin = float(hg.iloc[-k:]['low'].min())
                 crossV, highV=float(round(hg.iloc[-k][f'ma{dtm}'],3)), float(round(hg.iloc[idmax]['high'] ,3))
+                ratio_HL = (crossV-lmin)/(highV-crossV)
+                tov_bl = 3 if ratio_HL > 1.35 else 2
                 warning_info[row['code']] = dict(
                     down_day = k,
                     cross=dtm,
@@ -409,8 +411,9 @@ def show_us_warning(fpth:str, ma_lst:tuple=(60,120,250)):
                     cross_date=hg.iloc[-k]['date'],
                     cross_ma=crossV,
                     low_value=lmin,
-                    ratio = round((crossV-lmin)/(highV-crossV),3),
-                    tovalue = [round(c,3) for c in (2.2*crossV-1.2*highV, 2*crossV-highV, 1.8*crossV-0.8*highV)]
+                    ratio = round(ratio_HL,3),
+                    tovalue = [round(c,3) for c in (tov_bl*1.1*crossV-(tov_bl*1.1-1)*highV,\
+                                        tov_bl*crossV-highV, tov_bl*0.9*crossV-(tov_bl*0.9-1)*highV)]
                 )
     return warning_info
 
@@ -430,8 +433,7 @@ class global_index_indicator(IndicatorGetter):
         warning_info = list()
         warning_saved_set = set()
         for dtm in conf['ma_lst'][::-1]:
-            tocheck_codes = now_data.loc[now_data[f'ld{dtm}']>0,['code',f'ld{dtm}']]
-            # print(dtm, tocheck_codes)
+            tocheck_codes = now_data.loc[now_data[f'ld{dtm}']>0,['name_zh', 'code',f'ld{dtm}']]
             for _,row in tocheck_codes.iterrows():
                 k = row[f'ld{dtm}']
                 hg = ws.iloc[-us_leng*(k+dtm):].loc[ws['code']==row['code']]
@@ -440,22 +442,28 @@ class global_index_indicator(IndicatorGetter):
                     lmin = float(hg.iloc[-k:]['low'].min())
                     close_hl = (hg['close'].max(), hg.iloc[-k:]['close'].min())
                     crossV, highV=float(round(hg.iloc[-k][f'ma{dtm}'],3)), float(round(hg.iloc[idmax]['high'] ,3))
+                    ratio_HL = (crossV-lmin)/(highV-crossV)
+                    tov_bl = 3 if ratio_HL > 1.45 else 2
                     warning_saved_set.add(row['code'])
                     warning_info.append(dict(
+                        name_zh = row['name_zh'],
                         code=row['code'],
                         down_day = k,
                         cross=dtm,
                         high_date=hg.iloc[idmax]['date'],
                         high_value=highV,
                         cross_date=hg.iloc[-k]['date'],
-                        cross_ma=crossV,
+                        cross_ma=round(crossV,2),
                         low_value=lmin,
-                        pct1 = round(100*(1-lmin/highV),3),
-                        pct2 = round(100*(1-close_hl[1]/close_hl[0]), 3),
-                        minvalue = round(highV-crossV,3),
-                        ratio = round((crossV-lmin)/(highV-crossV),3),
-                        tovalue = [round(c,3) for c in (2.2*crossV-1.2*highV, 2*crossV-highV, 1.8*crossV-0.8*highV)]
+                        pct1 = round(100*(1-lmin/highV),2),
+                        pct2 = round(100*(1-close_hl[1]/close_hl[0]), 2),
+                        minvalue = round(highV-crossV,2),
+                        ratio_int = tov_bl,
+                        ratio = round(ratio_HL,2),
+                        tovalue = [round(c,2) for c in (tov_bl*1.1*crossV-(tov_bl*1.1-1)*highV,\
+                                        tov_bl*crossV-(tov_bl-1)*highV, tov_bl*0.9*crossV-(tov_bl*0.9-1)*highV)]
                     ))
+            # print(dtm, '\n', tocheck_codes,'\n', warning_saved_set)
         if warning_info:
             _logger.info(f"{self.cator_name} warning info updating to {near_trade_date}.")
             warning_info.insert(0,near_trade_date)
@@ -466,10 +474,10 @@ class global_index_indicator(IndicatorGetter):
 
 
 if __name__=='__main__':
-    tt = getter_other_index('2025-02-25')
-    print(tt.tail(10))
-    # p1 = global_index_indicator()
-    # p1.update_data()
-    # p1.set_warn_info()
+    # tt = getter_other_index('2025-02-25')
+    # print(tt.tail(10))
+    p1 = global_index_indicator()
+    p1.update_data()
+    p1.set_warn_info()
     # pprint(p1.get_warn_info())
     pass

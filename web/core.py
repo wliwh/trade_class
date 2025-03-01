@@ -34,7 +34,7 @@ Bsearch_Page_Name = {0:'国内',1:'香港',2:'海外',3:'大宗'}
 Draw_Echarts_Path = os.path.join(os.path.dirname(__file__),'..','draw_chart')
 
 
-def get_all_warnings(arange_info):
+def get_all_warnings(arange_info:dict) -> dict:
     warning_infos = dict()
     with open(INDICATOR_CONFIG_PATH, 'r', encoding='UTF-8') as f:
         try:
@@ -53,7 +53,7 @@ def get_all_warnings(arange_info):
             warning_infos[v["zh"]] = ar_warns
     return warning_infos
 
-Warning_Infos = get_all_warnings(Arange_Info['page2'])
+Warning_Infos = get_all_warnings(Arange_Info['page1'])
 
 
 @st.cache_data
@@ -88,7 +88,18 @@ def main_page(infos=Warning_Infos):
     for cap, info in infos.items():
         st_metrics(cap, info)
 
+def second_page(name:str = 'page2'):
+    warns = next(iter(get_all_warnings(Arange_Info[name]).values()))
+    st.title('回撤观测')
+    for warn in warns[1:]:
+        st.header(f"{warn['code']}")
+        st.markdown(f"- Cross@:blue[{warn['cross']}]")
+        st.markdown(f"High: {warn['high_value']}, :gray[*{warn['high_date']}*]")
+        st.markdown(f"Cut:  {warn['cross_ma']}, :gray[*{warn['cross_date']}*]")
+        st.markdown(f"Low:  {warn['low_value']}")
+        st.markdown(f"Back: {warn['pct1']}%, {warn['pct2']}%")
+        st.markdown(f"Mins: :red[**{warn['ratio']}**], {warn['minvalue']}")
 
 
 if __name__ == '__main__':
-    print(Warning_Infos)
+    second_page()

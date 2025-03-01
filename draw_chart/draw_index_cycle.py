@@ -400,5 +400,5 @@ if __name__ == '__main__':
     # print(cycles)
     # print(drawdown_series(df.loc[df['date']>=cycles.iloc[-2,0],'close']))
     # plot_cycles(df, cycles, df_name='close')
-    plot_cand_test(4)
+    plot_cand_test(1)
     pass
