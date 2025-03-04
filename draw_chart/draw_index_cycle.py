@@ -33,6 +33,8 @@ def find_ma_breakthrough_points(df: pd.DataFrame, ma_period: int, min_days_below
     """
     if window_days is None:
         window_days = ma_period // 4  # 默认窗口为均线周期的1/4
+    code_name_ = df['code'][0]
+    zh_name_ =df['name_zh'][0]
         
     # 计算移动平均线
     df['ma'] = df['close'].rolling(window=ma_period).mean()
@@ -71,14 +73,36 @@ def find_ma_breakthrough_points(df: pd.DataFrame, ma_period: int, min_days_below
         
         # 重复元素不要添加进去
         if period[0] <= min_low_idx <= period[-1]:
+            highV =  float(df.loc[max_high_idx, 'high'])
+            lowV = float(df.loc[min_low_idx, 'low'])
+            crossV = float(df.loc[period[0], 'ma'])
+            ratio_HL = (crossV-lowV)/(highV-crossV)
+            tov_bl = 3 if ratio_HL > 1.45 else 2
             breakthrough_points.append({
+                'name_zh': zh_name_,
+                'code': code_name_,
+                'cross': ma_period,
                 'start_date': period[0],
-                'start_price': df.loc[period[0], 'ma'],
+                'start_price': crossV,
                 'end_date': period[-1],
                 'highest_date': max_high_idx,
-                'highest_price': df.loc[max_high_idx, 'high'],
+                'highest_price': highV,
                 'lowest_date': min_low_idx,
-                'lowest_price': df.loc[min_low_idx, 'low'],
+                'lowest_price': lowV,
+                'high_date':  max_high_idx,
+                'high_value': highV,
+                'cross_date': period[0],
+                'cross_ma': crossV,
+                'low_date': min_low_idx,
+                'low_value': lowV,
+                'pct1': round(100 * (1 - lowV / highV), 2),
+                'pct2': 0.0,
+                # 'pct2': round(100 * (1 - close_hl[1] / close_hl[0]), 2),
+                'minValue': round(highV - lowV, 2),
+                'ratio_int': tov_bl,
+                'ratio': round(ratio_HL,2),
+                'tovalue': [round(c,2) for c in (tov_bl*1.1*crossV-(tov_bl*1.1-1)*highV,\
+                                tov_bl*crossV-(tov_bl-1)*highV, tov_bl*0.9*crossV-(tov_bl*0.9-1)*highV)]
             })
         
     return pd.DataFrame(breakthrough_points)
@@ -142,7 +166,8 @@ def format_breakthrough_points(points_df: pd.DataFrame) -> str:
         
     result = []
     for _, row in points_df.iterrows():
-        info = (f"突破区间: {row['start_date'].strftime('%Y-%m-%d')} 到 "
+        info = (f"名称： {row['name_zh']} {row['code']}\n"
+                f"突破区间: {row['start_date'].strftime('%Y-%m-%d')} 到 "
                 f"{row['end_date'].strftime('%Y-%m-%d')}\n"
                 f"前高处日期: {row['highest_date'].strftime('%Y-%m-%d')}\n"
                 f"最高价: {row['highest_price']:.2f}\n"
@@ -226,7 +251,8 @@ def detect_cycle_lows(df, price_col='price', window_size=60, cycle_range=(35,54)
     cycles.reset_index(drop=True, inplace=True)
     return cycles
 
-def plot_cycles(df, cycles, df_name='price'):
+def plot_index_cycles(df, cycles, df_name='price'):
+    ''' 对指数的周期进行绘制, 搭配 detect_cycle_lows 函数  '''
     # 采用上下布局
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12,10))
     # 添加对数同比
@@ -259,19 +285,23 @@ def plot_cycles(df, cycles, df_name='price'):
     plt.grid(True)
     plt.show()
 
-def show_cross_ma():
+def show_cross_ma(choose_code:str='IXIC', begin_date:str='20160101'):
     # 获取指数数据
-    index_getter = other_index_getter('IXIC','20160101')
+    if Search_Index.get(choose_code):
+        choose_code = Search_Index.get(choose_code)
+    else:
+        choose_code = 'IXIC'
+    index_getter = other_index_getter(choose_code,begin_date,'20200101')
     index_getter.index = pd.to_datetime(index_getter.index)
     
     # 分析最近一年的数据
     start_date = (pd.Timestamp.now() - pd.DateOffset(years=8)).strftime('%Y-%m-%d')
     results = analyze_index_ma_points(index_getter, start_date)
     
-    print("=== 指数均线分析结果 ===")
-    print("\n240日均线突破点:")
+    print(f"=== 指数{choose_code}均线分析结果 ===")
+    print("\n--- 240日均线突破点 ---")
     print(format_breakthrough_points(results['ma240_points']))
-    print("\n60日均线突破点:")
+    print("\n--- 60日均线突破点 ---")
     print(format_breakthrough_points(results['ma60_points'])) 
 
 
@@ -362,6 +392,7 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: i
     fig.show()
 
 
+
 def plot_cand_test(choose_n:int=1):
     """
     获取并绘制指定代码的K线图，并标注相关价格水平线。
@@ -400,5 +431,6 @@ if __name__ == '__main__':
     # print(cycles)
     # print(drawdown_series(df.loc[df['date']>=cycles.iloc[-2,0],'close']))
     # plot_cycles(df, cycles, df_name='close')
-    plot_cand_test(1)
+    # plot_cand_test(1)
+    show_cross_ma('IXIC')
     pass
