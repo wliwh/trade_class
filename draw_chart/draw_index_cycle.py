@@ -17,7 +17,7 @@ Search_Index = {
     '纳指100':'NDX100'
 }
 
-def find_ma_breakthrough_points(df: pd.DataFrame, ma_period: int, min_days_below: int = 5, 
+def _find_ma_breakthrough_points(df: pd.DataFrame, ma_period: int, min_days_below: int = 5, 
                                 window_days: int = None) -> pd.DataFrame:
     """
     查找指数跌破均线的关键点位
@@ -107,93 +107,32 @@ def find_ma_breakthrough_points(df: pd.DataFrame, ma_period: int, min_days_below
         
     return pd.DataFrame(breakthrough_points)
 
-def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None, min_days:int=5):
-    code_name, zh_name = df.loc[0, ['code', 'name_zh']]
-    if window_days==None:
-        window_days = ma_period // 2  # 默认窗口为均线周期的1/2
-
-    def set_dict(cros_idx, idx, ma_d, cnm, zh_name):
-        if cros_idx<0: return False
-        min_low_idx = df.iloc[cros_idx:idx]['low'].idxmin()
-        high_idx = df.iloc[max(cros_idx-window_days, 0):cros_idx]['high'].idxmax()
-        highV =  float(df.loc[high_idx, 'high'])
-        lowV = float(df.loc[min_low_idx, 'low'])
-        crossV = float(df.loc[cros_idx, f'ma{ma_d}'])
-        ratio_HL = (crossV-lowV)/(highV-crossV)
-        tov_bl = 3 if ratio_HL > 1.45 else 2
-        return dict(
-                name_zh = zh_name,
-                code = cnm,
-                down_day = idx-cros_idx,
-                cross=ma_d,
-                high_date=df.loc[high_idx, 'date'],
-                high_value=highV,
-                cross_date=df.loc[cros_idx, 'date'],
-                cross_ma=round(crossV,2),
-                low_date=df.loc[min_low_idx,'date'],
-                low_value=lowV,
-                pct1 = round(100*(1-lowV/highV),2),
-                pct2 = 0,
-                minvalue = round(highV-crossV,2),
-                ratio_int = tov_bl,
-                ratio = round(ratio_HL,2),
-                tovalue = [round(c,2) for c in (tov_bl*1.1*crossV-(tov_bl*1.1-1)*highV,\
-                                tov_bl*crossV-(tov_bl-1)*highV, tov_bl*0.9*crossV-(tov_bl*0.9-1)*highV)])
-    
-    # 初始化结果列表
-    result = []
-    cross_idx = None
-    in_sequence = False
-    
-    # 遍历每一行
-    for index, row in df.iterrows():
-        if row[f'ld{ma_period}'] >= min_days:
-            if not in_sequence:
-                # 开始一个新的序列
-                cross_idx = index-min_days+1
-                in_sequence = True
-        else:
-            if in_sequence:
-                # 结束当前序列
-                dic = set_dict(cross_idx, index, ma_period, code_name, zh_name)
-                if dic: result.append(dic)
-                in_sequence = False
-    
-    # 处理最后一个序列
-    if in_sequence:
-        end_idx = df.index[-1]
-        result.append(set_dict(cross_idx, end_idx, ma_period, code_name, zh_name))
-    
-    return pd.DataFrame(result)
-
-def _test_find_break1():
-    p1 = pd.read_csv(os.path.join(os.path.dirname(__file__), '../data_save/global_index.csv'))
-    p1 = p1[(p1.code=='NDX') & (p1.date>'2016-01-01')]
-    p1.reset_index(drop=True, inplace=True)
-    # print(p1.tail())
-    print(find_break_ma_range(p1, 60, 30, 5))
-
-def analyze_price_series(df: pd.DataFrame) -> dict:
+def _analyze_index_ma_points(index_df: pd.DataFrame, start_date: str = None) -> dict:
     """
-    分析价格序列，找出跌破240日和60日均线的关键点位
+    分析指数的均线突破点位
     
     参数:
-        df: 包含 'close' 和 'low' 列的DataFrame，index为日期
-        
-    返回:
-        包含两种均线突破点的字典
+        index_df: 包含指数数据的DataFrame，需要包含'close'和'low'列
+        start_date: 开始分析的日期，如果为None则使用全部数据
     """
+    if start_date:
+        index_df = index_df[index_df.index >= pd.to_datetime(start_date)]
+        
+    # 确保数据足够长
+    if len(index_df) < 240:
+        raise ValueError("数据长度不足240个交易日，无法进行240日均线分析")
+
     # 240日均线分析
-    ma240_points = find_ma_breakthrough_points(
-        df, 
+    ma240_points = _find_ma_breakthrough_points(
+        index_df, 
         ma_period=240,
         min_days_below=5,
         window_days=120  # 前后半年
     )
     
     # 60日均线分析
-    ma60_points = find_ma_breakthrough_points(
-        df, 
+    ma60_points = _find_ma_breakthrough_points(
+        index_df, 
         ma_period=60, 
         min_days_below=5,
         window_days=30  # 前后1.5个月
@@ -208,24 +147,7 @@ def analyze_price_series(df: pd.DataFrame) -> dict:
         'ma60_points': ma60_filtered
     }
 
-def analyze_index_ma_points(index_df: pd.DataFrame, start_date: str = None) -> dict:
-    """
-    分析指数的均线突破点位
-    
-    参数:
-        index_df: 包含指数数据的DataFrame，需要包含'close'和'low'列
-        start_date: 开始分析的日期，如果为None则使用全部数据
-    """
-    if start_date:
-        index_df = index_df[index_df.index >= pd.to_datetime(start_date)]
-        
-    # 确保数据足够长
-    if len(index_df) < 240:
-        raise ValueError("数据长度不足240个交易日，无法进行240日均线分析")
-        
-    return analyze_price_series(index_df)
-
-def format_breakthrough_points(points_df: pd.DataFrame) -> str:
+def _format_breakthrough_points(points_df: pd.DataFrame) -> str:
     """格式化突破点信息"""
     if points_df.empty:
         return "未发现符合条件的突破点"
@@ -247,7 +169,27 @@ def format_breakthrough_points(points_df: pd.DataFrame) -> str:
         
     return "\n".join(result)
 
+def _show_cross_ma(choose_code:str='IXIC', begin_date:str='20160101'):
+    # 获取指数数据
+    if Search_Index.get(choose_code):
+        choose_code = Search_Index.get(choose_code)
+    else:
+        choose_code = 'IXIC'
+    index_getter = other_index_getter(choose_code,begin_date,'20200101')
+    index_getter.index = pd.to_datetime(index_getter.index)
+    
+    # 分析最近一年的数据
+    start_date = (pd.Timestamp.now() - pd.DateOffset(years=8)).strftime('%Y-%m-%d')
+    results = _analyze_index_ma_points(index_getter, start_date)
+    
+    print(f"=== 指数{choose_code}均线分析结果 ===")
+    print("\n--- 240日均线突破点 ---")
+    print(_format_breakthrough_points(results['ma240_points']))
+    print("\n--- 60日均线突破点 ---")
+    print(_format_breakthrough_points(results['ma60_points'])) 
 
+
+# 短周期分析与绘制
 def detect_cycle_lows(df, price_col='price', window_size=60, cycle_range=(35,54)):
     """
     分析日频金融数据，识别周期性低点
@@ -351,24 +293,117 @@ def plot_index_cycles(df, cycles, df_name='price'):
     plt.grid(True)
     plt.show()
 
-def show_cross_ma(choose_code:str='IXIC', begin_date:str='20160101'):
-    # 获取指数数据
-    if Search_Index.get(choose_code):
-        choose_code = Search_Index.get(choose_code)
-    else:
-        choose_code = 'IXIC'
-    index_getter = other_index_getter(choose_code,begin_date,'20200101')
-    index_getter.index = pd.to_datetime(index_getter.index)
+def _test_index_cycles1():
+    df = other_index_getter(Search_Index['标普500'],'1990-01-01','2008-01-01')
+    # df['date'] = pd.to_datetime(df.index)
+    cycles = detect_cycle_lows(df, price_col='close')
+    print(cycles)
+    plot_index_cycles(df, cycles, df_name='close')
+
+
+def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None, min_days:int=5):
+    ''' 分析价格击破均线前后的关键信息，包括前期高点、均线下方的低点、对称性等 '''
+    code_name, zh_name = df.loc[0, ['code', 'name_zh']]
+    if window_days==None:
+        window_days = ma_period // 2  # 默认窗口为均线周期的1/2
+
+    def set_dict(cros_idx, idx, ma_d, cnm, zh_name):
+        if cros_idx<=0: return False
+        # print(cros_idx, idx)
+        min_low_idx = df.iloc[cros_idx:idx]['low'].idxmin()
+        high_idx = df.iloc[max(cros_idx-window_days, 0):cros_idx+1]['high'].idxmax()
+        highV =  float(df.loc[high_idx, 'high'])
+        lowV = float(df.loc[min_low_idx, 'low'])
+        crossV = float(df.loc[cros_idx, f'ma{ma_d}'])
+        ratio_HL = (crossV-lowV)/(highV-crossV)
+        tov_bl = 3 if ratio_HL > 1.45 else 2
+        return dict(
+                name_zh = zh_name,
+                code = cnm,
+                down_day = idx-cros_idx,
+                cross=ma_d,
+                high_date=df.loc[high_idx, 'date'],
+                high_value=highV,
+                cross_date=df.loc[cros_idx, 'date'],
+                cross_ma=round(crossV,2),
+                low_date=df.loc[min_low_idx,'date'],
+                low_value=lowV,
+                pct1 = round(100*(1-lowV/highV),2),
+                minvalue = round(highV-crossV,2),
+                ratio = round(ratio_HL,2),
+                ratio_int = tov_bl,
+                ratio_sim = ratio_HL/tov_bl if ratio_HL>tov_bl else tov_bl/ratio_HL,
+                tovalue = [round(c,2) for c in (tov_bl*1.1*crossV-(tov_bl*1.1-1)*highV,\
+                                tov_bl*crossV-(tov_bl-1)*highV, tov_bl*0.9*crossV-(tov_bl*0.9-1)*highV)])
     
-    # 分析最近一年的数据
-    start_date = (pd.Timestamp.now() - pd.DateOffset(years=8)).strftime('%Y-%m-%d')
-    results = analyze_index_ma_points(index_getter, start_date)
+    # 初始化结果列表
+    result = []
+    cross_idx = None
+    in_sequence = False
     
-    print(f"=== 指数{choose_code}均线分析结果 ===")
-    print("\n--- 240日均线突破点 ---")
-    print(format_breakthrough_points(results['ma240_points']))
-    print("\n--- 60日均线突破点 ---")
-    print(format_breakthrough_points(results['ma60_points'])) 
+    # 遍历每一行
+    for index, row in df.iterrows():
+        if row[f'ld{ma_period}'] >= min_days:
+            if not in_sequence:
+                # 开始一个新的序列
+                cross_idx = index-min_days+1
+                in_sequence = True
+        else:
+            if in_sequence:
+                # 结束当前序列
+                dic = set_dict(cross_idx, index, ma_period, code_name, zh_name)
+                if dic:
+                    result.append(dic)
+                in_sequence = False
+    
+    # 处理最后一个序列
+    if in_sequence:
+        end_idx = df.index[-1]
+        result.append(set_dict(cross_idx, end_idx, ma_period, code_name, zh_name))
+    
+    df = pd.DataFrame(result)
+    df.sort_values(by=['high_date','low_value'],inplace=True)
+    df.drop_duplicates(subset=['high_date'],keep='first',inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    return df
+
+def _test_find_break1():
+    p1 = pd.read_csv(os.path.join(os.path.dirname(__file__), '../data_save/global_index.csv'))
+    p1 = p1[(p1.code=='NDX') & (p1.date>'2016-01-01')]
+    p1.reset_index(drop=True, inplace=True)
+    # print(p1.tail())
+    print(find_break_ma_range(p1, 60, 30, 5))
+
+def find_all_breaks() -> dict:
+    """
+    分析价格序列，找出跌破250日、120日和60日均线的关键点位
+    
+    参数:
+        df: 包含 'close' 和 'low' 列的DataFrame，index为日期
+        
+    返回:
+        包含两种均线突破点的字典
+    """
+    p1 = pd.read_csv(os.path.join(os.path.dirname(__file__), '../data_save/global_index.csv'))
+    pn = p1[(p1.code=='NDX') & (p1.date>'2016-01-01')]
+    pn.reset_index(drop=True, inplace=True)
+
+    ma250_break = find_break_ma_range(pn, 250, 120, 5)
+    ma120_break = find_break_ma_range(pn, 120, 70, 5)
+    ma60_break = find_break_ma_range(pn, 60, 30, 5)
+
+    ma250_low_dates = set(ma250_break['low_date'])
+    ma120_low_dates = set(ma120_break['low_date'])
+    ma120_filtered = ma120_break[~ma120_break['low_date'].isin(ma250_low_dates)]
+    ma60_filtered = ma60_break[~ma60_break['low_date'].isin(ma250_low_dates)]
+    ma60_filtered = ma60_filtered[~ma60_filtered['low_date'].isin(ma120_low_dates)]
+
+    return {
+        "ma250": ma250_break,
+        "ma120": ma120_filtered,
+        "ma60": ma60_filtered
+    }
+
 
 
 def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: int):
@@ -491,13 +526,7 @@ def plot_cand_test(choose_n:int=1):
 
 
 if __name__ == '__main__':
-    # df = other_index_getter(Search_Index['标普500'],'1990-01-01','2008-01-01')
-    # # df['date'] = pd.to_datetime(df.index)
-    # cycles = detect_cycle_lows(df, price_col='close')
-    # print(cycles)
-    # print(drawdown_series(df.loc[df['date']>=cycles.iloc[-2,0],'close']))
-    # plot_cycles(df, cycles, df_name='close')
     # plot_cand_test(1)
-    # show_cross_ma('IXIC')
-    _test_find_break1()
+    # _test_find_break1()
+    print(find_all_breaks()['ma120'].iloc[:,:10])
     pass
