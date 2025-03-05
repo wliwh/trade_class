@@ -141,9 +141,7 @@ def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None,
     
     # 初始化结果列表
     result = []
-    df_lens = len(df)
     cross_idx = None
-    cross_date = None
     in_sequence = False
     
     # 遍历每一行
