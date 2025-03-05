@@ -113,6 +113,7 @@ def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None,
         window_days = ma_period // 2  # 默认窗口为均线周期的1/2
 
     def set_dict(cros_idx, idx, ma_d, cnm, zh_name):
+        if cros_idx<0: return False
         min_low_idx = df.iloc[cros_idx:idx]['low'].idxmin()
         high_idx = df.iloc[max(cros_idx-window_days, 0):cros_idx]['high'].idxmax()
         highV =  float(df.loc[high_idx, 'high'])
@@ -154,7 +155,8 @@ def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None,
         else:
             if in_sequence:
                 # 结束当前序列
-                result.append(set_dict(cross_idx, index, ma_period, code_name, zh_name))
+                dic = set_dict(cross_idx, index, ma_period, code_name, zh_name)
+                if dic: result.append(dic)
                 in_sequence = False
     
     # 处理最后一个序列
@@ -166,10 +168,10 @@ def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None,
 
 def _test_find_break1():
     p1 = pd.read_csv(os.path.join(os.path.dirname(__file__), '../data_save/global_index.csv'))
-    p1 = p1[p1.code=='NDX']
+    p1 = p1[(p1.code=='NDX') & (p1.date>'2016-01-01')]
     p1.reset_index(drop=True, inplace=True)
     # print(p1.tail())
-    print(find_break_ma_range(p1, 60, 30, 5).iloc[-2])
+    print(find_break_ma_range(p1, 60, 30, 5))
 
 def analyze_price_series(df: pd.DataFrame) -> dict:
     """
