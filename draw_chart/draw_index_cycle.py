@@ -107,6 +107,72 @@ def find_ma_breakthrough_points(df: pd.DataFrame, ma_period: int, min_days_below
         
     return pd.DataFrame(breakthrough_points)
 
+def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None, min_days:int=5):
+    code_name, zh_name = df.loc[0, ['code', 'name_zh']]
+    if window_days==None:
+        window_days = ma_period // 2  # 默认窗口为均线周期的1/2
+
+    def set_dict(cros_idx, idx, ma_d, cnm, zh_name):
+        min_low_idx = df.iloc[cros_idx:idx]['low'].idxmin()
+        high_idx = df.iloc[max(cros_idx-window_days, 0):cros_idx]['high'].idxmax()
+        highV =  float(df.loc[high_idx, 'high'])
+        lowV = float(df.loc[min_low_idx, 'low'])
+        crossV = float(df.loc[cros_idx, f'ma{ma_d}'])
+        ratio_HL = (crossV-lowV)/(highV-crossV)
+        tov_bl = 3 if ratio_HL > 1.45 else 2
+        return dict(
+                name_zh = zh_name,
+                code = cnm,
+                down_day = idx-cros_idx,
+                cross=ma_d,
+                high_date=df.loc[high_idx, 'date'],
+                high_value=highV,
+                cross_date=df.loc[cros_idx, 'date'],
+                cross_ma=round(crossV,2),
+                low_date=df.loc[min_low_idx,'date'],
+                low_value=lowV,
+                pct1 = round(100*(1-lowV/highV),2),
+                pct2 = 0,
+                minvalue = round(highV-crossV,2),
+                ratio_int = tov_bl,
+                ratio = round(ratio_HL,2),
+                tovalue = [round(c,2) for c in (tov_bl*1.1*crossV-(tov_bl*1.1-1)*highV,\
+                                tov_bl*crossV-(tov_bl-1)*highV, tov_bl*0.9*crossV-(tov_bl*0.9-1)*highV)])
+    
+    # 初始化结果列表
+    result = []
+    df_lens = len(df)
+    cross_idx = None
+    cross_date = None
+    in_sequence = False
+    
+    # 遍历每一行
+    for index, row in df.iterrows():
+        if row[f'ld{ma_period}'] >= min_days:
+            if not in_sequence:
+                # 开始一个新的序列
+                cross_idx = index-min_days+1
+                in_sequence = True
+        else:
+            if in_sequence:
+                # 结束当前序列
+                result.append(set_dict(cross_idx, index, ma_period, code_name, zh_name))
+                in_sequence = False
+    
+    # 处理最后一个序列
+    if in_sequence:
+        end_idx = df.index[-1]
+        result.append(set_dict(cross_idx, end_idx, ma_period, code_name, zh_name))
+    
+    return pd.DataFrame(result)
+
+def _test_find_break1():
+    p1 = pd.read_csv(os.path.join(os.path.dirname(__file__), '../data_save/global_index.csv'))
+    p1 = p1[p1.code=='NDX']
+    p1.reset_index(drop=True, inplace=True)
+    # print(p1.tail())
+    print(find_break_ma_range(p1, 60, 30, 5).iloc[-2])
+
 def analyze_price_series(df: pd.DataFrame) -> dict:
     """
     分析价格序列，找出跌破240日和60日均线的关键点位
@@ -432,5 +498,6 @@ if __name__ == '__main__':
     # print(drawdown_series(df.loc[df['date']>=cycles.iloc[-2,0],'close']))
     # plot_cycles(df, cycles, df_name='close')
     # plot_cand_test(1)
-    show_cross_ma('IXIC')
+    # show_cross_ma('IXIC')
+    _test_find_break1()
     pass
