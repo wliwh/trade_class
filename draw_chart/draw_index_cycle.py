@@ -3,12 +3,13 @@
 """
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.signal import argrelextrema
+import plotly.graph_objects as go
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 from index_get.get_index_value import other_index_getter, global_index_indicator
 from common.smooth_tool import drawdown_series
-import matplotlib.pyplot as plt
-from scipy.signal import argrelextrema
 
 Search_Index = {
     '道琼斯':'道琼斯',
@@ -316,7 +317,8 @@ def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None,
         lowV = float(df.loc[min_low_idx, 'low'])
         crossV = float(df.loc[cros_idx, f'ma{ma_d}'])
         ratio_HL = (crossV-lowV)/(highV-crossV)
-        tov_bl = 3 if ratio_HL > 1.45 else 2
+        tov_bl = 2 if ratio_HL > 1.45 else 1
+        end_idx = min(idx+5, len(df)-1)
         return dict(
                 name_zh = zh_name,
                 code = cnm,
@@ -328,13 +330,14 @@ def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None,
                 cross_ma=round(crossV,2),
                 low_date=df.loc[min_low_idx,'date'],
                 low_value=lowV,
+                end_date = df.loc[end_idx,'date'],
                 pct1 = round(100*(1-lowV/highV),2),
                 minvalue = round(highV-crossV,2),
                 ratio = round(ratio_HL,2),
                 ratio_int = tov_bl,
                 ratio_sim = ratio_HL/tov_bl if ratio_HL>tov_bl else tov_bl/ratio_HL,
-                tovalue = [round(c,2) for c in (tov_bl*1.1*crossV-(tov_bl*1.1-1)*highV,\
-                                tov_bl*crossV-(tov_bl-1)*highV, tov_bl*0.9*crossV-(tov_bl*0.9-1)*highV)])
+                tovalue = [round(c,2) for c in ((tov_bl+1)*1.1*crossV-(tov_bl*1.1+0.1)*highV,\
+                                (tov_bl+1)*crossV-(tov_bl)*highV, (tov_bl+1)*0.9*crossV-(tov_bl*0.9-0.1)*highV)])
     
     # 初始化结果列表
     result = []
@@ -374,36 +377,32 @@ def _test_find_break1():
     # print(p1.tail())
     print(find_break_ma_range(p1, 60, 30, 5))
 
-def find_all_breaks() -> dict:
+def find_all_breaks(pn:pd.DataFrame) -> dict:
     """
     分析价格序列，找出跌破250日、120日和60日均线的关键点位
     
     参数:
-        df: 包含 'close' 和 'low' 列的DataFrame，index为日期
+        pn: 包含 'close' 和 'low' 列的DataFrame，index为日期
         
     返回:
         包含两种均线突破点的字典
     """
-    p1 = pd.read_csv(os.path.join(os.path.dirname(__file__), '../data_save/global_index.csv'))
-    pn = p1[(p1.code=='NDX') & (p1.date>'2016-01-01')]
-    pn.reset_index(drop=True, inplace=True)
-
     ma250_break = find_break_ma_range(pn, 250, 120, 5)
     ma120_break = find_break_ma_range(pn, 120, 70, 5)
     ma60_break = find_break_ma_range(pn, 60, 30, 5)
 
-    ma250_low_dates = set(ma250_break['low_date'])
-    ma120_low_dates = set(ma120_break['low_date'])
-    ma120_filtered = ma120_break[~ma120_break['low_date'].isin(ma250_low_dates)]
-    ma60_filtered = ma60_break[~ma60_break['low_date'].isin(ma250_low_dates)]
-    ma60_filtered = ma60_filtered[~ma60_filtered['low_date'].isin(ma120_low_dates)]
+    # ma250_low_dates = set(ma250_break['low_date'])
+    # ma120_low_dates = set(ma120_break['low_date'])
+    # ma120_filtered = ma120_break[~ma120_break['low_date'].isin(ma250_low_dates)]
+    # ma60_filtered = ma60_break[~ma60_break['low_date'].isin(ma250_low_dates)]
+    # ma60_filtered = ma60_filtered[~ma60_filtered['low_date'].isin(ma120_low_dates)]
 
-    return {
-        "ma250": ma250_break,
-        "ma120": ma120_filtered,
-        "ma60": ma60_filtered
-    }
-
+    p1 = pd.concat([ma250_break, ma120_break, ma60_break])
+    p1.sort_values(by=['high_date','ratio_sim'],inplace=True)
+    group_c = {group: i + 1 for i, group in enumerate(p1['high_date'].unique())}
+    p1['group_cnt'] = p1.groupby('high_date').cumcount() + 1
+    p1 = p1[p1['group_cnt']==1]
+    return p1
 
 
 def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: int):
@@ -414,60 +413,65 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: i
         df: DataFrame，包含OHLC数据
         line_tuple: 字典，格式为 {日期: 价格水平}
     """
-    import plotly.graph_objects as go
 
     # 去除日期中的空隙
-    beg_, end_ = df.index.min(), df.index.max()
+    beg_, end_ = df['date'].min(), df['date'].max()
     all_days = set(x.strftime('%Y-%m-%d') for x in pd.date_range(start=beg_,end=end_,freq='D'))
-    rm_days = all_days - set(df.index)
+    rm_days = all_days - set(df['date'])
     
     # 创建K线图对象
-    fig = go.Figure(data=[go.Candlestick(x=df.index,
+    fig = go.Figure(data=[go.Candlestick(x=df['date'],
                                         open=df['open'],
                                         high=df['high'],
                                         low=df['low'],
                                         close=df['close'],
+                                        name='',
                                         increasing_line_color='#FF4136',
                                         decreasing_line_color='#3D9970',
                                         increasing_fillcolor='#FF9F9A',
                                         decreasing_fillcolor='#9DCCB7'
                                         )])
     fig.update_xaxes(
-        rangeslider_visible=True,
+        rangeslider_visible=False,
+        # rangeselector_visible=False,
+        tickformat='%m-%d',
         rangebreaks=[
-            # NOTE: Below values are bound (not single values), ie. hide x to y
-            # dict(bounds=["sat", "mon"]),  # hide weekends, eg. hide sat to before mon
-            # dict(bounds=[16, 9.5], pattern="hour"),  # hide hours outside of 9.30am-4pm
             dict(values=list(rm_days))  # hide holidays (Christmas and New Year's, etc)
-        ]
+        ],
+        type='date'
+    )
+    fig.update_yaxes(
+        # autorange=True,
+        tickformat='d',
+        separatethousands=False,            # 启用千位分隔符
+        nticks=5                            # 控制刻度数量（可选）
     )
     if cross_ma < 180:
-        fig.add_trace(go.Scatter(x=df.index,y=df[f'ma60'],line={'color':'orange'},name=f'ma60'))
+        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma60'],line={'color':'blue'},name=f'ma60'))
         if cross_ma>90:
-            fig.add_trace(go.Scatter(x=df.index,y=df[f'ma{cross_ma}'],line={'color':'green'},name=f'ma{cross_ma}'))
+            fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma{cross_ma}'],line={'color':'gray'},name=f'ma{cross_ma}'))
     else:
-        fig.add_trace(go.Scatter(x=df.index,y=df[f'ma120'],line={'color':'orange'},name=f'ma120'))
-        fig.add_trace(go.Scatter(x=df.index,y=df[f'ma{cross_ma}'],line={'color':'green'},name=f'ma{cross_ma}'))
+        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma120'],line={'color':'blue'},name=f'ma120'))
+        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma{cross_ma}'],line={'color':'gray'},name=f'ma{cross_ma}'))
     
     # 添加水平线
-    line_colors = ['rgba(255,0,0,0.8)','rgba(0,0,192,0.8)','rgba(0,192,64,0.8)','rgba(255,128,0,0.6)']
+    line_colors = ['rgba(255,0,0,0.8)','rgba(192,64,0,0.8)','rgba(0,192,64,0.8)','rgba(255,128,0,0.6)']
     for j,(date, price) in enumerate(line_tuple):
         fig.add_shape(
             type='line',
             x0=date,
             y0=price,
-            x1=df.index[-1],  # 延伸到图表最右端
+            x1=df.iloc[-1]['date'],  # 延伸到图表最右端
             y1=price,
             line=dict(
                 color=line_colors[j] if j<3 else line_colors[3],
-                width=2,
+                width=4,
                 dash='solid' if j<3 else 'dash'
             )
         )
-        
         # 添加标注
         fig.add_annotation(
-            x=date if j<3 else df.index[-3],
+            x=date if j<3 else df.iloc[-3]['date'],
             y=price,
             text=f'{price:.2f}',
             showarrow=True if j<3 else False,
@@ -481,22 +485,19 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: i
         # title='title',
         # yaxis_title='价格',
         # xaxis_title='日期',
-        xaxis=dict(
-            rangeslider=dict(visible=False),  # 关闭主导航条
-            rangeselector=dict(visible=False) # 关闭日期选择按钮（可选）
-        ),
+        margin=dict(t=30, b=30, pad=0),
+        autosize=True,
+        showlegend=False,
         template='plotly_white'
     )
-
-    
     # 显示图表
-    fig.show()
-
+    # fig.show()
+    return fig
 
 
 def plot_cand_test(choose_n:int=1):
     """
-    获取并绘制指定代码的K线图，并标注相关价格水平线。
+    获取并绘制图，并标注相关价格水平线。
 
     参数:
         choose_n (int): 选择要分析的警告信息索引，默认为1。
@@ -505,28 +506,38 @@ def plot_cand_test(choose_n:int=1):
         1. 从全局配置中获取数据路径和警告信息。
         2. 加载CSV数据文件，筛选出与警告信息中代码相同的记录。
         3. 根据警告信息中的高点日期确定起始日期，以确保图表包含足够的数据。
-        4. 准备要标注的价格水平线，包括高点、交叉MA值、低点和任意其他指定值。
+        4. 准备要标注的价格水平线，包括高点、交叉值、低点和任意其他指定值。
         5. 使用 `plot_candlestick_with_lines` 函数绘制K线图，并添加标水平线。
     """
     glb = global_index_indicator()
     conf = glb.get_cator_conf()
     fpath = conf['fpath']
-    warn_info = conf['warning_info'][choose_n]
-    p1 = pd.read_csv(fpath,index_col=0)
-    p1 = p1[p1.code==warn_info['code']]
-    high_day = warn_info['high_date']
-    if (pd.to_datetime(conf['max_date_idx']) - pd.to_datetime(high_day)).days<50:
-        beg_day = p1.index[-55]
+    p1 = pd.read_csv(fpath)
+    pn = p1[(p1.code=='NDX') & (p1.date>'2020-01-01')]
+    pn.reset_index(drop=True, inplace=True)
+    warn_info = find_all_breaks(pn).iloc[choose_n].to_dict()
+    h_d, e_d = pd.to_datetime(warn_info['high_date']), pd.to_datetime(warn_info['end_date'])
+    if (e_d - h_d).days<50:
+        beg_day = (e_d-pd.offsets.Day(55)).strftime('%Y-%m-%d')
     else:
-        beg_day = (pd.to_datetime(high_day)-pd.offsets.Day(10)).strftime('%Y-%m-%d')
-    p1 = p1[p1.index>beg_day]
+        beg_day = (h_d-pd.offsets.Day(10)).strftime('%Y-%m-%d')
+    pn = pn[(pn['date']>beg_day) & (pn['date']<=warn_info['end_date'])]
     days_dict = [warn_info['high_value'],warn_info['cross_ma'], warn_info['low_value']]+warn_info['tovalue']
-    days_dict = ((high_day,d) for d in days_dict)
-    plot_candlestick_with_lines(p1, days_dict, warn_info['cross'])
+    days_dict = ((warn_info['high_date'],d) for d in days_dict)
+    plot_candlestick_with_lines(pn, days_dict, warn_info['cross'])
+    # high_day = warn_info['high_date']
+    # if (pd.to_datetime(conf['max_date_idx']) - pd.to_datetime(high_day)).days<50:
+    #     beg_day = p1.index[-55]
+    # else:
+    #     beg_day = (pd.to_datetime(high_day)-pd.offsets.Day(10)).strftime('%Y-%m-%d')
+    # p1 = p1[p1.index>beg_day]
+    # days_dict = [warn_info['high_value'],warn_info['cross_ma'], warn_info['low_value']]+warn_info['tovalue']
+    # days_dict = ((high_day,d) for d in days_dict)
+    # plot_candlestick_with_lines(p1, days_dict, warn_info['cross'])
 
 
 if __name__ == '__main__':
     # plot_cand_test(1)
     # _test_find_break1()
-    print(find_all_breaks()['ma120'].iloc[:,:10])
+    print(plot_cand_test(0))
     pass

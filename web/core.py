@@ -9,7 +9,8 @@ from collections import defaultdict
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from index_get.config import INDICATOR_CONFIG_PATH
 from common.baidu_utils import Search_Name_Path
-from draw_chart.draw_bsearch import draw_future_echart
+# from draw_chart.draw_bsearch import draw_future_echart
+from draw_chart.draw_index_cycle import plot_candlestick_with_lines
 
 def get_keywords():
     keys = list()
