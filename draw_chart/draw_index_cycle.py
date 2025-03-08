@@ -341,6 +341,7 @@ def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None,
     
     # 初始化结果列表
     result = []
+    old_idx = [0]
     cross_idx = None
     in_sequence = False
     
@@ -357,8 +358,10 @@ def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None,
                 dic = set_dict(cross_idx, index, ma_period, code_name, zh_name)
                 if dic:
                     result.append(dic)
+                    old_idx.extend([cross_idx, index])
                 in_sequence = False
     
+    # print(pd.concat([df.loc[old_idx[::2],'date'], df.loc[old_idx[1::2],'date']], axis=1, ignore_index=True))
     # 处理最后一个序列
     if in_sequence:
         end_idx = df.index[-1]
@@ -372,10 +375,11 @@ def find_break_ma_range(df:pd.DataFrame, ma_period:int, window_days: int = None,
 
 def _test_find_break1():
     p1 = pd.read_csv(os.path.join(os.path.dirname(__file__), '../data_save/global_index.csv'))
-    p1 = p1[(p1.code=='NDX') & (p1.date>'2016-01-01')]
+    p1 = p1[(p1.code=='NDX') & (p1.date>'2020-01-01')]
     p1.reset_index(drop=True, inplace=True)
     # print(p1.tail())
     print(find_break_ma_range(p1, 60, 30, 5))
+
 
 def find_all_breaks(pn:pd.DataFrame) -> dict:
     """
@@ -385,11 +389,12 @@ def find_all_breaks(pn:pd.DataFrame) -> dict:
         pn: 包含 'close' 和 'low' 列的DataFrame，index为日期
         
     返回:
-        包含两种均线突破点的字典
+        表格信息
     """
     ma250_break = find_break_ma_range(pn, 250, 120, 5)
-    ma120_break = find_break_ma_range(pn, 120, 70, 5)
-    ma60_break = find_break_ma_range(pn, 60, 30, 5)
+    ma250_break = ma250_break[ma250_break['pct1']>15]
+    ma120_break = find_break_ma_range(pn, 120, 85, 5)
+    ma60_break = find_break_ma_range(pn, 60, 25, 5)
 
     # ma250_low_dates = set(ma250_break['low_date'])
     # ma120_low_dates = set(ma120_break['low_date'])
@@ -401,13 +406,25 @@ def find_all_breaks(pn:pd.DataFrame) -> dict:
     p1.sort_values(by=['high_date','ratio_sim'],inplace=True)
     group_c = {group: i + 1 for i, group in enumerate(p1['high_date'].unique())}
     p1['group_cnt'] = p1.groupby('high_date').cumcount() + 1
-    p1 = p1[p1['group_cnt']==1]
+    p1 = p1[(p1['group_cnt']==1)]
+    # p1.sort_values(by=['low_date','ratio_sim'],inplace=True)
     return p1
 
+def _test_all_breaks():
+    """
+    测试find_all_breaks函数
+    """
+    glb = global_index_indicator()
+    conf = glb.get_cator_conf()
+    fpath = conf['fpath']
+    p1 = pd.read_csv(fpath)
+    pn = p1[(p1.code=='NDX') & (p1.date>'2020-01-01')]
+    pn.reset_index(drop=True, inplace=True)
+    print(find_all_breaks(pn))
 
 def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: int):
     """
-    使用plotly绘制K线图，并标注水平线
+    使用plotly绘制图，并标注水平线
     
     参数:
         df: DataFrame，包含OHLC数据
@@ -447,9 +464,9 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: i
         nticks=5                            # 控制刻度数量（可选）
     )
     if cross_ma < 180:
-        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma60'],line={'color':'blue'},name=f'ma60'))
+        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma60'],line={'color':'green'},name=f'ma60'))
         if cross_ma>90:
-            fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma{cross_ma}'],line={'color':'gray'},name=f'ma{cross_ma}'))
+            fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma{cross_ma}'],line={'color':'blue'},name=f'ma{cross_ma}'))
     else:
         fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma120'],line={'color':'blue'},name=f'ma120'))
         fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma{cross_ma}'],line={'color':'gray'},name=f'ma{cross_ma}'))
@@ -538,6 +555,6 @@ def plot_cand_test(choose_n:int=1):
 
 if __name__ == '__main__':
     # plot_cand_test(1)
-    # _test_find_break1()
-    print(plot_cand_test(0))
+    _test_find_break1()
+    # print(plot_cand_test(0))
     pass

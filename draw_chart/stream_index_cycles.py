@@ -20,7 +20,7 @@ def to_chinese_date(d1, d2):
     zh_date2 = date_obj2.strftime("%Y年%#m月%#d日") if date_obj2.year!=date_obj1.year else date_obj2.strftime("%#m月%#d日")
     return zh_date1+' -- '+zh_date2
 
-def make_drop_items(choose_n:int=1, code_name:str='NDX', beg_day:str='2020-01-01'):
+def make_drop_items(code_name:str='NDX', beg_day:str='2020-01-01'):
     """
     获取并绘制图，并标注相关价格水平线。
 
@@ -41,26 +41,27 @@ def make_drop_items(choose_n:int=1, code_name:str='NDX', beg_day:str='2020-01-01
     pn = p1[(p1.code==code_name) & (p1.date>=beg_day)]
     pn.reset_index(drop=True, inplace=True)
     zh_name = pn.iloc[0]['name_zh']
-    warn_info = find_all_breaks(pn).iloc[choose_n].to_dict()
-    h_d, e_d = warn_info['high_date'], warn_info['end_date']
-    h_dt, e_dt = datetime.strptime(h_d, '%Y-%m-%d'), datetime.strptime(e_d, '%Y-%m-%d')
-    if (e_dt - h_dt).days<50:
-        beg_day = (e_dt-timedelta(days=55)).strftime('%Y-%m-%d')
-    else:
-        beg_day = (h_dt-timedelta(days=10)).strftime('%Y-%m-%d')
-    # streamlit
     st.title(f"{zh_name}({code_name})&ensp;对称性分析")
-    st.subheader(f"{to_chinese_date(h_d, e_d)}")
-    st.markdown(f"- 突破类型: :blue[**{warn_info['cross']}**]")
-    st.markdown(f"- 高点: {warn_info['high_value']},&ensp;:gray[*{warn_info['high_date']}*]")
-    st.markdown(f"- 突破点: {warn_info['cross_ma']},&ensp;:gray[*{warn_info['cross_date']}*]")
-    st.markdown(f"- 低点:  {warn_info['low_value']},&ensp;:gray[*{warn_info['low_date']}*]")
-    st.markdown(f"- 回撤: {warn_info['pct1']}%,&ensp;{warn_info['minvalue']}")
-    st.markdown(f"- 倍率: :red[**{warn_info['ratio']}**]")
-    pn = pn[(pn['date']>beg_day) & (pn['date']<=e_d)]
-    line_annotate = ((h_d, w) for w in [warn_info['high_value'], warn_info['cross_ma'], warn_info['low_value']]+warn_info['tovalue'])
-    fg = plot_candlestick_with_lines(pn, line_annotate, warn_info['cross'])
-    st.plotly_chart(fg, use_container_width=False)
+    for _, warn in find_all_breaks(pn).iterrows():
+        warn_info = warn.to_dict()
+        h_d, e_d = warn_info['high_date'], warn_info['end_date']
+        h_dt, e_dt = datetime.strptime(h_d, '%Y-%m-%d'), datetime.strptime(e_d, '%Y-%m-%d')
+        if (e_dt - h_dt).days<50:
+            beg_day = (e_dt-timedelta(days=55)).strftime('%Y-%m-%d')
+        else:
+            beg_day = (h_dt-timedelta(days=10)).strftime('%Y-%m-%d')
+        # streamlit
+        st.subheader(f"{to_chinese_date(h_d, e_d)}")
+        st.markdown(f"- 突破类型: :blue[**{warn_info['cross']}**]")
+        st.markdown(f"- 高点: {warn_info['high_value']},&ensp;:gray[*{warn_info['high_date']}*]")
+        st.markdown(f"- 突破点: {warn_info['cross_ma']},&ensp;:gray[*{warn_info['cross_date']}*]")
+        st.markdown(f"- 低点:  {warn_info['low_value']},&ensp;:gray[*{warn_info['low_date']}*]")
+        st.markdown(f"- 回撤: {warn_info['pct1']}%,&ensp;{warn_info['minvalue']}")
+        st.markdown(f"- 倍率: :red[**{warn_info['ratio']}**]")
+        pcrop = pn[(pn['date']>beg_day) & (pn['date']<=e_d)]
+        line_annotate = ((h_d, w) for w in [warn_info['high_value'], warn_info['cross_ma'], warn_info['low_value']]+warn_info['tovalue'])
+        fg = plot_candlestick_with_lines(pcrop, line_annotate, warn_info['cross'])
+        st.plotly_chart(fg, use_container_width=False)
 
 
 if __name__ == "__main__":
