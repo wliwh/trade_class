@@ -20,6 +20,10 @@ def to_chinese_date(d1, d2):
     zh_date2 = date_obj2.strftime("%Y年%#m月%#d日") if date_obj2.year!=date_obj1.year else date_obj2.strftime("%#m月%#d日")
     return zh_date1+' -- '+zh_date2
 
+def trans_week_info(t:list):
+    w1 = "周{}".format('一二三四五六日'[t[0]])
+    return f"{w1},{t[1]}/{t[2]}"
+
 def make_drop_items(code_name:str='NDX', beg_day:str='2020-01-01'):
     """
     获取并绘制图，并标注相关价格水平线。
@@ -55,7 +59,7 @@ def make_drop_items(code_name:str='NDX', beg_day:str='2020-01-01'):
         st.markdown(f"- 突破类型: :blue[**{warn_info['cross']}**]")
         st.markdown(f"- 高点: {warn_info['high_value']},&ensp;:gray[*{warn_info['high_date']}*]")
         st.markdown(f"- 突破点: {warn_info['cross_ma']},&ensp;:gray[*{warn_info['cross_date']}*]")
-        st.markdown(f"- 低点:  {warn_info['low_value']},&ensp;:gray[*{warn_info['low_date']}*]")
+        st.markdown(f"- 低点:  {warn_info['low_value']},&ensp;*{warn_info['low_date']}*, {trans_week_info(warn_info['low_weeks'])}")
         st.markdown(f"- 回撤: {warn_info['pct1']}%,&ensp;{warn_info['minvalue']}")
         st.markdown(f"- 倍率: :red[**{warn_info['ratio']}**]")
         pcrop = pn[(pn['date']>beg_day) & (pn['date']<=e_d)]
