@@ -282,8 +282,8 @@
     "warning_info": [
       "2025-03-07",
       {
-        "name_zh": "标普500",
         "code": "SPX",
+        "name_zh": "标普500",
         "down_day": 5,
         "cross": 120,
         "high_date": "2025-02-19",
@@ -314,8 +314,8 @@
         ]
       },
       {
-        "name_zh": "道琼斯",
         "code": "DJIA",
+        "name_zh": "道琼斯",
         "down_day": 5,
         "cross": 120,
         "high_date": "2024-12-04",
@@ -346,8 +346,8 @@
         ]
       },
       {
-        "name_zh": "纳斯达克",
         "code": "NDX",
+        "name_zh": "纳斯达克",
         "down_day": 7,
         "cross": 120,
         "high_date": "2024-12-16",
@@ -378,8 +378,8 @@
         ]
       },
       {
-        "name_zh": "纳斯达克100",
         "code": "NDX100",
+        "name_zh": "纳斯达克100",
         "down_day": 5,
         "cross": 120,
         "high_date": "2025-02-19",

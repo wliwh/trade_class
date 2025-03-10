@@ -447,8 +447,8 @@ class global_index_indicator(IndicatorGetter):
                     tov_bl = 2 if ratio_HL > 1.45 else 1
                     warning_saved_set.add(row['code'])
                     warning_info.append(dict(
-                        name_zh = row['name_zh'],
                         code=row['code'],
+                        name_zh = row['name_zh'],
                         down_day = k,
                         cross=dtm,
                         high_date=hg.iloc[idmax]['date'],

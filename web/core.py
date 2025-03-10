@@ -50,12 +50,14 @@ def get_all_warnings(arange_info:dict) -> dict:
         warns = v['warning_info']
         if warns and arange_info.get(k):
             arange = arange_info[k]
+            # print(';;', arange, warns)
             ar_warns = [warns[0]]
             nms = [next(iter(n.values())) for n in warns[1:]]
             for nm in arange:
                 if nm in nms:
                     ar_warns.append(warns[nms.index(nm)+1])
             warning_infos[v["zh"]] = ar_warns
+    # print(warning_infos)
     return warning_infos
 
 Warning_Infos = get_all_warnings(Arange_Info['page1'])
@@ -98,7 +100,7 @@ def second_page(name:str = 'page2'):
     st.title('回撤观测')
     for warn in warns[1:]:
         st.header(f"{warn['code']}")
-        st.markdown(f"Cross: blue[{warn['cross']}]")
+        st.markdown(f"Cross: :blue[**{warn['cross']}**]")
         st.markdown(f"High: {warn['high_value']},&ensp;*{warn['high_date']}, {trans_week_info(warn['high_weeks'])}*")
         st.markdown(f"Cut:  {warn['cross_ma']}, :gray[*{warn['cross_date']}*]")
         st.markdown(f"Low:  {warn['low_value']},&ensp;*{warn['low_date']}, {trans_week_info(warn['low_weeks'])}*")
