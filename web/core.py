@@ -2,7 +2,7 @@ import json
 import os, sys
 import pandas as pd
 import streamlit as st
-from datetime import datetime
+from datetime import datetime, timedelta
 from pyecharts.charts import Tab
 from collections import defaultdict
 
@@ -10,6 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from index_get.config import INDICATOR_CONFIG_PATH
 from common.baidu_utils import Search_Name_Path
 # from draw_chart.draw_bsearch import draw_future_echart
+from index_get.get_index_value import global_index_indicator
 from draw_chart.draw_index_cycle import plot_candlestick_with_lines
 
 def trans_week_info(t:list):
@@ -18,7 +19,7 @@ def trans_week_info(t:list):
 
 def get_keywords():
     keys = list()
-    with open(Search_Name_Path,'r') as f:
+    with open(Search_Name_Path,'r',encoding='utf-8') as f:
         for i, l in enumerate(f):
             if i==0 or ',' not in l: continue
             keys.append(l.split(',')[0])
@@ -95,17 +96,35 @@ def main_page(infos=Warning_Infos):
     for cap, info in infos.items():
         st_metrics(cap, info)
 
+
 def second_page(name:str = 'page2'):
+    glb = global_index_indicator()
+    conf = glb.get_cator_conf()
+    fpath = conf['fpath']
+    p1 = pd.read_csv(fpath)
+    p1 = p1[p1['type']=='other-am']
     warns = next(iter(get_all_warnings(Arange_Info[name]).values()))
     st.title('回撤观测')
     for warn in warns[1:]:
-        st.header(f"{warn['code']}")
-        st.markdown(f"Cross: :blue[**{warn['cross']}**]")
-        st.markdown(f"High: {warn['high_value']},&ensp;*{warn['high_date']}, {trans_week_info(warn['high_weeks'])}*")
-        st.markdown(f"Cut:  {warn['cross_ma']}, :gray[*{warn['cross_date']}*]")
-        st.markdown(f"Low:  {warn['low_value']},&ensp;*{warn['low_date']}, {trans_week_info(warn['low_weeks'])}*")
-        st.markdown(f"Back: {warn['pct1']}%, {warn['pct2']}%")
-        st.markdown(f"Mins: :red[**{warn['ratio']}**], {warn['minvalue']}")
+        pn = p1[p1.code==warn['code']]
+        pn.reset_index(drop=True, inplace=True)
+        h_d, e_d = warn['high_date'], warn['end_date']
+        h_dt, e_dt = datetime.strptime(h_d, '%Y-%m-%d'), datetime.strptime(e_d, '%Y-%m-%d')
+        if (e_dt - h_dt).days<50:
+            beg_day = (e_dt-timedelta(days=55)).strftime('%Y-%m-%d')
+        else:
+            beg_day = (h_dt-timedelta(days=10)).strftime('%Y-%m-%d')
+        st.header(f"{warn['name_zh']}({warn['code']})")
+        st.markdown(f"- 突破类型: :blue[**{warn['cross']}**]")
+        st.markdown(f"- 高点: {warn['high_value']},&ensp;*{h_d}, {trans_week_info(warn['high_weeks'])}*")
+        st.markdown(f"- 突破点: {warn['cross_ma']}, :gray[*{warn['cross_date']}*]")
+        st.markdown(f"- 低点: {warn['low_value']},&ensp;*{e_d}, {trans_week_info(warn['low_weeks'])}*")
+        st.markdown(f"- 回撤: {warn['pct1']}%, {warn['pct2']}%")
+        st.markdown(f"- 倍率: :red[**{warn['ratio']}**], {warn['minvalue']}")
+        pcrop = pn[(pn['date']>beg_day) & (pn['date']<=e_d)]
+        line_annotate = ((h_d, w) for w in [warn['high_value'], warn['cross_ma'], warn['low_value']]+warn['tovalue'])
+        fg = plot_candlestick_with_lines(pcrop, line_annotate, warn['cross'])
+        st.plotly_chart(fg, use_container_width=False)
 
 
 if __name__ == '__main__':
