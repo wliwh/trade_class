@@ -105,3 +105,33 @@
 2025-03-01 18:27:24,116 - INFO - global_index is up to date.
 2025-03-01 18:27:58,789 - INFO - global_index is up to date.
 2025-03-01 18:27:58,929 - INFO - global_index warning info updating to 2025-02-28.
+2025-03-10 10:52:59,884 - INFO - high_low_legu is updating to 2025-03-07.
+2025-03-10 10:53:41,067 - INFO - qvix_day is updating to 2025-03-07.
+2025-03-10 10:53:46,482 - INFO - 290 rows data Update to baidu_search
+2025-03-10 17:15:16,056 - INFO - high_low_legu is up to date.
+2025-03-10 17:15:16,061 - INFO - qvix_day is up to date.
+2025-03-10 17:15:18,276 - INFO - global_index is updating to 2025-03-07.
+2025-03-10 17:15:18,435 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:15:18,436 - INFO - baidu_search no data to Update
+2025-03-10 17:48:51,386 - INFO - global_index is up to date.
+2025-03-10 17:48:51,532 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:50:10,101 - INFO - global_index is up to date.
+2025-03-10 17:50:10,247 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:52:20,875 - INFO - global_index is up to date.
+2025-03-10 17:52:21,021 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:53:09,613 - INFO - global_index is up to date.
+2025-03-10 17:53:09,761 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:53:27,473 - INFO - global_index is up to date.
+2025-03-10 17:53:27,633 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:53:55,027 - INFO - global_index is up to date.
+2025-03-10 17:53:55,176 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:55:10,692 - INFO - global_index is up to date.
+2025-03-10 17:55:10,851 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:55:39,064 - INFO - global_index is up to date.
+2025-03-10 17:55:39,213 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:56:22,874 - INFO - global_index is up to date.
+2025-03-10 17:56:23,018 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:56:52,846 - INFO - global_index is up to date.
+2025-03-10 17:56:52,990 - INFO - global_index warning info updating to 2025-03-07.
+2025-03-10 17:58:06,580 - INFO - global_index is up to date.
+2025-03-10 17:58:06,724 - INFO - global_index warning info updating to 2025-03-07.

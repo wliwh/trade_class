@@ -438,12 +438,13 @@ class global_index_indicator(IndicatorGetter):
                 k = row[f'ld{dtm}']
                 hg = ws.iloc[-us_leng*(k+dtm):].loc[ws['code']==row['code']]
                 idmax = hg['high'].argmax()
+                idmin = -k+hg.iloc[-k:]['low'].argmin()
                 if row['code'] not in warning_saved_set:
-                    lmin = float(hg.iloc[-k:]['low'].min())
+                    lmin = float(hg.iloc[idmin]['low'])
                     close_hl = (hg['close'].max(), hg.iloc[-k:]['close'].min())
                     crossV, highV=float(round(hg.iloc[-k][f'ma{dtm}'],3)), float(round(hg.iloc[idmax]['high'] ,3))
                     ratio_HL = (crossV-lmin)/(highV-crossV)
-                    tov_bl = 3 if ratio_HL > 1.45 else 2
+                    tov_bl = 2 if ratio_HL > 1.45 else 1
                     warning_saved_set.add(row['code'])
                     warning_info.append(dict(
                         name_zh = row['name_zh'],
@@ -451,17 +452,24 @@ class global_index_indicator(IndicatorGetter):
                         down_day = k,
                         cross=dtm,
                         high_date=hg.iloc[idmax]['date'],
+                        high_weeks = [int(hg.iloc[idmax]['day_of_week']),
+                                      int(hg.iloc[idmax]['day_of_trade_week']),
+                                      int(hg.iloc[idmax]['total_trading_days'])],
                         high_value=highV,
                         cross_date=hg.iloc[-k]['date'],
                         cross_ma=round(crossV,2),
+                        low_date = hg.iloc[idmin]['date'],
+                        low_weeks = [int(hg.iloc[idmin]['day_of_week']),
+                                      int(hg.iloc[idmin]['day_of_trade_week']),
+                                      int(hg.iloc[idmin]['total_trading_days'])],                        
                         low_value=lmin,
                         pct1 = round(100*(1-lmin/highV),2),
                         pct2 = round(100*(1-close_hl[1]/close_hl[0]), 2),
                         minvalue = round(highV-crossV,2),
                         ratio_int = tov_bl,
                         ratio = round(ratio_HL,2),
-                        tovalue = [round(c,2) for c in (tov_bl*1.1*crossV-(tov_bl*1.1-1)*highV,\
-                                        tov_bl*crossV-(tov_bl-1)*highV, tov_bl*0.9*crossV-(tov_bl*0.9-1)*highV)]
+                        tovalue = [round(c,2) for c in ((tov_bl+1)*1.1*crossV-(tov_bl*1.1+0.1)*highV,\
+                                (tov_bl+1)*crossV-(tov_bl)*highV, (tov_bl+1)*0.9*crossV-(tov_bl*0.9-0.1)*highV)]
                     ))
             # print(dtm, '\n', tocheck_codes,'\n', warning_saved_set)
         if warning_info:

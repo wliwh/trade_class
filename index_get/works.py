@@ -18,9 +18,9 @@ qd = qvix_day_indicator()
 qd.update_data()
 qd.set_warn_info()
 
-# glb = global_index_indicator()
-# glb.update_data()
-# glb.set_warn_info()
+glb = global_index_indicator()
+glb.update_data()
+glb.set_warn_info()
 
 try:
     bd = bsearch_indicator()

@@ -12,6 +12,10 @@ from common.baidu_utils import Search_Name_Path
 # from draw_chart.draw_bsearch import draw_future_echart
 from draw_chart.draw_index_cycle import plot_candlestick_with_lines
 
+def trans_week_info(t:list):
+    w1 = "周{}".format('一二三四五六日'[t[0]-1])
+    return f"{w1}, {t[1]}/{t[2]}"
+
 def get_keywords():
     keys = list()
     with open(Search_Name_Path,'r') as f:
@@ -94,10 +98,10 @@ def second_page(name:str = 'page2'):
     st.title('回撤观测')
     for warn in warns[1:]:
         st.header(f"{warn['code']}")
-        st.markdown(f"- Cross@:blue[{warn['cross']}]")
-        st.markdown(f"High: {warn['high_value']}, :gray[*{warn['high_date']}*]")
+        st.markdown(f"Cross: blue[{warn['cross']}]")
+        st.markdown(f"High: {warn['high_value']},&ensp;*{warn['high_date']}, {trans_week_info(warn['high_weeks'])}*")
         st.markdown(f"Cut:  {warn['cross_ma']}, :gray[*{warn['cross_date']}*]")
-        st.markdown(f"Low:  {warn['low_value']}")
+        st.markdown(f"Low:  {warn['low_value']},&ensp;*{warn['low_date']}, {trans_week_info(warn['low_weeks'])}*")
         st.markdown(f"Back: {warn['pct1']}%, {warn['pct2']}%")
         st.markdown(f"Mins: :red[**{warn['ratio']}**], {warn['minvalue']}")
 
