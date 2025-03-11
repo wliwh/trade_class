@@ -3,7 +3,7 @@ import os, sys
 from datetime import datetime
 # import streamlit as st
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from web.core import main_page, echart_warn_page
+from web.warning_page import echart_warn_page
 
 
 

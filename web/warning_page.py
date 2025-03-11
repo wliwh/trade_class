@@ -96,7 +96,7 @@ def main_page(infos=Warning_Infos):
     for cap, info in infos.items():
         st_metrics(cap, info)
 
-
+@st.cache_data
 def second_page(name:str = 'page2'):
     glb = global_index_indicator()
     conf = glb.get_cator_conf()

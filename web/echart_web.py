@@ -6,7 +6,7 @@ from collections import defaultdict
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from common.baidu_utils import Search_Name_Path
 from draw_chart.draw_bsearch import draw_future_echart
-from web.core import Warning_Infos
+from web.warning_page import Warning_Infos
 
 
 Bsearch_Page_Name = {0:'国内',1:'香港',2:'海外',3:'大宗'}
