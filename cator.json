@@ -314,8 +314,8 @@
       {
         "code": "SPX",
         "name_zh": "标普500",
-        "down_day": 2,
-        "cross": 250,
+        "down_day": 7,
+        "cross": 120,
         "high_date": "2025-02-19",
         "high_weeks": [
           3,
@@ -323,8 +323,8 @@
           4
         ],
         "high_value": 6147.43,
-        "cross_date": "2025-03-10",
-        "cross_ma": 5619.87,
+        "cross_date": "2025-03-03",
+        "cross_ma": 5905.75,
         "low_date": "2025-03-11",
         "low_weeks": [
           2,
@@ -335,20 +335,20 @@
         "end_date": "2025-03-11",
         "pct1": 10.07,
         "pct2": 9.31,
-        "minvalue": 527.56,
-        "ratio_int": 1,
-        "ratio": 0.17,
+        "minvalue": 241.68,
+        "ratio_int": 2,
+        "ratio": 1.56,
         "tovalue": [
-          4986.81,
-          5092.32,
-          5197.83
+          5349.89,
+          5422.4,
+          5494.9
         ]
       },
       {
         "code": "NDX",
         "name_zh": "纳斯达克",
-        "down_day": 2,
-        "cross": 250,
+        "down_day": 9,
+        "cross": 120,
         "high_date": "2024-12-16",
         "high_weeks": [
           1,
@@ -356,8 +356,8 @@
           5
         ],
         "high_value": 20204.58,
-        "cross_date": "2025-03-10",
-        "cross_ma": 17953.11,
+        "cross_date": "2025-02-27",
+        "cross_ma": 18971.17,
         "low_date": "2025-03-11",
         "low_weeks": [
           2,
@@ -368,20 +368,20 @@
         "end_date": "2025-03-11",
         "pct1": 14.68,
         "pct2": 13.57,
-        "minvalue": 2251.47,
+        "minvalue": 1233.41,
         "ratio_int": 1,
-        "ratio": 0.32,
+        "ratio": 1.4,
         "tovalue": [
-          15251.35,
-          15701.65,
-          16151.94
+          17491.08,
+          17737.76,
+          17984.44
         ]
       },
       {
         "code": "NDX100",
         "name_zh": "纳斯达克100",
-        "down_day": 2,
-        "cross": 250,
+        "down_day": 7,
+        "cross": 120,
         "high_date": "2025-02-19",
         "high_weeks": [
           3,
@@ -389,8 +389,8 @@
           4
         ],
         "high_value": 22222.61,
-        "cross_date": "2025-03-10",
-        "cross_ma": 19798.18,
+        "cross_date": "2025-03-03",
+        "cross_ma": 20836.05,
         "low_date": "2025-03-11",
         "low_weeks": [
           2,
@@ -401,13 +401,13 @@
         "end_date": "2025-03-11",
         "pct1": 13.69,
         "pct2": 12.62,
-        "minvalue": 2424.43,
+        "minvalue": 1386.56,
         "ratio_int": 1,
-        "ratio": 0.25,
+        "ratio": 1.19,
         "tovalue": [
-          16888.87,
-          17373.75,
-          17858.64
+          19172.18,
+          19449.49,
+          19726.8
         ]
       },
       {

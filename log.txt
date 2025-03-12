@@ -144,3 +144,5 @@
 2025-03-12 17:56:42,940 - INFO - global_index is updating to 2025-03-11.
 2025-03-12 17:56:43,103 - INFO - global_index warning info updating to 2025-03-11.
 2025-03-12 17:56:48,910 - INFO - 58 rows data Update to baidu_search
+2025-03-12 18:02:54,709 - INFO - global_index is up to date.
+2025-03-12 18:02:54,870 - INFO - global_index warning info updating to 2025-03-11.
