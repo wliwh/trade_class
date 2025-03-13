@@ -1,8 +1,8 @@
 name_zh,code,type_name,beg
-标普500,标普500,other-am,1900-01-01
+标普500,标普500指数,other-am,1900-01-01
 纳斯达克指数,IXIC,other-am,1990-01-01
 纳指100,NDX100,other-am,1990-01-01
-道琼斯,道琼斯,other-am,1990-01-01
+道琼斯,道琼斯指数,other-am,1990-01-01
 恒生指数,HSI,other-asia,1990-01-01
 富时100指数,FTSE,other-eur,1990-01-01
 德国DAX30,GDAXI,other-eur,1990-01-01
