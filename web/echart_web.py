@@ -51,3 +51,4 @@ def echart_page(infos, set_id=0):
             return tend
             # tab.add(tend, f'{nm}-{code}')
     # return tab
+
