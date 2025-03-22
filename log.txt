@@ -169,3 +169,8 @@
 2025-03-19 14:01:01,611 - INFO - global_index is updating to 2025-03-18.
 2025-03-19 14:01:02,103 - INFO - global_index warning info updating to 2025-03-18.
 2025-03-19 14:01:08,028 - INFO - 145 rows data Update to baidu_search
+2025-03-22 14:51:07,845 - INFO - high_low_legu is updating to 2025-03-21.
+2025-03-22 14:51:28,489 - INFO - qvix_day is updating to 2025-03-21.
+2025-03-22 14:51:30,660 - INFO - global_index is updating to 2025-03-21.
+2025-03-22 14:51:30,821 - INFO - global_index warning info updating to 2025-03-21.
+2025-03-22 14:51:46,923 - INFO - 87 rows data Update to baidu_search

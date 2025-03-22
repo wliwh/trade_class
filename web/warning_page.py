@@ -3,8 +3,6 @@ import os, sys
 import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta
-from pyecharts.charts import Tab
-from collections import defaultdict
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from index_get.config import INDICATOR_CONFIG_PATH
@@ -128,4 +126,9 @@ def second_page(name:str = 'page2'):
 
 
 if __name__ == '__main__':
-    second_page()
+    pg = st.navigation([
+        st.Page(main_page, title="消息汇总"),
+        st.Page(second_page, title="对称性分析")
+    ])
+    st.set_page_config(page_title="Data manager", page_icon=":material/edit:")
+    pg.run()

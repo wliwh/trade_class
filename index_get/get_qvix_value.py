@@ -92,7 +92,7 @@ def _option_call_put_positon(p1:pd.DataFrame,ename:str='510050'):
             s1.append(amts); s2.append(amt5)
         except:
             s1.append(np.nan); s2.append(np.nan)
-            print('call',s_t)
+            # print('call',s_t)
         try:
             time.sleep(0.5)
             r2=ak.option_lhb_em(ename,'期权持仓情况-认沽持仓量',s_t)
@@ -101,7 +101,7 @@ def _option_call_put_positon(p1:pd.DataFrame,ename:str='510050'):
             s3.append(amps); s4.append(amp5)
         except:
             s3.append(np.nan); s4.append(np.nan)
-            print('put', s_t)
+            # print('put', s_t)
     # print(s1,s3)
     tt['call_pos'] = s1; tt['call5'] = s2
     tt['put_pos'] = s3; tt['put5'] = s4
@@ -113,7 +113,7 @@ def _make_option_day_pds():
     symb_lst = SymbolLists
     ss_pds = list()
     for s in symb_lst:
-        print('>>>', s)
+        # print('>>>', s)
         p1 = option_qvix(s)
         p1 = p1.tail(200)
         p1.insert(1,'code',s)

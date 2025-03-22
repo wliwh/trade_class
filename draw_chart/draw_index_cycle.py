@@ -412,7 +412,7 @@ def find_all_breaks(pn:pd.DataFrame) -> dict:
     p1.sort_values(by=['high_date','ratio_sim'],inplace=True)
     group_c = {group: i + 1 for i, group in enumerate(p1['high_date'].unique())}
     p1['group_cnt'] = p1.groupby('high_date').cumcount() + 1
-    p1 = p1[(p1['group_cnt']==1) & (p1['ratio']<3)]
+    p1 = p1[(p1['group_cnt']==1) & (p1['ratio']<3) & (p1['ratio']>0.5)]
     # p1.sort_values(by=['low_date','ratio_sim'],inplace=True)
     return p1
 

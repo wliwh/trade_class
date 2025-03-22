@@ -27,6 +27,6 @@ try:
     bd.update_data()
     bd.set_warn_info()
     # bd.set_warn_info('2024-01-01')
-except FileNotFoundError as nfe:
+except FileNotFoundError as e:
     _logger.error('bd_search cooks file not found.')
     # pass
