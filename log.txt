@@ -174,3 +174,33 @@
 2025-03-22 14:51:30,660 - INFO - global_index is updating to 2025-03-21.
 2025-03-22 14:51:30,821 - INFO - global_index warning info updating to 2025-03-21.
 2025-03-22 14:51:46,923 - INFO - 87 rows data Update to baidu_search
+2025-03-22 17:45:31,186 - INFO - high_low_legu is up to date.
+2025-03-22 17:45:31,192 - INFO - qvix_day is up to date.
+2025-03-22 17:45:31,204 - INFO - global_index is up to date.
+2025-03-22 17:45:31,350 - INFO - global_index warning info updating to 2025-03-21.
+2025-03-22 17:45:31,352 - INFO - baidu_search no data to Update
+2025-03-22 17:47:39,664 - INFO - high_low_legu is up to date.
+2025-03-22 17:47:39,670 - INFO - qvix_day is up to date.
+2025-03-22 17:47:39,682 - INFO - global_index is up to date.
+2025-03-22 17:47:39,831 - INFO - global_index warning info updating to 2025-03-21.
+2025-03-22 17:47:39,832 - INFO - baidu_search no data to Update
+2025-03-25 14:09:51,040 - INFO - high_low_legu is updating to 2025-03-24.
+2025-03-25 14:09:59,109 - INFO - qvix_day is updating to 2025-03-24.
+2025-03-25 14:10:00,920 - INFO - global_index is updating to 2025-03-24.
+2025-03-25 14:10:01,076 - INFO - global_index warning info updating to 2025-03-24.
+2025-03-25 14:10:06,845 - INFO - 87 rows data Update to baidu_search
+2025-03-25 14:13:32,236 - INFO - high_low_legu is up to date.
+2025-03-25 14:13:32,242 - INFO - qvix_day is up to date.
+2025-03-25 14:13:32,255 - INFO - global_index is up to date.
+2025-03-25 14:13:32,402 - INFO - global_index warning info updating to 2025-03-24.
+2025-03-25 14:13:32,402 - INFO - baidu_search no data to Update
+2025-03-26 09:41:32,872 - INFO - high_low_legu is updating to 2025-03-25.
+2025-03-26 09:41:40,509 - INFO - qvix_day is updating to 2025-03-25.
+2025-03-26 09:41:42,620 - INFO - global_index is updating to 2025-03-25.
+2025-03-26 09:41:42,775 - INFO - global_index warning info updating to 2025-03-25.
+2025-03-26 09:41:48,149 - INFO - 29 rows data Update to baidu_search
+2025-03-26 14:12:57,172 - INFO - high_low_legu is up to date.
+2025-03-26 14:12:57,178 - INFO - qvix_day is up to date.
+2025-03-26 14:12:57,191 - INFO - global_index is up to date.
+2025-03-26 14:12:57,347 - INFO - global_index warning info updating to 2025-03-25.
+2025-03-26 14:12:57,348 - INFO - baidu_search no data to Update

@@ -1,5 +1,5 @@
 from get_high_low import high_low_legu_indicator
-from get_north_flow import north_flow_indicator
+# from get_north_flow import north_flow_indicator
 from get_qvix_value import qvix_day_indicator
 from get_baidu_search import bsearch_indicator
 from get_index_value import global_index_indicator
@@ -29,4 +29,4 @@ try:
     # bd.set_warn_info('2024-01-01')
 except FileNotFoundError as e:
     _logger.error('bd_search cooks file not found.')
-    # pass
+        # pass
