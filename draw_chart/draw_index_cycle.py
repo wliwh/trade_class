@@ -428,7 +428,7 @@ def _test_all_breaks():
     pn.reset_index(drop=True, inplace=True)
     print(find_all_breaks(pn))
 
-def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: int):
+def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: int, rt_int: int=1):
     """
     使用plotly绘制图，并标注水平线
     
@@ -469,17 +469,38 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: i
         separatethousands=False,            # 启用千位分隔符
         nticks=5                            # 控制刻度数量（可选）
     )
+    # print(df['ld250'].max(), beg_, end_, cross_ma)
+    ma_colors = ('rgb(89,181,93)','rgb(81,136,244)','rgb(209,81,166)')
+    line_colors = ('rgba(218,64,100,0.8)','rgba(120,123,133,0.8)','rgba(62,192,128,0.8)', 'rgba(74,185,210,0.8)', 'rgba(255,128,0,0.6)')
+    # 添加矩形框
+    for j in range(2):
+        _color = line_colors[j+2] if rt_int>1 and j==1 else line_colors[j+1]
+        fig.add_shape(
+            type="rect",
+            x0=line_tuple[j][0], x1=df.iloc[-1]['date'],
+            y0=line_tuple[j][1], y1=line_tuple[j+1][1],
+            xref="x", yref="y",
+            fillcolor=_color.replace('0.8','0.15'),
+            line=dict(color="rgba(0,0,0,0)")  # 透明边框
+        )
+    # 添加MA
     if cross_ma < 180:
-        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma60'],line={'color':'green'},name=f'ma60'))
+        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma60'],line={'color':ma_colors[0]},name=f'ma60'))
         if cross_ma>90:
-            fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma{cross_ma}'],line={'color':'blue'},name=f'ma{cross_ma}'))
+            fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma{cross_ma}'],line={'color':ma_colors[1]},name=f'ma{cross_ma}'))
+        if df['ld250'].max()>0:
+            fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma250'],line={'color':ma_colors[2]},name=f'ma250'))
     else:
-        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma120'],line={'color':'blue'},name=f'ma120'))
-        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma{cross_ma}'],line={'color':'gray'},name=f'ma{cross_ma}'))
-    
+        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma120'],line={'color':ma_colors[1]},name=f'ma120'))
+        fig.add_trace(go.Scatter(x=df['date'],y=df[f'ma{cross_ma}'],line={'color':ma_colors[2]},name=f'ma{cross_ma}'))
     # 添加水平线
-    line_colors = ['rgba(255,0,0,0.8)','rgba(192,64,0,0.8)','rgba(0,192,64,0.8)','rgba(255,128,0,0.6)']
     for j,(date, price) in enumerate(line_tuple):
+        if j<3:
+            _color = line_colors[3] if rt_int>1 and j==2 else line_colors[j]
+            _dashed = 'solid'
+        else:
+            _color = line_colors[4]
+            _dashed = 'longdash' if j ==4 else 'dot'
         fig.add_shape(
             type='line',
             x0=date,
@@ -487,9 +508,9 @@ def plot_candlestick_with_lines(df: pd.DataFrame, line_tuple: tuple, cross_ma: i
             x1=df.iloc[-1]['date'],  # 延伸到图表最右端
             y1=price,
             line=dict(
-                color=line_colors[j] if j<3 else line_colors[3],
+                color=_color,
                 width=4,
-                dash='solid' if j<3 else 'dash'
+                dash=_dashed
             )
         )
         # 添加标注
@@ -546,8 +567,8 @@ def plot_cand_test(choose_n:int=1):
         beg_day = (h_d-pd.offsets.Day(10)).strftime('%Y-%m-%d')
     pn = pn[(pn['date']>beg_day) & (pn['date']<=warn_info['end_date'])]
     days_dict = [warn_info['high_value'],warn_info['cross_ma'], warn_info['low_value']]+warn_info['tovalue']
-    days_dict = ((warn_info['high_date'],d) for d in days_dict)
-    plot_candlestick_with_lines(pn, days_dict, warn_info['cross'])
+    days_dict = [(warn_info['high_date'],d) for d in days_dict]
+    plot_candlestick_with_lines(pn, days_dict, warn_info['cross'], warn_info['ratio_int'])
     # high_day = warn_info['high_date']
     # if (pd.to_datetime(conf['max_date_idx']) - pd.to_datetime(high_day)).days<50:
     #     beg_day = p1.index[-55]
@@ -561,6 +582,6 @@ def plot_cand_test(choose_n:int=1):
 
 if __name__ == '__main__':
     # plot_cand_test(1)
-    _test_find_break1()
-    # print(plot_cand_test(0))
+    # _test_find_break1()
+    print(plot_cand_test(0))
     pass

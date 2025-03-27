@@ -121,7 +121,7 @@ def second_page(name:str = 'page2'):
         st.markdown(f"- 倍率: :red[**{warn['ratio']}**], {warn['minvalue']}")
         pcrop = pn[(pn['date']>beg_day) & (pn['date']<=e_d)]
         line_annotate = ((h_d, w) for w in [warn['high_value'], warn['cross_ma'], warn['low_value']]+warn['tovalue'])
-        fg = plot_candlestick_with_lines(pcrop, line_annotate, warn['cross'])
+        fg = plot_candlestick_with_lines(pcrop, line_annotate, warn['cross'], warn['ratio_int'])
         st.plotly_chart(fg, use_container_width=False)
 
 
