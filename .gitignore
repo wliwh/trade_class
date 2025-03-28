@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.cooks
 works.sh
+streamlit.log
 
 # C extensions
 *.so

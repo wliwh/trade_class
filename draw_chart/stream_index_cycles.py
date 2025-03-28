@@ -62,8 +62,8 @@ def make_drop_items(pn:pd.DataFrame, zh_name:str='', code_name:str='NDX', beg_da
         st.markdown(f"- 回撤: {warn_info['pct1']}%,&ensp;{warn_info['minvalue']}")
         st.markdown(f"- 倍率: :red[**{warn_info['ratio']}**]")
         pcrop = pn[(pn['date']>beg_day) & (pn['date']<=e_d)]
-        line_annotate = ((h_d, w) for w in [warn_info['high_value'], warn_info['cross_ma'], warn_info['low_value']]+warn_info['tovalue'])
-        fg = plot_candlestick_with_lines(pcrop, line_annotate, warn_info['cross'])
+        line_annotate = [(h_d, w) for w in [warn_info['high_value'], warn_info['cross_ma'], warn_info['low_value']]+warn_info['tovalue']]
+        fg = plot_candlestick_with_lines(pcrop, line_annotate, warn_info['cross'], warn_info['ratio_int'])
         st.plotly_chart(fg, use_container_width=False)
 
 
@@ -76,7 +76,7 @@ def multi_cycle_pages(beg:str='2020-01-01'):
             return make_drop_items(px, zhn, nm, b)
         _plot_fun.__name__ = nm
         return _plot_fun
-    code_names = ('SPX','NDX')
+    code_names = ('SPX','NDX','NDX100','DJIA')
     glb = global_index_indicator()
     conf = glb.get_cator_conf()
     fpath = conf['fpath']
@@ -85,8 +85,8 @@ def multi_cycle_pages(beg:str='2020-01-01'):
     pg1 = _work_fun(p1, code_names[0], beg)
     pg2 = _work_fun(p1, code_names[1], beg)
     pg = st.navigation([
-        st.Page(pg1, title=code_names[0], icon="🙀"),
-        st.Page(pg2, title=code_names[1], icon="🤪"),
+        st.Page(pg1, title=code_names[0]),
+        st.Page(pg2, title=code_names[1]),
     ])
     pg.run()    
 

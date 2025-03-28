@@ -444,7 +444,7 @@ class global_index_indicator(IndicatorGetter):
                     close_hl = (hg['close'].max(), hg.iloc[-k:]['close'].min())
                     crossV, highV=float(round(hg.iloc[-k][f'ma{dtm}'],3)), float(round(hg.iloc[idmax]['high'] ,3))
                     ratio_HL = (crossV-lmin)/(highV-crossV)
-                    tov_bl = 2 if ratio_HL > 1.7 else 1
+                    tov_bl = 2 if ratio_HL > 1.45 else 1
                     if ratio_HL<0.6 or ratio_HL>3: continue
                     warning_saved_set.add(row['code'])
                     warning_info.append(dict(
