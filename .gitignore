@@ -5,6 +5,7 @@ __pycache__/
 *.cooks
 works.sh
 streamlit.log
+test*/
 
 # C extensions
 *.so

@@ -228,3 +228,8 @@
 2025-03-31 22:30:05,326 - INFO - global_index is up to date.
 2025-03-31 22:30:05,483 - INFO - global_index warning info updating to 2025-03-28.
 2025-03-31 22:30:05,484 - INFO - baidu_search no data to Update
+2025-04-01 10:15:03,009 - INFO - high_low_legu is up to date.
+2025-04-01 10:15:12,099 - INFO - qvix_day is updating to 2025-03-31.
+2025-04-01 10:15:13,878 - INFO - global_index is updating to 2025-03-31.
+2025-04-01 10:15:14,025 - INFO - global_index warning info updating to 2025-03-31.
+2025-04-01 10:15:19,741 - INFO - 29 rows data Update to baidu_search
