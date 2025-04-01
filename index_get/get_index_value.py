@@ -166,20 +166,22 @@ def basic_index_getter(code:str, beg:Optional[str], end:Optional[str], usetdx:bo
     return aa.iloc[1:]
 
 
-def table_index_getter(beg:Optional[str], end:Optional[str], index_table=All_Index_Tb):
+def table_index_getter(beg:Optional[str]=None, end:Optional[str]=None, index_table=All_Index_Tb):
     ret = list()
     for _,c,tp,start in index_table.values:
         c, tp = c.strip(), tp.strip()
         if not isinstance(beg,str): beg = start
         if not isinstance(end,str): end = get_trade_day(date_fmt='%Y-%m-%d')
         if tp=='base-index':
-            ret.append(basic_index_getter(c,beg,end))
-        elif tp=='csi-index':
-            ret.append(csi_index_getter(c,beg,end))
-        # elif tp=='sw-index':
-        #     ret.append(sw_index_getter(c,beg,end))
-        elif tp=='tdx-index':
-            ret.append(tdx_index_getter(c,beg,end,True))
+            ret.append(basic_index_getter(c,beg,end,False))
+        # elif tp=='csi-index':
+        #     ret.append(csi_index_getter(c,beg,end))
+        elif tp=='sw-index':
+            ret.append(sw_index_getter(c,beg,end))
+        # elif tp=='tdx-index':
+        #     ret.append(tdx_index_getter(c,beg,end,True))
+        elif tp.startswith('other-'):
+            ret.append(other_index_getter(c, beg, end))
     return pd.concat(ret,axis=0)
 
 
@@ -484,10 +486,10 @@ class global_index_indicator(IndicatorGetter):
 
 
 if __name__=='__main__':
-    # tt = getter_other_index('2025-02-25')
-    # print(tt.tail(10))
-    p1 = global_index_indicator()
-    p1.update_data()
-    p1.set_warn_info()
+    # p1 = global_index_indicator()
+    # p1.update_data()
+    # p1.set_warn_info()
     # pprint(p1.get_warn_info())
+    g = table_index_getter('2010-01-01')
+    g.to_csv('all_index.csv')
     pass
