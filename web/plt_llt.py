@@ -10,7 +10,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from common.trade_date import get_trade_day, get_delta_trade_day
-from common.smooth_tool import LLT_MA, HMA
+from common.smooth_tool import LLT_MA, HMA, ema_tan
 from index_get.get_index_value import other_index_getter, basic_index_getter
 
 Selected_Code_Name = ('IXIC','HSTECH','GDAXI','N225','SENSEX',\
@@ -87,17 +87,18 @@ def calc_poly(y, windows:int, degree:int=1):
     y_predicted = p(x)
     return y_predicted
 
-def calc_rolling_score_with_llt(prices:pd.DataFrame, window:int=21, llt_penalty:float=1.0):
+def calc_rolling_score_with_llt(prices:pd.DataFrame, window:int=21, llt_penalty:float=1.0, poly_n:int=2):
     scores = dict()
     weights = np.exp(-(1.0/window) * np.arange(window)[::-1])
     weights /= weights.sum()
     # weights = np.ones(window)/window
     rweights = np.empty((window, prices.shape[1]))
     rweights[:] = weights[:, np.newaxis]
-    for p in prices.rolling(window=window+4):
-        if len(p)<window+4: continue
+    for p in prices.rolling(window=window*2):
+        if len(p)<window*2: continue
         p = np.log(p/p.iloc[0])
-        p1 = p.apply(lambda x: calc_poly(x, window, 2), axis=0)
+        p1 = p.apply(lambda x: calc_poly(x, window, poly_n), axis=0)
+        # p1 = p.apply(lambda x: ema_tan(x, 11, window), axis=0)
         # slope
         ps = p1.diff(axis=0).iloc[-window:]
         ps = ps.apply(lambda x:x*weights, axis=0)
@@ -118,6 +119,19 @@ def calc_rolling_score_with_llt(prices:pd.DataFrame, window:int=21, llt_penalty:
     scores.fillna(min_score,inplace=True)
     return scores
 
+def find_max_score():
+    g = get_index_table(Selected_Basic3)
+    p1 = get_index_prices(g, count=800)
+    hold_dic = dict()
+    for n in (1,2):
+        score = calc_rolling_score_with_llt(p1, llt_penalty=1.0, poly_n=n)
+        hold_dic[n] = score.idxmax(axis=1)
+    p = pd.DataFrame(hold_dic)
+    p.columns = ('n1','n2')
+    p['dif'] = (p['n1']==p['n2'])
+    print(p.head())
+    p.to_csv('hold_etf.csv')
+
 def create_plotly_figure(rows: int, row_heights: list, plt_shape: dict={}):
     fig = make_subplots(
         rows=rows, 
@@ -129,8 +143,8 @@ def create_plotly_figure(rows: int, row_heights: list, plt_shape: dict={}):
     )
     
     fig.update_layout(
-        width=plt_shape.get('plt_width', 2400),
-        height=plt_shape.get('plt_height', 1300),
+        width=plt_shape.get('plt_width', 1400),
+        height=plt_shape.get('plt_height', 800),
         # margin=dict(l=50, r=50, t=80, b=50),
         margin=dict(t=30, b=30, pad=0),
         autosize=True,
@@ -139,12 +153,11 @@ def create_plotly_figure(rows: int, row_heights: list, plt_shape: dict={}):
     )
     return fig
 
-
 def plot_index():
     from plotly.colors import sample_colorscale
 
     g = get_index_table(Selected_Basic3)
-    p1 = get_index_prices(g, count=800)
+    p1 = get_index_prices(g, count=200)
     score = calc_rolling_score_with_llt(p1, llt_penalty=1.0)
     dates = score.index
     beg_, end_ = dates.min(), dates.max()
@@ -155,7 +168,7 @@ def plot_index():
     # adjust score
     max_score, min_score = score.max().max(), score.min().min()
     score = (score - min_score) / (max_score - min_score) * 2 - 1
-
+    print('Prepare data OK...')
 
     fig = create_plotly_figure(1, [1.0])
     fig.update_xaxes(
@@ -177,10 +190,10 @@ def plot_index():
     fig.show()
 
 
-
 if __name__ == '__main__':
     # g = get_index_table(Selected_Basic)
     # p1 = get_index_prices(g, count=250)
-    # print(calc_rolling_score_with_llt(p1,21).tail(15))
+    # print(calc_rolling_score_with_llt(p1,21))
     plot_index()
+    # print(find_max_score())
     pass

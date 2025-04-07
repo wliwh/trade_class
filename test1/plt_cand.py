@@ -75,8 +75,8 @@ def make_candle_echarts(ohlc:pd.DataFrame,
         ohlc_tb.rename(columns=name_trans,inplace=True)
     # print(ohlc_tb.columns)
     _plt_range_len = plt_shape.get('df_range_len',100)
-    _plt_width = plt_shape.get('plt_width',2400)
-    _plt_height = plt_shape.get('plt_height',1300)
+    _plt_width = plt_shape.get('plt_width',1300)
+    _plt_height = plt_shape.get('plt_height',800)
     _plt_titleopts = {'subtitle': f"{beg} ~ {end}"} if plt_title_opts is None else plt_title_opts
     if plt_add_lines:
         assert all(x in ohlc_tb.columns for x in plt_add_lines)
@@ -106,15 +106,14 @@ def make_candle_echarts(ohlc:pd.DataFrame,
                     xaxis_index=[0,2+_n],range_end=100))
 
     if isinstance(plt_add_points, Iterable) and len(plt_add_points):
-        _cand_symbols = {1:'triangle', 2:'rect', 3:'circle'}
-        _cand_colors = {1:'#cccc00',2:'#ff9933',3:'#b22222'}
+        _cand_colors = {'银行':'#009683','煤炭':'#4a4a4a','钢铁':'#4682b4','有色':'#d4af37'}
         _candle_points = [
             opts.MarkPointItem(
-                coord=[x, float(data.loc[x, 'Low'])-30], 
-                symbol=_cand_symbols[y],
+                coord=[x, 9300+70*(3-j)], # float(data.loc[x, 'High'])
+                symbol='circle',
                 symbol_size=12,
-                itemstyle_opts=opts.ItemStyleOpts(color=_cand_colors[y]))
-            for x,y in plt_add_points if x in data.index]
+                itemstyle_opts=opts.ItemStyleOpts(color=_cand_colors[sorted(q)[-1]]))
+            for x,v in plt_add_points.items() if x in data.index for j,q in enumerate(v) if q]
         _markpoint_data = opts.MarkPointOpts(data=_candle_points)
     else:
         _markpoint_data = None
@@ -356,6 +355,7 @@ def draw_future_echart(tt:str, beg:str, end:str):
     p1 = get_industries_rank()
     p2 = get_industries_dic(p1)
     p2_tm = [p['date'] for p in p2]
+    p2_names = {k['date']: k['names'] for k in p2}
     a1['score'] = pd.Series([p['score'] for p in p2], index=p2_tm)
     a1.fillna({'score':0}, inplace=True)
     a1['aver1'] = p1['aver']
@@ -363,7 +363,8 @@ def draw_future_echart(tt:str, beg:str, end:str):
     tend = make_candle_echarts(a1, beg, end,'open high low close volume'.split(), plt_shape={'plt_height':1250},
                                plt_title_opts={'is_show':tt} if tt==False else {'title':tt},
                                plt_volume=False,
-                               plt_add_ma=(20,60,240), 
+                               plt_add_ma=(20,60,240),
+                               plt_add_points=p2_names,
                                other_tbs=[{'bar': 'score'}, {'line': ('aver1','aver2')}])
     return tend
 
@@ -371,3 +372,4 @@ def draw_future_echart(tt:str, beg:str, end:str):
 if __name__ == "__main__":
     tend = draw_future_echart(False, '2022-01-01','2025-03-28')
     tend.render('gz.html')
+    pass
