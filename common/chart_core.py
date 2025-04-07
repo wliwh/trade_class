@@ -83,8 +83,8 @@ def make_line_echarts(lpic:Union[pd.Series,pd.DataFrame],
     '''
     # lpic_src = lpic.copy()
     _plt_range_len = plt_shape.get('df_range_len',100)
-    _plt_width = plt_shape.get('plt_width',1200)
-    _plt_height = plt_shape.get('plt_height',700)
+    _plt_width = plt_shape.get('plt_width',2400)
+    _plt_height = plt_shape.get('plt_height',1200)
     _plt_titleopts = {'subtitle': f"{beg} ~ {end}"} if plt_title_opts is None else plt_title_opts
     if other_tbs:
         assert all(parse_other_tb_name(j)>0 for k in other_tbs for j in k.keys())
@@ -356,8 +356,8 @@ def make_candle_echarts(ohlc:pd.DataFrame,
         ohlc_tb.rename(columns=name_trans,inplace=True)
     # print(ohlc_tb.columns)
     _plt_range_len = plt_shape.get('df_range_len',100)
-    _plt_width = plt_shape.get('plt_width',1200)
-    _plt_height = plt_shape.get('plt_height',700)
+    _plt_width = plt_shape.get('plt_width',2400)
+    _plt_height = plt_shape.get('plt_height',1300)
     _plt_titleopts = {'subtitle': f"{beg} ~ {end}"} if plt_title_opts is None else plt_title_opts
     if plt_add_lines:
         assert all(x in ohlc_tb.columns for x in plt_add_lines)
