@@ -102,17 +102,18 @@ class IndicatorGetter(object):
                 data = upfun(*[conf[u] for u in up_kwargs])
             else:
                 data = upfun(conf[up_kwargs])
-            near_up_date = data.index.max()
-            conf['max_date_idx'] = near_up_date if isinstance(near_up_date, str) else near_up_date.strftime('%Y-%m-%d')
-            conf['next_update_time'] = get_next_update_time(
-                conf['max_date_idx'], conf['morn_or_night'], date_fmt=DateTime_FMT)
-            if conf['update_method'] == 'append':
-                data.to_csv(self.uppth, mode='a', header=False)
-            else:
-                data.to_csv(self.uppth, mode='w',float_format='%.3f')
-            self.set_cator_conf(True, **conf)
-            _logger.info(f"{self.cator_name} is updating to {near_up_date}.")
-            return Update_Cond.Updating
+            if not data.empty:
+                near_up_date = data.index.max()
+                conf['max_date_idx'] = near_up_date if isinstance(near_up_date, str) else near_up_date.strftime('%Y-%m-%d')
+                conf['next_update_time'] = get_next_update_time(
+                    conf['max_date_idx'], conf['morn_or_night'], date_fmt=DateTime_FMT)
+                if conf['update_method'] == 'append':
+                    data.to_csv(self.uppth, mode='a', header=False)
+                else:
+                    data.to_csv(self.uppth, mode='w',float_format='%.3f')
+                self.set_cator_conf(True, **conf)
+                _logger.info(f"{self.cator_name} is updating to {near_up_date}.")
+                return Update_Cond.Updating
 
     def set_warn_info(self):
         conf = self.cator_conf
@@ -139,6 +140,7 @@ class IndicatorGetter(object):
 
     def get_warn_info(self):
         return self.cator_conf['warning_info']
+
 
 if __name__ == '__main__':
     p1 = IndicatorGetter('baidu_search')
