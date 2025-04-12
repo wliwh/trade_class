@@ -248,3 +248,29 @@
 2025-04-07 10:15:20,922 - INFO - global_index is updating to 2025-04-03.
 2025-04-07 10:15:21,071 - INFO - global_index warning info updating to 2025-04-03.
 2025-04-07 10:15:26,786 - INFO - 116 rows data Update to baidu_search
+2025-04-08 10:15:06,679 - INFO - high_low_legu is updating to 2025-04-07.
+2025-04-08 10:15:16,451 - INFO - qvix_day is updating to 2025-04-07.
+2025-04-08 10:15:16,463 - INFO - qvix_day warning info updating to 2025-04-07.
+2025-04-08 10:15:17,925 - INFO - global_index is updating to 2025-04-07.
+2025-04-08 10:15:18,083 - INFO - global_index warning info updating to 2025-04-07.
+2025-04-08 11:28:10,441 - INFO - high_low_legu is up to date.
+2025-04-08 11:28:10,447 - INFO - qvix_day is up to date.
+2025-04-08 11:28:10,459 - INFO - qvix_day warning info updating to 2025-04-07.
+2025-04-08 11:28:10,461 - INFO - global_index is up to date.
+2025-04-08 11:28:10,611 - INFO - global_index warning info updating to 2025-04-07.
+2025-04-08 11:28:16,528 - INFO - 29 rows data Update to baidu_search
+2025-04-09 10:15:06,278 - INFO - high_low_legu is updating to 2025-04-08.
+2025-04-09 22:30:05,838 - INFO - high_low_legu is updating to 2025-04-09.
+2025-04-09 22:30:18,449 - INFO - qvix_day is updating to 2025-04-08.
+2025-04-09 22:30:18,461 - INFO - qvix_day warning info updating to 2025-04-08.
+2025-04-09 22:30:19,676 - INFO - global_index is updating to 2025-04-08.
+2025-04-09 22:30:19,836 - INFO - global_index warning info updating to 2025-04-08.
+2025-04-09 22:30:26,423 - INFO - 29 rows data Update to baidu_search
+2025-04-10 10:15:03,284 - INFO - high_low_legu is up to date.
+2025-04-11 10:15:06,964 - INFO - high_low_legu is updating to 2025-04-10.
+2025-04-11 10:15:18,997 - INFO - qvix_day is updating to 2025-04-10.
+2025-04-11 10:15:19,010 - INFO - qvix_day warning info updating to 2025-04-10.
+2025-04-11 10:15:21,176 - INFO - global_index is updating to 2025-04-10.
+2025-04-11 10:15:21,340 - INFO - global_index warning info updating to 2025-04-10.
+2025-04-11 10:15:33,547 - INFO - 58 rows data Update to baidu_search
+2025-04-12 10:15:10,021 - INFO - high_low_legu is updating to 2025-04-11.
