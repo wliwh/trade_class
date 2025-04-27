@@ -27,7 +27,7 @@ def get_industries_rank():
 def get_industries_dic(rank_df:pd.DataFrame):
     ranks, rdic = list(), dict()
     wws = ((rank_df.iloc[:,:4])<4).any(axis=1)
-    rank_df = rank_df[wws & (rank_df['sum']>65)]
+    rank_df = rank_df[wws & (rank_df['aver']>65)]
     for i, row in rank_df.iterrows():
         rdic = dict()
         rdic['date'] = i
@@ -370,6 +370,6 @@ def draw_future_echart(tt:str, beg:str, end:str):
 
 
 if __name__ == "__main__":
-    tend = draw_future_echart(False, '2021-01-01','2025-03-28')
+    tend = draw_future_echart(False, '2021-01-01','2025-04-26')
     tend.render('gz.html')
     pass
