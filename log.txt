@@ -279,3 +279,18 @@
 2025-04-12 13:59:23,864 - INFO - global_index is updating to 2025-04-11.
 2025-04-12 13:59:24,015 - INFO - global_index warning info updating to 2025-04-11.
 2025-04-12 13:59:30,968 - INFO - 29 rows data Update to baidu_search
+2025-04-29 09:51:45,621 - INFO - high_low_legu is updating to 2025-04-28.
+2025-04-29 09:52:22,951 - INFO - qvix_day is updating to 2025-04-28.
+2025-04-29 09:52:26,408 - INFO - global_index is updating to 2025-04-28.
+2025-04-29 09:52:26,560 - INFO - global_index warning info updating to 2025-04-28.
+2025-04-29 09:52:26,562 - ERROR - bd_search cooks file not found.
+2025-04-29 10:00:11,907 - INFO - high_low_legu is up to date.
+2025-04-29 10:00:11,913 - INFO - qvix_day is up to date.
+2025-04-29 10:00:11,926 - INFO - global_index is up to date.
+2025-04-29 10:00:12,078 - INFO - global_index warning info updating to 2025-04-28.
+2025-04-29 10:00:17,466 - INFO - 464 rows data Update to baidu_search
+2025-05-17 15:35:07,441 - INFO - high_low_legu is updating to 2025-05-16.
+2025-05-17 15:35:44,582 - INFO - qvix_day is updating to 2025-05-15.
+2025-05-17 15:35:44,595 - INFO - qvix_day warning info updating to 2025-05-15.
+2025-05-17 15:35:52,873 - INFO - global_index is updating to 2025-05-16.
+2025-05-17 15:36:01,119 - INFO - 551 rows data Update to baidu_search

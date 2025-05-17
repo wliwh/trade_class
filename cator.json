@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2025-04-11",
-    "next_update_time": "2025-04-14 22:00",
+    "max_date_idx": "2025-05-16",
+    "next_update_time": "2025-05-19 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-04-10",
-    "next_update_time": "2025-04-12 08:30",
+    "max_date_idx": "2025-05-15",
+    "next_update_time": "2025-05-17 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -159,26 +159,11 @@
       ]
     ],
     "warning_info": [
-      "2025-04-10",
+      "2025-05-15",
       {
-        "code": "300ETF",
-        "cp_div": 1.4178075848415004,
-        "high": 23.61
-      },
-      {
-        "code": "500ETF",
-        "cp_div": NaN,
-        "high": 30.09
-      },
-      {
-        "code": "CYB",
-        "cp_div": NaN,
-        "high": 37.56
-      },
-      {
-        "code": "KCB",
-        "cp_div": NaN,
-        "high": 42.81
+        "code": "50ETF",
+        "cp_div": 0.8187017820517046,
+        "high": 16.98
       }
     ]
   },
@@ -191,8 +176,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2025-04-11",
-    "next_update_time": "2025-04-13 09:00",
+    "max_date_idx": "2025-05-16",
+    "next_update_time": "2025-05-18 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -203,155 +188,30 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2025-04-11",
-      {
-        "keyword": "股市",
-        "count": [
-          79649.0,
-          34649.0
-        ],
-        "llt_diff": [
-          18690.937,
-          8690.937
-        ]
-      },
-      {
-        "keyword": "股票",
-        "count": [
-          77263.0,
-          32263.0
-        ],
-        "llt_diff": [
-          19033.718,
-          9033.718
-        ]
-      },
-      {
-        "keyword": "a股",
-        "count": [
-          209825.0,
-          89825.0
-        ],
-        "llt_diff": [
-          37561.114,
-          7561.114
-        ]
-      },
-      {
-        "keyword": "上证指数",
-        "count": [
-          476207.0,
-          76207.0
-        ],
-        "llt_diff": 21603.067
-      },
+      "2025-05-16",
       {
         "keyword": "港股",
         "count": [
-          11975.0,
-          7875.0
+          5138.0,
+          1038.0
         ],
-        "llt_diff": -771.101
-      },
-      {
-        "keyword": "恒生指数",
-        "count": [
-          44141.0,
-          22141.0
-        ],
-        "llt_diff": -4388.345
+        "llt_diff": -2607.129
       },
       {
         "keyword": "恒生科技指数",
         "count": [
-          26581.0,
-          10581.0
+          18287.0,
+          2287.0
         ],
-        "llt_diff": -3787.779
-      },
-      {
-        "keyword": "美股行情",
-        "count": [
-          53169.0,
-          31169.0
-        ],
-        "llt_diff": [
-          22695.895,
-          18695.895
-        ]
-      },
-      {
-        "keyword": "道琼斯指数",
-        "count": [
-          86014.0,
-          66014.0
-        ],
-        "llt_diff": [
-          37484.366,
-          33484.366
-        ]
+        "llt_diff": -3952.607
       },
       {
         "keyword": "纳斯达克指数",
         "count": [
-          118993.0,
-          103993.0
+          27137.0,
+          12137.0
         ],
-        "llt_diff": [
-          47405.209,
-          44405.209
-        ]
-      },
-      {
-        "keyword": "创业板指",
-        "count": [
-          20636.0,
-          636.0
-        ],
-        "llt_diff": 446.181
-      },
-      {
-        "keyword": "科创50",
-        "count": [
-          7310.0,
-          2110.0
-        ],
-        "llt_diff": 822.149
-      },
-      {
-        "keyword": "沪深300",
-        "count": [
-          8083.0,
-          83.0
-        ],
-        "llt_diff": 468.457
-      },
-      {
-        "keyword": "豆粕价格",
-        "count": [
-          397.0,
-          125.0
-        ],
-        "llt_diff": [
-          66.866,
-          21.866
-        ]
-      },
-      {
-        "keyword": "原油",
-        "count": 1500.0,
-        "llt_diff": [
-          183.318,
-          23.318
-        ]
-      },
-      {
-        "keyword": "铜价",
-        "count": [
-          3873.0,
-          873.0
-        ],
-        "llt_diff": -201.033
+        "llt_diff": -16632.445
       }
     ]
   },
@@ -363,8 +223,8 @@
     "itempath": "common/csi_index.csv",
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-04-11",
-    "next_update_time": "2025-04-15 08:30",
+    "max_date_idx": "2025-05-16",
+    "next_update_time": "2025-05-20 08:30",
     "update_kwargs": [
       "max_date_idx",
       "itempath",
@@ -382,140 +242,6 @@
     "item_name_type": "str",
     "append_item_args": false,
     "warning_cond": "见具体条件",
-    "warning_info": [
-      "2025-04-11",
-      {
-        "code": "SPX",
-        "name_zh": "标普500",
-        "down_day": 7,
-        "cross": 250,
-        "high_date": "2025-02-19",
-        "high_weeks": [
-          3,
-          2,
-          4
-        ],
-        "high_value": 6147.43,
-        "cross_date": "2025-04-03",
-        "cross_ma": 5651.81,
-        "low_date": "2025-04-07",
-        "low_weeks": [
-          1,
-          1,
-          5
-        ],
-        "low_value": 4835.04,
-        "end_date": "2025-04-11",
-        "pct1": 21.35,
-        "pct2": 18.9,
-        "minvalue": 495.62,
-        "ratio_int": 2,
-        "ratio": 1.65,
-        "tovalue": [
-          4511.87,
-          4660.56,
-          4809.25
-        ]
-      },
-      {
-        "code": "NDX100",
-        "name_zh": "纳斯达克100",
-        "down_day": 12,
-        "cross": 250,
-        "high_date": "2025-02-19",
-        "high_weeks": [
-          3,
-          2,
-          4
-        ],
-        "high_value": 22222.61,
-        "cross_date": "2025-03-27",
-        "cross_ma": 19881.39,
-        "low_date": "2025-04-07",
-        "low_weeks": [
-          1,
-          1,
-          5
-        ],
-        "low_value": 16542.2,
-        "end_date": "2025-04-11",
-        "pct1": 25.56,
-        "pct2": 22.93,
-        "minvalue": 2341.22,
-        "ratio_int": 1,
-        "ratio": 1.43,
-        "tovalue": [
-          17071.93,
-          17540.17,
-          18008.42
-        ]
-      },
-      {
-        "code": "DJIA",
-        "name_zh": "道琼斯",
-        "down_day": 7,
-        "cross": 250,
-        "high_date": "2024-12-04",
-        "high_weeks": [
-          3,
-          3,
-          5
-        ],
-        "high_value": 45073.63,
-        "cross_date": "2025-04-03",
-        "cross_ma": 41498.25,
-        "low_date": "2025-04-07",
-        "low_weeks": [
-          1,
-          1,
-          5
-        ],
-        "low_value": 36611.78,
-        "end_date": "2025-04-11",
-        "pct1": 18.77,
-        "pct2": 16.37,
-        "minvalue": 3575.38,
-        "ratio_int": 1,
-        "ratio": 1.37,
-        "tovalue": [
-          37207.8,
-          37922.88,
-          38637.95
-        ]
-      },
-      {
-        "code": "NDX",
-        "name_zh": "纳斯达克",
-        "down_day": 13,
-        "cross": 250,
-        "high_date": "2024-12-16",
-        "high_weeks": [
-          1,
-          1,
-          5
-        ],
-        "high_value": 20204.58,
-        "cross_date": "2025-03-26",
-        "cross_ma": 18026.33,
-        "low_date": "2025-04-07",
-        "low_weeks": [
-          1,
-          1,
-          5
-        ],
-        "low_value": 14784.03,
-        "end_date": "2025-04-11",
-        "pct1": 26.83,
-        "pct2": 24.32,
-        "minvalue": 2178.25,
-        "ratio_int": 2,
-        "ratio": 1.49,
-        "tovalue": [
-          13016.37,
-          13669.84,
-          14323.32
-        ]
-      }
-    ]
+    "warning_info": false
   }
 }

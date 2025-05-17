@@ -52,3 +52,8 @@ def echart_page(infos, set_id=0):
             # tab.add(tend, f'{nm}-{code}')
     # return tab
 
+
+if __name__ == '__main__':
+    echart_warn_page(True)
+    # echart_page(infos)
+    pass
