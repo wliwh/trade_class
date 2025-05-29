@@ -294,3 +294,7 @@
 2025-05-17 15:35:44,595 - INFO - qvix_day warning info updating to 2025-05-15.
 2025-05-17 15:35:52,873 - INFO - global_index is updating to 2025-05-16.
 2025-05-17 15:36:01,119 - INFO - 551 rows data Update to baidu_search
+2025-05-29 16:49:21,361 - INFO - high_low_legu is updating to 2025-05-29.
+2025-05-29 16:49:54,134 - INFO - qvix_day is updating to 2025-05-29.
+2025-05-29 16:50:00,323 - INFO - global_index is updating to 2025-05-28.
+2025-05-29 16:50:06,544 - INFO - 348 rows data Update to baidu_search

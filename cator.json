@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2025-05-16",
-    "next_update_time": "2025-05-19 22:00",
+    "max_date_idx": "2025-05-29",
+    "next_update_time": "2025-05-30 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-05-15",
-    "next_update_time": "2025-05-17 08:30",
+    "max_date_idx": "2025-05-29",
+    "next_update_time": "2025-05-31 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -158,14 +158,7 @@
         }
       ]
     ],
-    "warning_info": [
-      "2025-05-15",
-      {
-        "code": "50ETF",
-        "cp_div": 0.8187017820517046,
-        "high": 16.98
-      }
-    ]
+    "warning_info": false
   },
   "baidu_search": {
     "zh": "搜索指数",
@@ -176,8 +169,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2025-05-16",
-    "next_update_time": "2025-05-18 09:00",
+    "max_date_idx": "2025-05-28",
+    "next_update_time": "2025-05-30 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -188,30 +181,22 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2025-05-16",
+      "2025-05-28",
       {
         "keyword": "港股",
         "count": [
-          5138.0,
-          1038.0
+          4924.0,
+          824.0
         ],
-        "llt_diff": -2607.129
-      },
-      {
-        "keyword": "恒生科技指数",
-        "count": [
-          18287.0,
-          2287.0
-        ],
-        "llt_diff": -3952.607
+        "llt_diff": -986.333
       },
       {
         "keyword": "纳斯达克指数",
         "count": [
-          27137.0,
-          12137.0
+          24039.0,
+          9039.0
         ],
-        "llt_diff": -16632.445
+        "llt_diff": -6587.824
       }
     ]
   },
@@ -223,8 +208,8 @@
     "itempath": "common/csi_index.csv",
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-05-16",
-    "next_update_time": "2025-05-20 08:30",
+    "max_date_idx": "2025-05-28",
+    "next_update_time": "2025-05-30 08:30",
     "update_kwargs": [
       "max_date_idx",
       "itempath",
