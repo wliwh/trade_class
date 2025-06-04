@@ -1,5 +1,8 @@
+'''
+绘制常见ETF相应指数的评分
+价格对一次/二次等多项式的拟合，得出其斜率和误差，进而得出评分
+'''
 
-import os
 import sys
 from pathlib import Path
 from typing import Optional

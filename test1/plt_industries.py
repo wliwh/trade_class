@@ -11,7 +11,7 @@ sys.path.append(str(Path(__file__).parents[1]))
 from common.chart_core import parse_other_tb_name, get_grid_hts
 from index_get.get_index_value import basic_index_getter
 
-Indus_Pth = str(Path(__file__).parents[1] / 'industries_score.csv')
+Indus_Pth = str(Path(__file__).parents[1] / 'data_save' / 'industries_score.csv')
 
 
 def get_industries_rank():
@@ -360,16 +360,16 @@ def draw_future_echart(tt:str, beg:str, end:str):
     a1.fillna({'score':0}, inplace=True)
     a1['aver1'] = p1['aver']
     a1['aver2'] = p1['sum']
-    tend = make_candle_echarts(a1, beg, end,'open high low close volume'.split(), plt_shape={'plt_height':1250},
+    tend = make_candle_echarts(a1, beg, end,'open close high low volume'.split(), plt_shape={'plt_height':1250},
                                plt_title_opts={'is_show':tt} if tt==False else {'title':tt},
                                plt_volume=False,
-                               plt_add_ma=(20,60,240),
+                               plt_add_ma=(10,20,60),
                                plt_add_points=p2_names,
                                other_tbs=[{'bar': 'score'}, {'line': ('aver1','aver2')}])
     return tend
 
 
 if __name__ == "__main__":
-    tend = draw_future_echart(False, '2021-01-01','2025-04-26')
-    tend.render('gz.html')
+    tend = draw_future_echart(False, '2021-01-01','2025-06-03')
+    tend.render(Path(Path(__file__).parent, 'gz.html'))
     pass
