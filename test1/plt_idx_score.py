@@ -14,7 +14,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from common.trade_date import get_trade_day, get_delta_trade_day
-from common.smooth_tool import LLT_MA, HMA, TREND_FLEX, RE_FLEX
+from common.smooth_tool import LLT_MA, HMA, TREND_FLEX, RE_FLEX, ema_tan
 from index_get.get_index_value import other_index_getter, basic_index_getter, future_index_getter
 
 Selected_Code_Name = ('IXIC','HSTECH','GDAXI','N225','SENSEX',\
@@ -185,15 +185,22 @@ def plot_index(names:tuple = Selected_Basic3):
     fig.show()
 
 
-def get_flex(names:tuple = Selected_Basic3, days:int=400):
+def get_flex(names:tuple = Selected_Basic3, days:int=400, trend:bool=True):
     g = get_index_table(names)
     p1 = get_index_prices(g, count=days+80)
     p1.bfill(inplace=True)
-    sco = p1.apply(TREND_FLEX, axis=0)
+    sco = p1.apply(TREND_FLEX if trend else RE_FLEX, axis=0)
     # sm, sn = sco.tail(days-40).max().max(), sco.tail(days-40).min().min()
     # sm, sn = math.ceil(sm), math.floor(sn)
     # sco = (sco-sn)/(sm-sn)
     # sco[sco>1.0] = 1.0; sco[sco<0.0]=0.0
+    return sco
+
+def get_emas(names:tuple = Selected_Basic3, days:int=200):
+    g = get_index_table(names)
+    p1 = get_index_prices(g, count=days+80)
+    p1.bfill(inplace=True)
+    sco = p1.apply(lambda x:ema_tan(x, 10, 21), axis=0)
     return sco
 
 
@@ -216,12 +223,12 @@ def plot_index_separate(names:tuple = Selected_Basic3, days:int = 200):
     max_score, min_score = score.max().max(), score.min().min()
     score = (score - min_score) / (max_score - min_score)
 
-    flex_score = get_flex(names, days)
+    flex_score = get_flex(names, days, True)
     flex_score = flex_score[flex_score.index>=beg_]
-    print(flex_score)
     
     # 创建两个独立的图表
-    fig = create_plotly_figure(rows=3, row_heights=[0.6, 0.2, 0.2])
+    fig = create_plotly_figure(rows=3, row_heights=[0.6, 0.2, 0.2],
+                               plt_shape={'plt_width':1250, 'plt_height':700})
     # fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.05)
     
     # 设置共享的x轴配置
@@ -278,7 +285,6 @@ def plot_index_separate(names:tuple = Selected_Basic3, days:int = 200):
     fig.update_layout(
         title=f"指标分析: {beg_} - {end_}",
         xaxis=xaxis_config,
-        height=1300,
         hovermode='x unified',
         hoverdistance=-1,       # 取消悬停距离限制
     )
@@ -303,6 +309,6 @@ if __name__ == '__main__':
     # g = get_index_table(Selected_Basic3)
     # p1 = get_index_prices(g, count=250)
     # print(calc_rolling_score_with_llt(p1,21).tail(15))
-    plot_index_separate(Selected_Basic3)
-    # print(get_flex(Selected_Basic3, 200))
+    plot_index_separate(Future_Basic)
+    # print(get_emas(Selected_Basic3, 200))
     pass
