@@ -141,8 +141,14 @@ def future_index_getter(code:str,
                         end:Optional[str]=None):
     aa = ak.futures_zh_daily_sina(symbol=code)
     aa.set_index('date',inplace=True)
-    if beg: aa = aa.loc[beg:]
-    if end: aa = aa.loc[:end]
+    if beg:
+        beg = beg.replace('/','-')
+    else:
+        beg = '2016-01-01'
+    if end:
+        end = end.replace('/','-')
+        aa = aa.loc[:end]
+    aa = aa.loc[beg:]
     return aa
 
 

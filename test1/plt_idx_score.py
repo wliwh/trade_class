@@ -3,6 +3,7 @@
 价格对一次/二次等多项式的拟合，得出其斜率和误差，进而得出评分
 '''
 
+import math
 import sys
 from pathlib import Path
 from typing import Optional
@@ -13,14 +14,15 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from common.trade_date import get_trade_day, get_delta_trade_day
-from common.smooth_tool import LLT_MA, HMA
-from index_get.get_index_value import other_index_getter, basic_index_getter
+from common.smooth_tool import LLT_MA, HMA, TREND_FLEX, RE_FLEX
+from index_get.get_index_value import other_index_getter, basic_index_getter, future_index_getter
 
 Selected_Code_Name = ('IXIC','HSTECH','GDAXI','N225','SENSEX',\
                       '159985','518880','162411','501018','159980','159981',\
                       '000015', '399006', '000688', '399303')
 Selected_Basic = Selected_Code_Name[:3] + ('518880','501018','159985') + ('000015', '399006', '399303')
 Selected_Basic3 = ('518880','501018') + ('IXIC', 'HSTECH', '000015', '399006')
+Future_Basic = ('FG0','SA0','P0','J0','m0','RB0','lc0')
 
 def get_index_table(selected:tuple = Selected_Code_Name):
     index_dt = pd.read_csv(Path(Path(__file__).parents[1],'common','csi_index.csv'))
@@ -38,6 +40,8 @@ def get_index_prices(df:pd.DataFrame, end:Optional[str]=None, count:Optional[int
             prices[row['code']] = other_index_getter(row['code'], beg_date, end_date)['close']
         elif row['type_name'].startswith('base-'):
             prices[row['code']] = basic_index_getter(row['code'], beg_date, end_date, False)['close']
+        elif row['type_name'].startswith('future-'):
+            prices[row['code']] = future_index_getter(row['code'], beg_date, end_date)['close']
     prices = pd.DataFrame(prices).iloc[1:]
     prices.interpolate('linear',inplace=True)
     prices = prices.round(3)
@@ -100,7 +104,7 @@ def calc_rolling_score_with_llt(prices:pd.DataFrame, window:int=21, llt_penalty:
     for p in prices.rolling(window=window+4):
         if len(p)<window+4: continue
         p = np.log(p/p.iloc[0])
-        p1 = p.apply(lambda x: calc_poly(x, window, 2), axis=0)
+        p1 = p.apply(lambda x: calc_poly(x, window, 3), axis=0)
         # slope
         ps = p1.diff(axis=0).iloc[-window:]
         ps = ps.apply(lambda x:x*weights, axis=0)
@@ -118,7 +122,8 @@ def calc_rolling_score_with_llt(prices:pd.DataFrame, window:int=21, llt_penalty:
         scores[p.index[-1]] = ps*r_squared*1000.0
     scores = pd.DataFrame(scores,index=prices.columns).T
     min_score = np.floor(scores.min().min())
-    scores.fillna(min_score,inplace=True)
+    # scores.fillna(method='ffill',inplace=True)
+    scores.ffill(inplace=True)
     return scores
 
 def create_plotly_figure(rows: int, row_heights: list, plt_shape: dict={}):
@@ -143,10 +148,10 @@ def create_plotly_figure(rows: int, row_heights: list, plt_shape: dict={}):
     return fig
 
 
-def plot_index():
+def plot_index(names:tuple = Selected_Basic3):
     from plotly.colors import sample_colorscale
 
-    g = get_index_table(Selected_Basic3)
+    g = get_index_table(names)
     p1 = get_index_prices(g, count=200)
     code2names = {p:g.loc[g.code==p,'name_zh'].values[0] for p in p1.columns}
     score = calc_rolling_score_with_llt(p1, llt_penalty=1.0)
@@ -180,10 +185,124 @@ def plot_index():
     fig.show()
 
 
+def get_flex(names:tuple = Selected_Basic3, days:int=400):
+    g = get_index_table(names)
+    p1 = get_index_prices(g, count=days+80)
+    p1.bfill(inplace=True)
+    sco = p1.apply(TREND_FLEX, axis=0)
+    # sm, sn = sco.tail(days-40).max().max(), sco.tail(days-40).min().min()
+    # sm, sn = math.ceil(sm), math.floor(sn)
+    # sco = (sco-sn)/(sm-sn)
+    # sco[sco>1.0] = 1.0; sco[sco<0.0]=0.0
+    return sco
+
+
+def plot_index_separate(names:tuple = Selected_Basic3, days:int = 200):
+    from plotly.colors import sample_colorscale
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+
+    # 获取数据（与原函数相同）
+    g = get_index_table(names)
+    p1 = get_index_prices(g, count=days)
+    code2names = {p:g.loc[g.code==p,'name_zh'].values[0] for p in p1.columns}
+    score = calc_rolling_score_with_llt(p1, llt_penalty=1.0)
+    dates = score.index
+    beg_, end_ = dates.min(), dates.max()
+    all_days = set(x.strftime('%Y-%m-%d') for x in pd.date_range(start=beg_,end=end_,freq='D'))
+    rm_days = sorted(list(all_days - set(dates)))
+    p1 = p1[p1.index>=beg_]
+    p1 = p1/p1.iloc[0]
+    max_score, min_score = score.max().max(), score.min().min()
+    score = (score - min_score) / (max_score - min_score)
+
+    flex_score = get_flex(names, days)
+    flex_score = flex_score[flex_score.index>=beg_]
+    print(flex_score)
+    
+    # 创建两个独立的图表
+    fig = create_plotly_figure(rows=3, row_heights=[0.6, 0.2, 0.2])
+    # fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.05)
+    
+    # 设置共享的x轴配置
+    xaxis_config = dict(
+        tickformat='%m-%d',
+        rangebreaks=[dict(values=rm_days)],
+        type='date'
+    )
+    
+    # 设置颜色
+    sampled_colors = sample_colorscale('Rainbow', np.linspace(0, 1, p1.shape[1]))
+    
+    # 添加数据到第一个图表（价格）
+    for c_, n in zip(sampled_colors, p1.columns):
+        fig.add_trace(go.Scatter(
+            x=p1.index, 
+            y=round(p1[n], 3), 
+            name=code2names[n], 
+            line=dict(color=c_, width=3),
+            legendgroup=n,
+            showlegend=True
+        ),
+        row=1,
+        col=1
+    )
+    
+    # 添加数据到第二个图表（分数）
+    for c_, n in zip(sampled_colors, p1.columns):
+        fig.add_trace(go.Scatter(
+            x=p1.index, 
+            y=round(score[n],3),
+            name=code2names[n],  # 显示相同的名称
+            line=dict(color=c_, dash='solid', width=1.5),
+            legendgroup=n,
+            showlegend=False  # 避免图例重复
+        ),
+        row=2,
+        col=1
+    )
+
+    for c_, n in zip(sampled_colors, p1.columns):
+        fig.add_trace(go.Scatter(
+            x=p1.index, 
+            y=round(flex_score[n],3),
+            name=code2names[n],  # 显示相同的名称
+            line=dict(color=c_, dash='solid', width=1.5),
+            legendgroup=n,
+            showlegend=False  # 避免图例重复
+        ),
+        row=3,
+        col=1
+    )
+
+    fig.update_layout(
+        title=f"指标分析: {beg_} - {end_}",
+        xaxis=xaxis_config,
+        height=1300,
+        hovermode='x unified',
+        hoverdistance=-1,       # 取消悬停距离限制
+    )
+    fig.update_xaxes(
+        showspikes=True, 
+        spikemode='across',  # 跨所有子图显示
+        spikesnap='cursor', 
+        spikecolor='gray',
+        spikethickness=1
+    )
+    # fig.update_yaxes(
+    #     title_text="分数", 
+    #     range=[-0.5, 0.5],
+    #     row=2, 
+    #     col=1
+    # )
+    # 显示图表
+    fig.show()
+
 
 if __name__ == '__main__':
     # g = get_index_table(Selected_Basic3)
     # p1 = get_index_prices(g, count=250)
     # print(calc_rolling_score_with_llt(p1,21).tail(15))
-    plot_index()
+    plot_index_separate(Selected_Basic3)
+    # print(get_flex(Selected_Basic3, 200))
     pass
