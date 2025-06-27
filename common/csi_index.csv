@@ -109,6 +109,7 @@ RElTs,880097,tdx-index,2005-01-05
 纯碱,SA0,future-index,2018-01-01
 PVC,V0,future-index,2018-01-01
 棕榈油,P0,future-index,2018-01-01
+豆油,Y0,future-index,2018-01-01
 鸡蛋,JD0,future-index,2018-01-01
 塑料,L0,future-index,2018-01-01
 玉米,C0,future-index,2018-01-01
@@ -128,3 +129,5 @@ PVC,V0,future-index,2018-01-01
 锌价,zn0,future-index,2018-01-01
 集运,ec0,future-index,2018-01-01
 碳酸锂,lc0,future-index,2023-01-01
+指数1000,IM0,future-index,2018-01-01
+国债十年,T0,future-index,2018-01-01

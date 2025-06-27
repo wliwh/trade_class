@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).parents[1]))
 
 import numpy as np
 import pandas as pd
+import tkinter as tk
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from common.trade_date import get_trade_day, get_delta_trade_day
@@ -22,7 +23,14 @@ Selected_Code_Name = ('IXIC','HSTECH','GDAXI','N225','SENSEX',\
                       '000015', '399006', '000688', '399303')
 Selected_Basic = Selected_Code_Name[:3] + ('518880','501018','159985') + ('000015', '399006', '399303')
 Selected_Basic3 = ('518880','501018') + ('IXIC', 'HSTECH', '000015', '399006')
-Future_Basic = ('FG0','SA0','P0','J0','m0','RB0','lc0')
+Future_Basic = ('FG0','V0','P0','JM0','m0','RB0','lc0','T0')
+
+def get_screen_size():
+    root = tk.Tk()  # 创建临时窗口
+    width = root.winfo_screenwidth()  # 获取宽度
+    height = root.winfo_screenheight()  # 获取高度
+    root.destroy()  # 销毁窗口
+    return width, height
 
 def get_index_table(selected:tuple = Selected_Code_Name):
     index_dt = pd.read_csv(Path(Path(__file__).parents[1],'common','csi_index.csv'))
@@ -104,7 +112,7 @@ def calc_rolling_score_with_llt(prices:pd.DataFrame, window:int=21, llt_penalty:
     for p in prices.rolling(window=window+4):
         if len(p)<window+4: continue
         p = np.log(p/p.iloc[0])
-        p1 = p.apply(lambda x: calc_poly(x, window, 3), axis=0)
+        p1 = p.apply(lambda x: calc_poly(x, window, 2), axis=0)
         # slope
         ps = p1.diff(axis=0).iloc[-window:]
         ps = ps.apply(lambda x:x*weights, axis=0)
@@ -126,7 +134,7 @@ def calc_rolling_score_with_llt(prices:pd.DataFrame, window:int=21, llt_penalty:
     scores.ffill(inplace=True)
     return scores
 
-def create_plotly_figure(rows: int, row_heights: list, plt_shape: dict={}):
+def create_plotly_figure(rows:int, row_heights:list, plt_shape: dict={}):
     fig = make_subplots(
         rows=rows, 
         cols=1,
@@ -135,10 +143,12 @@ def create_plotly_figure(rows: int, row_heights: list, plt_shape: dict={}):
         row_heights=row_heights,
         specs=[[{"secondary_y": True}]] * rows
     )
+
+    _w, _h = get_screen_size()
     
     fig.update_layout(
-        width=plt_shape.get('plt_width', 2400),
-        height=plt_shape.get('plt_height', 1300),
+        width=plt_shape.get('plt_width', int(0.9*_w)),
+        height=plt_shape.get('plt_height', int(0.9*_h)),
         # margin=dict(l=50, r=50, t=80, b=50),
         margin=dict(t=30, b=30, pad=0),
         autosize=True,
@@ -196,6 +206,7 @@ def get_flex(names:tuple = Selected_Basic3, days:int=400, trend:bool=True):
     # sco[sco>1.0] = 1.0; sco[sco<0.0]=0.0
     return sco
 
+
 def get_emas(names:tuple = Selected_Basic3, days:int=200):
     g = get_index_table(names)
     p1 = get_index_prices(g, count=days+80)
@@ -227,8 +238,7 @@ def plot_index_separate(names:tuple = Selected_Basic3, days:int = 200):
     flex_score = flex_score[flex_score.index>=beg_]
     
     # 创建两个独立的图表
-    fig = create_plotly_figure(rows=3, row_heights=[0.6, 0.2, 0.2],
-                               plt_shape={'plt_width':1250, 'plt_height':700})
+    fig = create_plotly_figure(rows=3, row_heights=[0.6, 0.2, 0.2])
     # fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.05)
     
     # 设置共享的x轴配置
@@ -309,6 +319,6 @@ if __name__ == '__main__':
     # g = get_index_table(Selected_Basic3)
     # p1 = get_index_prices(g, count=250)
     # print(calc_rolling_score_with_llt(p1,21).tail(15))
-    plot_index_separate(Future_Basic)
+    plot_index_separate(Future_Basic, 320)
     # print(get_emas(Selected_Basic3, 200))
     pass
