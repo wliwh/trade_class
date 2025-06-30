@@ -345,13 +345,13 @@ def chart_test():
     xx = np.array([np.random.normal(x,x*0.05,10) for x in xx])
     xx = pd.DataFrame(dict(o=xx[:,0],c=xx[:,-1],l=xx.min(axis=1),h=xx.max(axis=1),v=xx[:,4]*10,qq=xx[:,5]*10))
     xx.index = pd.date_range(start='2022-01-10',periods=len(xx),freq='B')
-    # make_candle_plotly(xx, '2022-05-31', '2023-05-31',
-    #                    ohlc_names=('o','h','l','c','v'), plt_add_ma=(10,20,60),
-    #                    plt_volume=True, other_tbs=[{'l':['v']}])
-    make_line_plotly(xx.c, '2022-05-31', '2023-05-31',
-                     plt_add_ma=(10,20,60),
-                     plt_add_lines=xx.l,
-                     other_tbs=[{'line':xx[['v','qq']]},{'bar':xx.v}])
+    make_candle_plotly(xx, '2022-05-31', '2023-05-31',
+                       ohlc_names=('o','h','l','c','v'), plt_add_ma=(10,20,60),
+                       plt_volume=True, other_tbs=[{'l':['v']}])
+    # make_line_plotly(xx.c, '2022-05-31', '2023-05-31',
+    #                  plt_add_ma=(10,20,60),
+    #                  plt_add_lines=xx.l,
+    #                  other_tbs=[{'line':xx[['v','qq']]},{'bar':xx.v}])
 
 if __name__=='__main__':
     chart_test()

@@ -215,6 +215,31 @@ def get_emas(names:tuple = Selected_Basic3, days:int=200):
     return sco
 
 
+def calc_index_rank(names:tuple = Selected_Basic3, days:int = 200):
+
+    # 获取数据（与原函数相同）
+    g = get_index_table(names)
+    p1 = get_index_prices(g, count=days)
+    code2names = {p:g.loc[g.code==p,'name_zh'].values[0] for p in p1.columns}
+    score = calc_rolling_score_with_llt(p1, llt_penalty=1.0)
+    dates = score.index
+    beg_, end_ = dates.min(), dates.max()
+    all_days = set(x.strftime('%Y-%m-%d') for x in pd.date_range(start=beg_,end=end_,freq='D'))
+    rm_days = sorted(list(all_days - set(dates)))
+    p1 = p1[p1.index>=beg_]
+    p1 = p1/p1.iloc[0]
+    max_score, min_score = score.max().max(), score.min().min()
+    score = (score - min_score) / (max_score - min_score)
+
+    flex_score = get_flex(names, days, True)
+    flex_score = flex_score[flex_score.index>=beg_]
+    score.columns = list(range(len(score.columns)))
+    flex_score.columns = list(range(len(flex_score.columns)))
+    g1 = (~score.idxmax(axis=1).diff().isin((0,))).sum()
+    g2 = (~flex_score.idxmax(axis=1).diff().isin((0,))).sum()
+    print(g1, g2)
+
+
 def plot_index_separate(names:tuple = Selected_Basic3, days:int = 200):
     from plotly.colors import sample_colorscale
     import plotly.graph_objects as go
@@ -236,6 +261,7 @@ def plot_index_separate(names:tuple = Selected_Basic3, days:int = 200):
 
     flex_score = get_flex(names, days, True)
     flex_score = flex_score[flex_score.index>=beg_]
+    # print(pd.concat([score.idxmax(axis=1), flex_score.idxmax(axis=1)], axis=1).tail(40))
     
     # 创建两个独立的图表
     fig = create_plotly_figure(rows=3, row_heights=[0.6, 0.2, 0.2])
@@ -319,6 +345,6 @@ if __name__ == '__main__':
     # g = get_index_table(Selected_Basic3)
     # p1 = get_index_prices(g, count=250)
     # print(calc_rolling_score_with_llt(p1,21).tail(15))
-    plot_index_separate(Future_Basic, 320)
+    calc_index_rank(Selected_Basic, 500)
     # print(get_emas(Selected_Basic3, 200))
     pass

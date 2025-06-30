@@ -56,7 +56,6 @@ def get_all_warnings(arange_info:dict) -> dict:
                 if nm in nms:
                     ar_warns.append(warns[nms.index(nm)+1])
             warning_infos[v["zh"]] = ar_warns
-    # print(warning_infos)
     return warning_infos
 
 Warning_Infos = get_all_warnings(Arange_Info['page1'])
@@ -101,7 +100,10 @@ def second_page(name:str = 'page2'):
     fpath = conf['fpath']
     p1 = pd.read_csv(fpath)
     p1 = p1[p1['type']=='other-am']
-    warns = next(iter(get_all_warnings(Arange_Info[name]).values()))
+    try:
+        warns = next(iter(get_all_warnings(Arange_Info[name]).values()))
+    except StopIteration as e:
+        return
     st.title('回撤观测')
     for warn in warns[1:]:
         pn = p1[p1.code==warn['code']]
