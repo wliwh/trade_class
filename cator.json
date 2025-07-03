@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2025-06-27",
-    "next_update_time": "2025-06-30 22:00",
+    "max_date_idx": "2025-07-03",
+    "next_update_time": "2025-07-04 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-06-27",
-    "next_update_time": "2025-07-01 08:30",
+    "max_date_idx": "2025-07-02",
+    "next_update_time": "2025-07-04 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -158,7 +158,19 @@
         }
       ]
     ],
-    "warning_info": false
+    "warning_info": [
+      "2025-07-02",
+      {
+        "code": "300ETF",
+        "cp_div": NaN,
+        "high": 14.73
+      },
+      {
+        "code": "50ETF",
+        "cp_div": 1.0521182134990077,
+        "high": 14.32
+      }
+    ]
   },
   "baidu_search": {
     "zh": "搜索指数",
@@ -169,8 +181,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2025-06-28",
-    "next_update_time": "2025-06-30 09:00",
+    "max_date_idx": "2025-07-02",
+    "next_update_time": "2025-07-04 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -181,29 +193,32 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2025-06-27",
+      "2025-07-02",
       {
         "keyword": "港股",
         "count": [
-          5325.0,
-          1225.0
+          4679.0,
+          579.0
         ],
-        "llt_diff": 564.094
+        "llt_diff": 54.542
       },
       {
         "keyword": "纳斯达克指数",
         "count": [
-          19749.0,
-          4749.0
+          20737.0,
+          5737.0
         ],
-        "llt_diff": 2190.688
+        "llt_diff": [
+          4214.251,
+          1214.251
+        ]
       },
       {
         "keyword": "铜价",
-        "count": 1932.0,
+        "count": 2228.0,
         "llt_diff": [
-          520.686,
-          170.686
+          660.253,
+          310.253
         ]
       }
     ]
@@ -216,8 +231,8 @@
     "itempath": "common/csi_index.csv",
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-06-27",
-    "next_update_time": "2025-07-01 08:30",
+    "max_date_idx": "2025-07-02",
+    "next_update_time": "2025-07-04 08:30",
     "update_kwargs": [
       "max_date_idx",
       "itempath",

@@ -259,7 +259,7 @@ def plot_index_separate(names:tuple = Selected_Basic3, days:int = 200):
     max_score, min_score = score.max().max(), score.min().min()
     score = (score - min_score) / (max_score - min_score)
 
-    flex_score = get_flex(names, days, True)
+    flex_score = get_flex(names, days, False)
     flex_score = flex_score[flex_score.index>=beg_]
     # print(pd.concat([score.idxmax(axis=1), flex_score.idxmax(axis=1)], axis=1).tail(40))
     
@@ -345,6 +345,6 @@ if __name__ == '__main__':
     # g = get_index_table(Selected_Basic3)
     # p1 = get_index_prices(g, count=250)
     # print(calc_rolling_score_with_llt(p1,21).tail(15))
-    calc_index_rank(Selected_Basic, 500)
+    plot_index_separate(Selected_Basic, 500)
     # print(get_emas(Selected_Basic3, 200))
     pass
