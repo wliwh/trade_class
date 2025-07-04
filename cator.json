@@ -162,7 +162,7 @@
       "2025-07-02",
       {
         "code": "300ETF",
-        "cp_div": NaN,
+        "cp_div": null,
         "high": 14.73
       },
       {
@@ -260,8 +260,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-07-02",
-    "next_update_time": "2025-07-04 08:30",
+    "max_date_idx": "2025-07-03",
+    "next_update_time": "2025-07-05 08:30",
     "update_kwargs": [
       "max_date_idx"
     ],

@@ -41,9 +41,14 @@ def get_trade_day(cut_hour:int=16,
                   date_fmt:Union[str, None]=None) -> Union[date, str] :
     ''' 获取最近的交易日, new_hour 为判断新交易日的分割小时 '''
     ntime = datetime.now()
+    # ntime = datetime.strptime('2025-07-05 9:00:00','%Y-%m-%d %H:%M:%S')
     n_idx = (Trade_List.trade_date<=ntime.date()).argmin() - 1
     n_day = Trade_List.loc[n_idx, 'trade_date']
-    if (ntime.date() > n_day) or (ntime.hour>=cut_hour):
+    delts = ntime - datetime.combine(n_day, time())
+    delts_hours =delts.days*24 + delts.seconds/3600
+    # if (ntime.date() > n_day) or (ntime.hour>=cut_hour):
+    #     return n_day
+    if delts_hours>=cut_hour:
         return n_day
     return Trade_List.loc[n_idx-1,'trade_date']
 
@@ -135,8 +140,8 @@ if __name__ == '__main__':
     # t5 = get_trade_list(5,date_fmt='%Y%m%d')
     # print(t5.values[1], type(t5.values[1]))
 
-    # t6 = get_trade_day()
-    # print(t6,type(t6))
+    # t6 = get_trade_day(32)
+    # print(t6)
     # t7 = get_trade_day(date_fmt='%y/%m/%d')
     # print(t7, type(t7))
 
@@ -145,6 +150,6 @@ if __name__ == '__main__':
     # t7 = get_trade_day_between('2024-01-11', left=False, date_fmt='%Y#%m#%d')
     # print(t7[0], t7[-1],type(t7[-3]))
 
-    # t8 = get_next_update_time('2024-01-25','*22',date_fmt='%Y-%m-%d %H:%M')
-    # print(t8)
+    t8 = get_next_update_time('2025-07-03','+8:30',date_fmt='%Y-%m-%d %H:%M')
+    print(t8)
     pass

@@ -312,3 +312,6 @@
 2025-07-03 17:46:00,464 - INFO - qvix_day warning info updating to 2025-07-02.
 2025-07-03 17:46:02,139 - INFO - global_index is updating to 2025-07-02.
 2025-07-03 17:46:07,915 - INFO - 116 rows data Update to baidu_search
+2025-07-04 17:06:48,883 - INFO - index_score is updating to 2025-07-04.
+2025-07-04 17:34:24,664 - INFO - index_score is updating to 2025-07-03.
+2025-07-04 17:36:42,283 - INFO - index_score is updating to 2025-07-03.

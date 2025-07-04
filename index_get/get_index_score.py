@@ -1,15 +1,15 @@
 import sys
 from pathlib import Path
 
-from index_get.core import IndicatorGetter
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
 import numpy as np
 import pandas as pd
 from typing import Optional
-from common.trade_date import get_delta_trade_day, get_trade_day
 from common.smooth_tool import TREND_FLEX, RE_FLEX
+from common.trade_date import get_delta_trade_day, get_trade_day
+from index_get.core import IndicatorGetter
 from index_get.get_index_value import other_index_getter, basic_index_getter, future_index_getter
 
 Selected_Code_Name = ('IXIC','HSTECH','GDAXI','N225','SENSEX',\
@@ -41,7 +41,7 @@ def calc_price_with_name(df:pd.DataFrame, get_name:str = 'close'):
 
 def get_index_prices(df:pd.DataFrame, end:Optional[str]=None, count:Optional[int]=None, get_name:str = 'close'):
     date_fmt = '%Y-%m-%d'
-    end_date = get_delta_trade_day(end,-1,date_fmt=date_fmt) if end else get_trade_day(date_fmt=date_fmt)
+    end_date = get_delta_trade_day(end,-1,date_fmt=date_fmt) if end else get_trade_day(cut_hour=32,date_fmt=date_fmt)
     beg_date = get_delta_trade_day(end_date,(-(count+1) if count else -301), date_fmt=date_fmt)
     prices = dict()
     for _, row in df.iterrows():
@@ -151,7 +151,7 @@ def calc_index_scores_begin(max_date_idx:str):
     end_date = get_trade_day(cut_hour=20)
     days = (end_date-beg_date).days+1
     for n,t in Code_Future_Dict.items():
-        df = calc_index_scores(n, beg_date=max_date_idx, days=days+60, type_name=t, price_name='close')
+        df = calc_index_scores(t, beg_date=max_date_idx, days=days+60, type_name=n, price_name='close')
         df_lst.append(df)
     df_all = pd.concat(df_lst,axis=0)
     df_all.sort_index(inplace=True)
@@ -161,7 +161,7 @@ def calc_index_scores_begin(max_date_idx:str):
 def test_merge_index_scores():
     df_lst = list()
     for n,t in Code_Future_Dict.items():
-        df = calc_index_scores(n, days=3000, type_name=t, price_name='close')
+        df = calc_index_scores(t, beg_date=None, days=3000, type_name=n, price_name='close')
         df_lst.append(df)
     df_all = pd.concat(df_lst,axis=0)
     df_all.sort_index(inplace=True)
@@ -177,4 +177,9 @@ class index_score_getter(IndicatorGetter):
 if __name__ == '__main__':
     # df = merge_index_scores()
     # df.to_csv('data_save/index_scores.csv')
-    print(calc_index_scores_begin('2025-07-01'))
+    # print(get_trade_day(cut_hour=32))
+
+    sco = index_score_getter()
+    sco.update_data()
+    # sco.set_warn_info()
+    pass
