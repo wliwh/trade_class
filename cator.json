@@ -251,5 +251,25 @@
     "append_item_args": false,
     "warning_cond": "见具体条件",
     "warning_info": false
+  },
+  "index_score": {
+    "zh": "指数打分系统",
+    "freq": "day",
+    "dbpath": false,
+    "fpath": "data_save/index_scores.csv",
+    "itempath": false,
+    "update_method": "append",
+    "morn_or_night": "+8:30",
+    "max_date_idx": "2025-07-02",
+    "next_update_time": "2025-07-04 08:30",
+    "update_kwargs": [
+      "max_date_idx"
+    ],
+    "update_kwargs_note": {},
+    "item_name": false,
+    "item_name_type": "str",
+    "append_item_args": false,
+    "warning_cond": "见具体条件",
+    "warning_info": false
   }
 }

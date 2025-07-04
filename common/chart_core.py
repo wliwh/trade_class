@@ -5,7 +5,7 @@ from pyecharts import options as opts
 from pyecharts.commons.utils import JsCode
 from pyecharts.globals import CurrentConfig
 from pyecharts.charts import Kline, Bar, Grid, Line
-
+import tkinter as tk
 
 def parse_other_tb_name(k:str):
     if k.lower() in ('l', 'line', 'lines'):
@@ -14,6 +14,13 @@ def parse_other_tb_name(k:str):
         return 2
     else:
         return 0
+    
+def get_screen_size():
+    root = tk.Tk()  # 创建临时窗口
+    width = root.winfo_screenwidth()  # 获取宽度
+    height = root.winfo_screenheight()  # 获取高度
+    root.destroy()  # 销毁窗口
+    return width, height
 
 def get_grid_hts(snc:Union[int,None] = None,
                  add_vol:bool = True):

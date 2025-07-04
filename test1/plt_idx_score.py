@@ -11,12 +11,12 @@ sys.path.append(str(Path(__file__).parents[1]))
 
 import numpy as np
 import pandas as pd
-import tkinter as tk
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from common.trade_date import get_trade_day, get_delta_trade_day
 from common.smooth_tool import LLT_MA, HMA, TREND_FLEX, RE_FLEX, ema_tan
 from index_get.get_index_value import other_index_getter, basic_index_getter, future_index_getter
+from common.chart_core import get_screen_size
 
 Selected_Code_Name = ('IXIC','HSTECH','GDAXI','N225','SENSEX',\
                       '159985','518880','162411','501018','159980','159981',\
@@ -25,12 +25,6 @@ Selected_Basic = Selected_Code_Name[:3] + ('518880','501018','159985') + ('00001
 Selected_Basic3 = ('518880','501018') + ('IXIC', 'HSTECH', '000015', '399006')
 Future_Basic = ('FG0','V0','P0','JM0','m0','RB0','lc0','T0')
 
-def get_screen_size():
-    root = tk.Tk()  # 创建临时窗口
-    width = root.winfo_screenwidth()  # 获取宽度
-    height = root.winfo_screenheight()  # 获取高度
-    root.destroy()  # 销毁窗口
-    return width, height
 
 def get_index_table(selected:tuple = Selected_Code_Name):
     index_dt = pd.read_csv(Path(Path(__file__).parents[1],'common','csi_index.csv'))
@@ -257,14 +251,19 @@ def plot_index_separate(names:tuple = Selected_Basic3, days:int = 200):
     p1 = p1[p1.index>=beg_]
     p1 = p1/p1.iloc[0]
     max_score, min_score = score.max().max(), score.min().min()
-    score = (score - min_score) / (max_score - min_score)
+    # score = (score - min_score) / (max_score - min_score)
+    score = score / max(max_score, abs(min_score))
 
-    flex_score = get_flex(names, days, False)
+    flex_score = get_flex(names, days, True)
     flex_score = flex_score[flex_score.index>=beg_]
+
+    reflex_score = get_flex(names, days, False)
+    reflex_score = reflex_score[reflex_score.index>=beg_]
+
     # print(pd.concat([score.idxmax(axis=1), flex_score.idxmax(axis=1)], axis=1).tail(40))
     
     # 创建两个独立的图表
-    fig = create_plotly_figure(rows=3, row_heights=[0.6, 0.2, 0.2])
+    fig = create_plotly_figure(rows=4, row_heights=[0.52, 0.16, 0.16, 0.16])
     # fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.05)
     
     # 设置共享的x轴配置
@@ -317,6 +316,19 @@ def plot_index_separate(names:tuple = Selected_Basic3, days:int = 200):
         row=3,
         col=1
     )
+    
+    for c_, n in zip(sampled_colors, p1.columns):
+        fig.add_trace(go.Scatter(
+            x=p1.index, 
+            y=round(reflex_score[n],3),
+            name=code2names[n],  # 显示相同的名称
+            line=dict(color=c_, dash='solid', width=1.5),
+            legendgroup=n,
+            showlegend=False  # 避免图例重复
+        ),
+        row=4,
+        col=1
+    )
 
     fig.update_layout(
         title=f"指标分析: {beg_} - {end_}",
@@ -345,6 +357,6 @@ if __name__ == '__main__':
     # g = get_index_table(Selected_Basic3)
     # p1 = get_index_prices(g, count=250)
     # print(calc_rolling_score_with_llt(p1,21).tail(15))
-    plot_index_separate(Selected_Basic, 500)
+    plot_index_separate(Selected_Basic, 200)
     # print(get_emas(Selected_Basic3, 200))
     pass
