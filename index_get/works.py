@@ -25,7 +25,7 @@ glb.set_warn_info()
 
 sco = index_score_indicator()
 sco.update_data()
-# sco.set_warn_info()
+sco.set_warn_info()
 
 try:
     bd = bsearch_indicator()

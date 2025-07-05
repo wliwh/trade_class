@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).parents[1]))
 import numpy as np
 import pandas as pd
 from typing import Optional
+from index_get.config import _logger
 from common.smooth_tool import TREND_FLEX, RE_FLEX
 from common.trade_date import get_delta_trade_day, get_trade_day
 from index_get.core import IndicatorGetter
@@ -168,18 +169,44 @@ def test_merge_index_scores():
     return df_all
 
 
-class index_score_getter(IndicatorGetter):
+class index_score_indicator(IndicatorGetter):
     def __init__(self, cator_name: str = 'index_score') -> None:
         super().__init__(cator_name)
         self.update_fun = calc_index_scores_begin
 
+    def set_warn_info(self):
+        conf = self.cator_conf
+        ws = pd.read_csv(conf['fpath'], index_col=0)
+        near_date = conf['max_date_idx']
+        read_date = conf['warning_info'][0]
+        now_data = ws[ws.index==near_date]
+        infos = [near_date]
+        for k in Code_Future_Dict.keys():
+            codes = Code_Future_Dict[k]
+            filtered_data = now_data.loc[now_data.name.isin(codes)]
+            if not filtered_data.empty:
+                info = {
+                    "type": k,
+                    "name": list(codes),
+                    "name_zh": filtered_data['name_zh'].to_list(),
+                    "score": filtered_data['score'].round(4).to_list(),
+                    "trendflex": filtered_data['trendflex'].round(4).to_list(),
+                    "reflex": filtered_data['reflex'].round(4).to_list()
+                }
+                infos.append(info)
+        if len(infos) > 1 and read_date != near_date:
+            _logger.info(f"{self.cator_name} warning info updating to {near_date}.")
+            self.set_cator_conf(True, warning_info=infos)
+        else:
+            self.set_cator_conf(True, warning_info=False)
+        return infos
 
 if __name__ == '__main__':
     # df = merge_index_scores()
     # df.to_csv('data_save/index_scores.csv')
     # print(get_trade_day(cut_hour=32))
 
-    sco = index_score_getter()
+    sco = index_score_indicator()
     sco.update_data()
-    # sco.set_warn_info()
+    sco.set_warn_info()
     pass

@@ -137,7 +137,7 @@ class bsearch_indicator(IndicatorGetter):
             conf['next_update_time'] = get_next_update_time(
                 conf['max_date_idx'], conf['morn_or_night'], date_fmt=DateTime_FMT)
             self.set_cator_conf(True, **conf)
-            _logger.info(f"{len(p_ret)} rows data Update to {self.cator_name}")
+            _logger.info(f"{self.cator_name} warning info ({len(p_ret)} rows) updated to {conf['max_date_idx']}")
 
     def append_data(self, words):
         conf = self.cator_conf

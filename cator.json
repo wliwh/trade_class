@@ -49,8 +49,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "22",
-    "max_date_idx": "2025-07-03",
-    "next_update_time": "2025-07-04 22:00",
+    "max_date_idx": "2025-07-04",
+    "next_update_time": "2025-07-07 22:00",
     "update_kwargs": "fpath",
     "update_kwargs_note": {},
     "item_name": false,
@@ -67,8 +67,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-07-02",
-    "next_update_time": "2025-07-04 08:30",
+    "max_date_idx": "2025-07-03",
+    "next_update_time": "2025-07-05 08:30",
     "update_kwargs": "max_date_idx",
     "update_kwargs_note": {},
     "item_name": false,
@@ -159,16 +159,11 @@
       ]
     ],
     "warning_info": [
-      "2025-07-02",
-      {
-        "code": "300ETF",
-        "cp_div": null,
-        "high": 14.73
-      },
+      "2025-07-03",
       {
         "code": "50ETF",
-        "cp_div": 1.0521182134990077,
-        "high": 14.32
+        "cp_div": 1.022786432591304,
+        "high": 14.45
       }
     ]
   },
@@ -181,8 +176,8 @@
     "warning_info_path": "data_save/bd_handle.csv",
     "update_method": "append",
     "morn_or_night": "^9",
-    "max_date_idx": "2025-07-02",
-    "next_update_time": "2025-07-04 09:00",
+    "max_date_idx": "2025-07-04",
+    "next_update_time": "2025-07-06 09:00",
     "update_kwargs": [
       "itempath",
       "max_date_idx"
@@ -193,33 +188,14 @@
     "append_item_args": false,
     "warning_cond": "见itempath",
     "warning_info": [
-      "2025-07-02",
+      "2025-07-04",
       {
         "keyword": "港股",
         "count": [
-          4679.0,
-          579.0
+          4779.0,
+          679.0
         ],
-        "llt_diff": 54.542
-      },
-      {
-        "keyword": "纳斯达克指数",
-        "count": [
-          20737.0,
-          5737.0
-        ],
-        "llt_diff": [
-          4214.251,
-          1214.251
-        ]
-      },
-      {
-        "keyword": "铜价",
-        "count": 2228.0,
-        "llt_diff": [
-          660.253,
-          310.253
-        ]
+        "llt_diff": 247.885
       }
     ]
   },
@@ -231,8 +207,8 @@
     "itempath": "common/csi_index.csv",
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-07-02",
-    "next_update_time": "2025-07-04 08:30",
+    "max_date_idx": "2025-07-04",
+    "next_update_time": "2025-07-08 08:30",
     "update_kwargs": [
       "max_date_idx",
       "itempath",
@@ -260,8 +236,8 @@
     "itempath": false,
     "update_method": "append",
     "morn_or_night": "+8:30",
-    "max_date_idx": "2025-07-03",
-    "next_update_time": "2025-07-05 08:30",
+    "max_date_idx": "2025-07-04",
+    "next_update_time": "2025-07-08 08:30",
     "update_kwargs": [
       "max_date_idx"
     ],
