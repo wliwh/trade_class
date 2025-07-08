@@ -659,11 +659,14 @@ def plot_index_score(p1:pd.DataFrame, names:Iterable[str], data_len:int=200, row
         col=1
     )
     
+    values = p1.pivot(columns='name', values='score')
+    values.ffill(axis=0,inplace=True)
+    
     # 添加数据到第二个图表（分数）
     for c_, n in zip(sampled_colors, names):
         fig.add_trace(go.Scatter(
             x=values.index, 
-            y=p1.loc[p1.name==n, 'score'].round(3),
+            y=values[n].round(3),
             name=code2names[n],  # 显示相同的名称
             line=dict(color=c_, dash='solid', width=1.5),
             legendgroup=n,
@@ -674,10 +677,12 @@ def plot_index_score(p1:pd.DataFrame, names:Iterable[str], data_len:int=200, row
     )
 
     if rowsn>2:
+        values = p1.pivot(columns='name', values='trendflex')
+        values.ffill(axis=0,inplace=True)
         for c_, n in zip(sampled_colors, names):
             fig.add_trace(go.Scatter(
                 x=values.index, 
-                y=p1.loc[p1.name==n, 'trendflex'].round(3),
+                y=values[n].round(3),
                 name=code2names[n],  # 显示相同的名称
                 line=dict(color=c_, dash='solid', width=1.5),
                 legendgroup=n,
@@ -688,10 +693,12 @@ def plot_index_score(p1:pd.DataFrame, names:Iterable[str], data_len:int=200, row
         )
         
         if rowsn>3:
+            values = p1.pivot(columns='name', values='reflex')
+            values.ffill(axis=0,inplace=True)
             for c_, n in zip(sampled_colors, names):
                 fig.add_trace(go.Scatter(
                     x=values.index, 
-                    y=p1.loc[p1.name==n, 'reflex'].round(3),
+                    y=values[n].round(3),
                     name=code2names[n],  # 显示相同的名称
                     line=dict(color=c_, dash='solid', width=1.5),
                     legendgroup=n,
@@ -719,8 +726,8 @@ def plot_index_score(p1:pd.DataFrame, names:Iterable[str], data_len:int=200, row
 
 def _test_plot_index_score():
     p1 = pd.read_csv(r'/home/hh01/Documents/trade_class/data_save/index_scores.csv',index_col=0)
-    names = ('IXIC','GDAXI')
-    fig = plot_index_score(p1, names, 1000)
+    names = ('RB0','P0','V0','IXIC')
+    fig = plot_index_score(p1, names, 500)
     fig.show()
 
 if __name__ == '__main__':

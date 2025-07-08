@@ -16,7 +16,7 @@ from index_get.get_index_value import other_index_getter, basic_index_getter, fu
 Selected_Code_Name = ('IXIC','HSTECH','GDAXI','N225','SENSEX',\
                       '000015', '399006', '000688', '399303')
 Selected_Future_ETF = ('159985','518880','162411','501018','159980','159981')
-Selected_Future_Name = ('FG0','V0','P0','JM0','m0','RB0','lc0','T0')
+Selected_Future_Name = ('FG0','V0','P0','JM0','m0','RB0','lc0','T0')            # 玻璃 pvc 棕榈油 焦煤
 
 Code_Future_Dict = {
     'world': Selected_Code_Name,
