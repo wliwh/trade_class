@@ -3,13 +3,19 @@
 """
 import numpy as np
 import pandas as pd
+from typing import Iterable
 import matplotlib.pyplot as plt
 from scipy.signal import argrelextrema
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from plotly.colors import sample_colorscale
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
-from index_get.get_index_value import other_index_getter, global_index_indicator
+
+from common.chart_core import get_screen_size
 from common.smooth_tool import drawdown_series
+from common.trade_date import get_delta_trade_day
+from index_get.get_index_value import other_index_getter, global_index_indicator
 
 Search_Index = {
     '道琼斯':'道琼斯',
@@ -580,8 +586,146 @@ def plot_cand_test(choose_n:int=1):
     # plot_candlestick_with_lines(p1, days_dict, warn_info['cross'])
 
 
+def create_plotly_figure(rows:int, row_heights:list, plt_shape: dict={}):
+    fig = make_subplots(
+        rows=rows, 
+        cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.0,
+        row_heights=row_heights,
+        specs=[[{"secondary_y": True}]] * rows
+    )
+
+    _w, _h = get_screen_size()
+    
+    fig.update_layout(
+        width=plt_shape.get('plt_width', int(0.9*_w)),
+        height=plt_shape.get('plt_height', int(0.9*_h)),
+        # margin=dict(l=50, r=50, t=80, b=50),
+        margin=dict(t=30, b=30, pad=0),
+        autosize=True,
+        xaxis_rangeslider_visible=False,
+        hovermode='x unified'
+    )
+    return fig
+
+
+def plot_index_score(p1:pd.DataFrame, names:Iterable[str], data_len:int=200, rowsn:int=4):
+    end_ = p1.index.max()
+    beg_ = get_delta_trade_day(end_, -data_len, date_fmt=r'%Y-%m-%d')
+    p1 = p1[(p1.index>=beg_) & p1.name.isin(names)]
+    all_days = set(x.strftime('%Y-%m-%d') for x in pd.date_range(start=beg_,end=end_,freq='D'))
+    rm_days = sorted(list(all_days - set(p1.index)))
+
+    code2names = {p:p1.loc[p1.name==p,'name_zh'].values[0] for p in names}
+    
+    # 创建两个独立的图表
+    if rowsn==3:
+        row_heights = [0.6, 0.2, 0.2]
+    elif rowsn==4:
+        row_heights = [0.52, 0.16, 0.16, 0.16]
+    else:
+        rowsn = 2
+        row_heights = [0.7, 0.3]
+    fig = create_plotly_figure(rows=rowsn, row_heights=row_heights)
+    # fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.05)
+    
+    # 设置共享的x轴配置
+    xaxis_config = dict(
+        tickformat='%m-%d',
+        rangebreaks=[dict(values=rm_days)],
+        type='date'
+    )
+    
+    # 设置颜色
+    sampled_colors = sample_colorscale('Rainbow', np.linspace(0, 1, len(names)))
+
+    values = p1.pivot(columns='name', values='value')
+    # values = values.reindex(index=dates)
+    values.ffill(axis=0,inplace=True)
+    values = values/values.iloc[0]
+    
+    # 添加数据到第一个图表（价格）
+    for c_, n in zip(sampled_colors, names):
+        fig.add_trace(go.Scatter(
+            x=values.index, 
+            y=values[n].round(3),
+            name=code2names[n], 
+            line=dict(color=c_, width=3),
+            legendgroup=n,
+            showlegend=True
+        ),
+        row=1,
+        col=1
+    )
+    
+    # 添加数据到第二个图表（分数）
+    for c_, n in zip(sampled_colors, names):
+        fig.add_trace(go.Scatter(
+            x=values.index, 
+            y=p1.loc[p1.name==n, 'score'].round(3),
+            name=code2names[n],  # 显示相同的名称
+            line=dict(color=c_, dash='solid', width=1.5),
+            legendgroup=n,
+            showlegend=False  # 避免图例重复
+        ),
+        row=2,
+        col=1
+    )
+
+    if rowsn>2:
+        for c_, n in zip(sampled_colors, names):
+            fig.add_trace(go.Scatter(
+                x=values.index, 
+                y=p1.loc[p1.name==n, 'trendflex'].round(3),
+                name=code2names[n],  # 显示相同的名称
+                line=dict(color=c_, dash='solid', width=1.5),
+                legendgroup=n,
+                showlegend=False  # 避免图例重复
+            ),
+            row=3,
+            col=1
+        )
+        
+        if rowsn>3:
+            for c_, n in zip(sampled_colors, names):
+                fig.add_trace(go.Scatter(
+                    x=values.index, 
+                    y=p1.loc[p1.name==n, 'reflex'].round(3),
+                    name=code2names[n],  # 显示相同的名称
+                    line=dict(color=c_, dash='solid', width=1.5),
+                    legendgroup=n,
+                    showlegend=False  # 避免图例重复
+                ),
+                row=4,
+                col=1
+            )
+
+    fig.update_layout(
+        title=f"指标分析: {beg_} - {end_}",
+        xaxis=xaxis_config,
+        hovermode='x unified',
+        hoverdistance=-1,       # 取消悬停距离限制
+    )
+    fig.update_xaxes(
+        showspikes=True, 
+        spikemode='across',  # 跨所有子图显示
+        spikesnap='cursor', 
+        spikecolor='gray',
+        spikethickness=1
+    )
+    return fig
+
+
+def _test_plot_index_score():
+    p1 = pd.read_csv(r'/home/hh01/Documents/trade_class/data_save/index_scores.csv',index_col=0)
+    names = ('IXIC','GDAXI')
+    fig = plot_index_score(p1, names, 1000)
+    fig.show()
+
 if __name__ == '__main__':
     # plot_cand_test(1)
     # _test_find_break1()
-    print(plot_cand_test(0))
+    # print(plot_cand_test(0))
+    _test_plot_index_score()
     pass

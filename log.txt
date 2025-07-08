@@ -325,3 +325,17 @@
 2025-07-05 15:47:39,298 - INFO - index_score warning info updating to 2025-07-04.
 2025-07-05 15:47:45,073 - INFO - baidu_search warning info (58 rows) updated to 2025-07-04
 2025-07-05 15:49:31,882 - INFO - index_score is up to date.
+2025-07-08 10:01:57,298 - INFO - high_low_legu is updating to 2025-07-07.
+2025-07-08 10:02:07,233 - INFO - qvix_day is updating to 2025-07-07.
+2025-07-08 10:02:07,247 - INFO - qvix_day warning info updating to 2025-07-07.
+2025-07-08 10:02:09,053 - INFO - global_index is updating to 2025-07-07.
+2025-07-08 10:02:15,317 - INFO - index_score is updating to 2025-07-07.
+2025-07-08 10:03:07,857 - INFO - index_score is up to date.
+2025-07-08 10:03:07,892 - INFO - index_score warning info updating to 2025-07-07.
+2025-07-08 10:03:28,528 - INFO - high_low_legu is up to date.
+2025-07-08 10:03:28,534 - INFO - qvix_day is up to date.
+2025-07-08 10:03:28,547 - INFO - qvix_day warning info updating to 2025-07-07.
+2025-07-08 10:03:28,548 - INFO - global_index is up to date.
+2025-07-08 10:03:28,686 - INFO - index_score is up to date.
+2025-07-08 10:03:28,721 - INFO - index_score warning info updating to 2025-07-07.
+2025-07-08 10:03:33,805 - INFO - 58 rows data Update to baidu_search

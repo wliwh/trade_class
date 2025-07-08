@@ -4,12 +4,14 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta
 
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from index_get.config import INDICATOR_CONFIG_PATH
 from common.baidu_utils import Search_Name_Path
-# from draw_chart.draw_bsearch import draw_future_echart
+from index_get.config import INDICATOR_CONFIG_PATH
+from index_get.get_index_score import index_score_indicator
 from index_get.get_index_value import global_index_indicator
-from draw_chart.draw_index_cycle import plot_candlestick_with_lines
+# from draw_chart.draw_bsearch import draw_future_echart
+from draw_chart.draw_index_cycle import plot_candlestick_with_lines, plot_index_score
 
 def trans_week_info(t:list):
     w1 = "周{}".format('一二三四五六日'[t[0]-1])
@@ -127,11 +129,30 @@ def second_page(name:str = 'page2'):
         st.plotly_chart(fg, use_container_width=False)
 
 
+@st.cache_data
+def third_page():
+    sco = index_score_indicator()
+    conf = sco.get_cator_conf()
+    fpath = conf['fpath']
+    p1 = pd.read_csv(fpath,index_col=0)
+    near_date = conf['max_date_idx']
+    for c in conf['warning_info'][1:]:
+        st.header(f"{c['type']}")
+        st.caption(f"更新时间: {near_date}")
+        warnp = pd.DataFrame([c['name_zh'],c['score'], c['trendflex'], c['reflex']],
+                             index=['name_zh', 'scorep', 'trendflex', 'reflex'], columns=c['name'])
+        st.dataframe(warnp.style.highlight_max(axis=1,
+                subset=(warnp.index[1:], slice(None))))
+        fg = plot_index_score(p1, c['name'])
+        st.plotly_chart(fg, use_container_width=False)
+    return p1
+
 if __name__ == '__main__':
-    # pg = st.navigation([
-    #     st.Page(main_page, title="消息汇总"),
-    #     st.Page(second_page, title="对称性分析")
-    # ])
-    # st.set_page_config(page_title="Data manager", page_icon=":material/edit:")
-    # pg.run()
+    pg = st.navigation([
+        # st.Page(main_page, title="消息汇总"),
+        # st.Page(second_page, title="对称性分析"),
+        st.Page(third_page, title="指数评分")
+    ])
+    st.set_page_config(page_title="Data manager", page_icon=":material/edit:")
+    pg.run()
     pass

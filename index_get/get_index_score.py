@@ -178,7 +178,7 @@ class index_score_indicator(IndicatorGetter):
         conf = self.cator_conf
         ws = pd.read_csv(conf['fpath'], index_col=0)
         near_date = conf['max_date_idx']
-        read_date = conf['warning_info'][0]
+        # read_date = conf['warning_info'][0]
         now_data = ws[ws.index==near_date]
         infos = [near_date]
         for k in Code_Future_Dict.keys():
@@ -194,7 +194,7 @@ class index_score_indicator(IndicatorGetter):
                     "reflex": filtered_data['reflex'].round(4).to_list()
                 }
                 infos.append(info)
-        if len(infos) > 1 and read_date != near_date:
+        if len(infos) > 1: #and read_date != near_date:
             _logger.info(f"{self.cator_name} warning info updating to {near_date}.")
             self.set_cator_conf(True, warning_info=infos)
         else:
