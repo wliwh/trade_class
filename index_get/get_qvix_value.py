@@ -151,15 +151,15 @@ class qvix_day_indicator(IndicatorGetter):
 if __name__=='__main__':
     # append_qvix_minute_file()
     # print(option_qvix('50ETF'))
-    # option_call_put_positon(option_qvix('50'),'510050')
-    # p1 = pd.DataFrame(pd.date_range('20240520',periods=10,freq='b'))
-    # p1['date'] = p1[0]
-    # print(_option_call_put_positon(p1,'510300'))
+    # print(_option_call_put_positon(option_qvix('50ETF'),'510050'))
+    p1 = pd.DataFrame(pd.date_range('20250710',periods=10,freq='b'))
+    p1['date'] = p1[0]
+    print(_option_call_put_positon(p1,'510300'))
     
     # getter_qvix_day('2024-05-20')
-    p1 = qvix_day_indicator()
-    p1.update_data()
+    # p1 = qvix_day_indicator()
+    # p1.update_data()
     # p1.set_warn_info()
-    print(p1.get_warn_info())
+    # print(p1.get_warn_info())
     pass
 

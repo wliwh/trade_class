@@ -339,3 +339,10 @@
 2025-07-08 10:03:28,686 - INFO - index_score is up to date.
 2025-07-08 10:03:28,721 - INFO - index_score warning info updating to 2025-07-07.
 2025-07-08 10:03:33,805 - INFO - 58 rows data Update to baidu_search
+2025-07-18 13:56:58,956 - INFO - high_low_legu is updating to 2025-07-17.
+2025-07-18 13:57:25,700 - INFO - qvix_day is updating to 2025-07-17.
+2025-07-18 13:57:25,714 - INFO - qvix_day warning info updating to 2025-07-17.
+2025-07-18 13:57:28,991 - INFO - global_index is updating to 2025-07-17.
+2025-07-18 13:57:40,122 - INFO - index_score is updating to 2025-07-17.
+2025-07-18 13:57:40,155 - INFO - index_score warning info updating to 2025-07-17.
+2025-07-18 13:57:45,632 - INFO - baidu_search warning info (319 rows) updated to 2025-07-17

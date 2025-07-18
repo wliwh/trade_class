@@ -149,8 +149,8 @@ def third_page():
 
 if __name__ == '__main__':
     pg = st.navigation([
-        # st.Page(main_page, title="消息汇总"),
-        # st.Page(second_page, title="对称性分析"),
+        st.Page(main_page, title="消息汇总"),
+        st.Page(second_page, title="对称性分析"),
         st.Page(third_page, title="指数评分")
     ])
     st.set_page_config(page_title="Data manager", page_icon=":material/edit:")
