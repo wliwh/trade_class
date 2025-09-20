@@ -130,6 +130,8 @@ def other_index_getter(code:str,
         end = end.replace('/','').replace('-','')
     else:
         end = '205001001'
+    # TODO：名称修改的问题
+    if code=='KS11': code = 'KOSPI'
     aa = ef.stock.get_quote_history(code, beg, end)
     aa.columns = ['name_zh', 'code', 'date', 'open', 'close','high', 'low', 'volume', 'amount', 'amp', 'pct', 'inc', 'turnrate']
     aa.set_index('date', inplace=True)
@@ -496,6 +498,7 @@ if __name__=='__main__':
     # p1.update_data()
     # p1.set_warn_info()
     # pprint(p1.get_warn_info())
-    g = table_index_getter('2010-01-01')
-    g.to_csv('all_index.csv')
+    # g = table_index_getter('2010-01-01')
+    # g.to_csv('all_index.csv')
+    print(other_index_getter('KS11'))
     pass
