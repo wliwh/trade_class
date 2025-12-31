@@ -371,5 +371,5 @@ def draw_future_echart(tt:str, beg:str, end:str):
 
 if __name__ == "__main__":
     tend = draw_future_echart(False, '2021-01-01','2025-06-03')
-    tend.render(Path(Path(__file__).parent, 'gz.html'))
+    tend.render(Path(Path(__file__).parent, '行业排名.html'))
     pass

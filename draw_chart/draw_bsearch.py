@@ -44,12 +44,15 @@ def draw_echarts(beg:str, end:str):
         ('上证指数','000001','股指-上证',0),
         ('上证50','000016','股指-大盘',0),
         ('创业板指','399006','股指-创业板',0),
+        ('科创50','000688','股指-科创50',0),
     )
-    tab = Tab()
-    for nm, code, tit, m in tbs:
-        tend = draw_future_echart(code,nm,tit,beg,end)
-        tab.add(tend,tit.split('-')[0])
-    tab.render(os.path.join(os.path.dirname(__file__), 'rbs.html'))
+
+    for tnm, tzh in zip((tbs, tb2), ('大宗', '国内')):
+        tab = Tab()
+        for nm, code, tit, _ in tnm:
+            tend = draw_future_echart(code,nm,f'{tit}: {nm}',beg,end)
+            tab.add(tend, tit.split('-')[0])
+        tab.render(os.path.join(os.path.dirname(__file__), f'{tzh}.html'))
 
 if __name__=='__main__':
-    draw_echarts('2024-01-01','2024-11-20')
+    draw_echarts('2025-01-01','2025-12-30')

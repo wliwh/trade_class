@@ -21,7 +21,7 @@ from common.chart_core import get_screen_size
 Selected_Code_Name = ('IXIC','HSTECH','GDAXI','N225','SENSEX',\
                       '159985','518880','162411','501018','159980','159981',\
                       '000015', '399006', '000688', '399303')
-Selected_Basic = Selected_Code_Name[:3] + ('518880','501018','159985') + ('000015', '399006', '399303')
+Selected_Basic = Selected_Code_Name[:2] + ('518880','501018','159985','159981') + ('000015', '399006', '399303')
 Selected_Basic3 = ('518880','501018') + ('IXIC', 'HSTECH', '000015', '399006')
 Future_Basic = ('FG0','V0','P0','JM0','m0','RB0','lc0','T0')
 
@@ -357,6 +357,6 @@ if __name__ == '__main__':
     # g = get_index_table(Selected_Basic3)
     # p1 = get_index_prices(g, count=250)
     # print(calc_rolling_score_with_llt(p1,21).tail(15))
-    plot_index_separate(Selected_Basic, 200)
+    plot_index_separate(Selected_Basic, 400)
     # print(get_emas(Selected_Basic3, 200))
     pass

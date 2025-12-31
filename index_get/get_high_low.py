@@ -61,8 +61,9 @@ def get_high_low_legu(date:Union[str,list]):
         if isinstance(date, str):
             hl_lst.append(rs.loc[pd.to_datetime(date).date(),'high20':])
         else:
+            o_date_idx = pd.to_datetime(rs.index)
             rs.insert(1,'symbol', symbol)
-            hl_lst.append(rs.loc[pd.to_datetime(date),'symbol':])
+            hl_lst.append(rs.loc[o_date_idx.intersection(pd.to_datetime(date)),'symbol':])
     if isinstance(date, str):
         hl_pd = pd.DataFrame(hl_lst).astype('int')
         hl_pd.insert(0, 'symbol', sym_lst)

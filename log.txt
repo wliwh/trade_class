@@ -368,3 +368,10 @@
 2025-12-13 14:05:23,663 - INFO - index_score is updating to 2025-12-12.
 2025-12-13 14:05:23,703 - INFO - index_score warning info updating to 2025-12-12.
 2025-12-13 14:05:32,779 - INFO - baidu_search warning info (1073 rows) updated to 2025-12-12
+2025-12-31 16:45:25,005 - INFO - high_low_legu is updating to 2025-12-30.
+2025-12-31 16:46:02,815 - INFO - qvix_day is updating to 2025-12-30.
+2025-12-31 16:46:02,829 - INFO - qvix_day warning info updating to 2025-12-30.
+2025-12-31 16:46:12,115 - INFO - global_index is updating to 2025-12-30.
+2025-12-31 16:46:38,984 - INFO - index_score is updating to 2025-12-30.
+2025-12-31 16:46:39,023 - INFO - index_score warning info updating to 2025-12-30.
+2025-12-31 16:46:45,051 - INFO - baidu_search warning info (522 rows) updated to 2025-12-30
