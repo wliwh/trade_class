@@ -1,4 +1,5 @@
 from typing import Union, List, Tuple, Optional, Iterable
+import numpy as np
 import pandas as pd
 from pathlib import Path
 import sys
@@ -13,6 +14,17 @@ from index_get.get_index_value import basic_index_getter
 
 Indus_Pth = str(Path(__file__).parents[1] / 'data_save' / 'industries_score.csv')
 
+def join_industries_table(ntable_name):
+    new_table_path = str(Path(__file__).parents[1] / 'data_save' / ntable_name)
+    p = pd.read_csv(Indus_Pth, index_col=0)
+    p2 = pd.read_csv(new_table_path, index_col=0)
+    p2 = p2[p2.index > p.index.max()]
+    s1, s2 = set(p.columns), set(p2.columns)
+    for k in s1-s2:
+        p2[k] = np.nan
+    p2 = p2.loc[:, p.columns]
+    pp = pd.concat([p2, p], axis=0)
+    pp.to_csv(Indus_Pth)
 
 def get_industries_rank():
     p = pd.read_csv(Indus_Pth,index_col=0)
@@ -370,6 +382,7 @@ def draw_future_echart(tt:str, beg:str, end:str):
 
 
 if __name__ == "__main__":
-    tend = draw_future_echart(False, '2021-01-01','2025-06-03')
+    # print(join_industries_table('kkk.csv'))
+    tend = draw_future_echart(False, '2024-01-01','2026-01-19')
     tend.render(Path(Path(__file__).parent, '行业排名.html'))
     pass

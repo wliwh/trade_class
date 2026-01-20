@@ -375,3 +375,29 @@
 2025-12-31 16:46:38,984 - INFO - index_score is updating to 2025-12-30.
 2025-12-31 16:46:39,023 - INFO - index_score warning info updating to 2025-12-30.
 2025-12-31 16:46:45,051 - INFO - baidu_search warning info (522 rows) updated to 2025-12-30
+2026-01-05 17:22:13,377 - INFO - qvix_day is updating to 2025-12-31.
+2026-01-05 17:22:34,595 - INFO - global_index is updating to 2025-12-31.
+2026-01-06 09:09:03,147 - INFO - global_index is updating to 2026-01-05.
+2026-01-06 09:09:10,508 - INFO - index_score is updating to 2026-01-05.
+2026-01-06 09:09:10,548 - INFO - index_score warning info updating to 2026-01-05.
+2026-01-06 09:09:16,681 - INFO - baidu_search warning info (174 rows) updated to 2026-01-05
+2026-01-20 17:54:23,414 - INFO - high_low_legu is updating to 2026-01-19.
+2026-01-20 17:55:03,867 - INFO - qvix_day is updating to 2026-01-20.
+2026-01-20 17:55:48,611 - INFO - high_low_legu is up to date.
+2026-01-20 17:55:48,617 - INFO - qvix_day is up to date.
+2026-01-20 17:55:50,279 - INFO - global_index is updating to 2026-01-19.
+2026-01-20 17:55:56,745 - INFO - index_score is updating to 2026-01-19.
+2026-01-20 17:55:56,785 - INFO - index_score warning info updating to 2026-01-19.
+2026-01-20 17:56:07,343 - INFO - baidu_search warning info (406 rows) updated to 2026-01-19
+2026-01-20 17:56:16,782 - INFO - high_low_legu is up to date.
+2026-01-20 17:56:16,788 - INFO - qvix_day is up to date.
+2026-01-20 17:56:49,313 - INFO - high_low_legu is up to date.
+2026-01-20 17:56:49,319 - INFO - qvix_day is up to date.
+2026-01-20 17:58:22,947 - INFO - high_low_legu is up to date.
+2026-01-20 17:58:22,953 - INFO - qvix_day is up to date.
+2026-01-20 17:59:39,769 - INFO - high_low_legu is up to date.
+2026-01-20 17:59:39,775 - INFO - qvix_day is up to date.
+2026-01-20 17:59:39,788 - INFO - global_index is up to date.
+2026-01-20 17:59:39,933 - INFO - index_score is up to date.
+2026-01-20 17:59:39,969 - INFO - index_score warning info updating to 2026-01-19.
+2026-01-20 17:59:39,970 - INFO - baidu_search no data to Update

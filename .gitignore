@@ -6,6 +6,7 @@ __pycache__/
 works.sh
 streamlit.log
 test/
+keys/
 
 # C extensions
 *.so

@@ -17,22 +17,24 @@ def echart_warn_page(allpage:bool=False, infos=Warning_Infos):
     p = pd.read_csv(Search_Name_Path,index_col=0)
     tend_dic = defaultdict(list)
     if allpage:
+        print('[Generate All Echart Pages]')
         p = p.loc[p['type']>=0]
         p['date'] = p['neardate'].map(lambda x:str(int(x[:4])-1)+x[4:])
         for nm, row in p.transpose().to_dict().items():
             tend_dic[row['type']].append((nm, row['code'], row['date'], row['neardate']))
     else:
+        print('[Generate Warning Echart Pages]')
         for i in infos['搜索指数'][1:]:
             nm = i['keyword']
             date, code, tp = p.loc[p.index==nm,['neardate','code','type']].values[0]
             beg_date = str(int(date[:4])-1)+date[4:]
             if tp>=0: 
                 tend_dic[tp].append((nm, code, beg_date, date))
-    tends = dict()
+    # tends = dict()
     for k,v in tend_dic.items():
         tab = Tab()
         for nm,cd,beg,end in v:
-            tend = draw_future_echart(cd,nm,False,beg,end,k)
+            tend = draw_future_echart(cd,nm, f'{nm}-{cd}',beg,end,k)
             tab.add(tend,nm+'-'+cd)
         tab.render(os.path.join(Draw_Echarts_Path,Bsearch_Page_Name[k]+'.html'))
         # tends[Bsearch_Page_Name[k]] = tab
@@ -47,8 +49,8 @@ def echart_page(infos, set_id=0):
         date, code, tp = p.loc[p.index==nm,['neardate','code','type']].values[0]
         if tp==set_id: 
             beg_date = str(int(date[:4])-1)+date[4:]
-            tend = draw_future_echart(code, nm, False, beg_date,date, tp)
-            return tend
+            tend = draw_future_echart(code, nm, f'{nm}-{code}', beg_date,date, tp)
+            # return tend
             # tab.add(tend, f'{nm}-{code}')
     # return tab
 

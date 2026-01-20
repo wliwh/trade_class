@@ -55,4 +55,4 @@ def draw_echarts(beg:str, end:str):
         tab.render(os.path.join(os.path.dirname(__file__), f'{tzh}.html'))
 
 if __name__=='__main__':
-    draw_echarts('2025-01-01','2025-12-30')
+    draw_echarts('2025-01-01','2026-01-05')
