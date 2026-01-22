@@ -51,27 +51,54 @@ def initialize(context):
     set_benchmark("513100.XSHG")
     
     # ==================== 策略参数设置 ====================
-    g.etf_pool = [
-        "159915.XSHE",  # 创业板ETF
-        "518880.XSHG",  # 黄金ETF
-        "513100.XSHG",  # 纳指ETF
-        "511220.XSHG",  # 城投债ETF
-    ]
+    # ETF池字典配置：方便用户按类别构建组合
+    g.etf_pool_dict = {
+        '基础4款': [
+            "159915.XSHE",                                  # 创业板ETF
+            "518880.XSHG",                                  # 黄金ETF
+            "513100.XSHG",                                  # 纳指ETF
+            "511220.XSHG",                                  # 城投债ETF
+        ],
+        '大宗商品': [
+            "518880.XSHG", "159980.XSHE",                   # 黄金、有色-大成
+            "159985.XSHE", "501018.XSHG",                   # 豆粕、南方原油
+        ],
+        '国际': [
+            "513100.XSHG", "513500.XSHG",                   # 纳指、标普
+            "513520.XSHG", "513030.XSHG", "513080.XSHG",    # 日经、德国、法国
+        ],
+        '香港': [
+            "159920.XSHE",                                  # 恒生
+        ],
+        '中国宽基': [
+            "510300.XSHG", "510050.XSHG",                   # 沪深300、上证50
+            "510500.XSHG", "159845.XSHE",                   # 中证500、中证1000
+            "510210.XSHG",                                  # 上证
+            "159915.XSHE", "588080.XSHG",                   # 创业板、科创50
+        ],
+        '中国行业': [
+            "159928.XSHE",                                  # 消费
+            "159995.XSHE", "513050.XSHG", "159852.XSHE",    # 芯片、中概互联、软件
+            "515030.XSHG", "159806.XSHE", "516160.XSHG",    # 新能源车、新能源车、新能源
+        ],
+        '防御': [
+            "511010.XSHG", "511880.XSHG",                   # 国债、银华日利
+        ]
+    }
+
+    # 构建组合：在此处选择需要参与轮动的类别
+    # 可选类别：'基础4款', '大宗商品', '国际', '香港', '中国宽基', '中国行业', '防御'
+    selected_categories = [] # ['基础4款', '大宗商品', '国际', '香港', '中国宽基', '中国行业', '防御']
+    if selected_categories == []:
+        selected_categories = ['基础4款']
     
-    g.etf_pool0 = [
-        # 大宗商品ETF
-        "518880.XSHG", "159980.XSHE", "159985.XSHE", "501018.XSHG",
-        # 国际ETF
-        "513100.XSHG", "513500.XSHG", "513520.XSHG", "513030.XSHG", "513080.XSHG",
-        # 香港ETF
-        "159920.XSHE",
-        # 中国ETF
-        "510300.XSHG", "510500.XSHG", "510050.XSHG", "510210.XSHG", "159915.XSHE",
-        "588080.XSHG", "159995.XSHE", "513050.XSHG", "159852.XSHE", "159845.XSHE",
-        "515030.XSHG", "159806.XSHE", "516160.XSHG", "159928.XSHE",
-        # 防御ETF
-        "511010.XSHG", "511880.XSHG",
-    ]
+    g.etf_pool = []
+    for category in selected_categories:
+        if category in g.etf_pool_dict:
+            g.etf_pool.extend(g.etf_pool_dict[category])
+    
+    # 去重并保持列表（虽然etf_pool_dict中没有重复，但作为保险）
+    g.etf_pool = list(set(g.etf_pool))
     
     # 策略参数
     g.lookback_days = 25
