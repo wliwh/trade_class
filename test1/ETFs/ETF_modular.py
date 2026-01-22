@@ -15,20 +15,29 @@ class Config:
     ENABLE_LONG_TERM_REVERSAL = False
     REVERSAL_FACTOR = 6.0 # 长周期反转因子
 
+    # 6. 启用分歧度过滤 (来自 ETF_long.py)
+    # 逻辑：如果资产池得分极差过小(无主线)或过大(极端分化)，则空仓。
+    ENABLE_DISPERSION_FILTER = False
+    DISPERSION_MIN = 0.1  # 分歧度最小阈值 (long)
+    DISPERSION_MAX = 15   # 分歧度最大阈值 (long)
+
     # 2. 启用 RSRS 择时 (来自 ETF_yj15 / ETF_long)
     # 逻辑：使用 RSRS 指标 (斜率) 判断大盘趋势。如果低于阈值，则视为下跌趋势，空仓。
     ENABLE_RSRS_TIMING = False
     RSRS_THRESHOLD = 0.9  # RSRS 固定阈值
 
-    # 3. 启用动态 Beta RSRS 择时 (来自 ETF_long.py)
+    # 3a. 启用动态 Beta RSRS 择时 (来自 ETF_long.py)
     # 逻辑：使用 250 天滚动窗口计算 RSRS 的动态阈值 (均值 - 2倍标准差)，而非固定阈值。
     ENABLE_DYNAMIC_BETA_RSRS = False
     BETA_STD_M = 2        # 动态 Beta 标准差倍数
     BETA_DEFAULT = 0.8    # 默认 Beta 阈值
-
-    # 6. 启用分歧度过滤 (来自 ETF_long.py)
-    # 逻辑：如果资产池得分极差过小(无主线)或过大(极端分化)，则空仓。
-    ENABLE_DISPERSION_FILTER = False
+    # 3b. 启用动量一阶导 RSRS 择时 (来自 ETF_yj15)
+    # 逻辑：使用动量一阶导作为 RSRS 指标，判断大盘趋势。如果低于阈值，则视为下跌趋势，空仓。
+    MEAN_DAY = 20         # RSRS均线周期
+    RSRS_N = 18           # RSRS回归周期
+    RSRS_M = 600          # RSRS历史统计周期
+    RSRS_SCORE_THR = 0.7  # RSRS 标准分阈值 (by yj15/wy)
+    MOTION_1DIFF_THR = 19 # 动量一阶导阈值 (yj15)
 
     # 3. 启用多周期加权评分 (来自 ETF_std_score.py)
     # 逻辑：综合 3, 5, 10, 25(或m_days) 多个周期的得分。若开启，将覆盖默认的单周期评分逻辑。
@@ -50,16 +59,6 @@ class Config:
     M_DAYS = 25           # 动量参考天数
     STOCK_NUM = 1         # 持仓数量
     TREND_DAY = 250       # 交易日数
-
-
-    # --- 阈值参数 ---
-    MEAN_DAY = 20         # RSRS均线周期
-    RSRS_N = 18           # RSRS回归周期
-    RSRS_M = 600          # RSRS历史统计周期
-    RSRS_SCORE_THR = 0.7  # RSRS 标准分阈值 (by yj15/wy)
-    MOTION_1DIFF_THR = 19 # 动量一阶导阈值 (yj15)
-    DISPERSION_MIN = 0.1  # 分歧度最小阈值 (long)
-    DISPERSION_MAX = 15   # 分歧度最大阈值 (long)
 
     ETF_POOLS = {
         4: {
@@ -89,7 +88,6 @@ class Config:
             '512960.XSHG':'央调',	# 2019-01-18 || 央企改革,基建ETF,基建50ETF,基建50,央企创新,创新央企,央创ETF,基建ETF,央企ETF
         }
     }
-
 
 def initialize(context):
     set_benchmark(Config.BENCHMARK)
