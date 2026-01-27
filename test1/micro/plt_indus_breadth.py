@@ -19,7 +19,7 @@ class Config:
         '有色':'#d4af37',
         'others': '#c0c0c0'
     }
-    Base_Code = '000001'
+    Base_Code = '399303'
     Min_Aver_Score = 55
     Core_Indus = [k for k in JSG_Color_Map.keys() if k != 'others']
     Rank_Threshold = 2
@@ -39,8 +39,11 @@ def basic_index_getter(code:str, beg:Optional[str], end:Optional[str], name_zh:O
             symbol = prefix + code
         else:
             symbol = code
-        aa = ak.stock_zh_a_daily(symbol, start_date=beg, end_date=end)
+        aa = ak.stock_zh_index_daily(symbol)
         aa['date'] = aa['date'].map(str)
+        beg = '-'.join((beg[:4], beg[4:6], beg[6:]))
+        end = '-'.join((end[:4], end[4:6], end[6:]))
+        aa = aa[(aa['date']>=beg) & (aa['date']<=end)]
     aa.insert(1,'code', code)
     aa.insert(2,'name_zh', name_zh if name_zh else '')
     aa.set_index('date',inplace=True)
