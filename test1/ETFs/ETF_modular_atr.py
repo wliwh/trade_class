@@ -16,11 +16,11 @@ class Config:
     USE_REAL_PRICE = True
     
     # 滑点
-    SLIPPAGE_FUND = 0.0001
+    SLIPPAGE_FUND = 0.0005
     SLIPPAGE_STOCK = 0.003
     
     # 交易成本
-    COMMISSION_FUND = 0.0002
+    COMMISSION_FUND = 0.0003
     MIN_COMMISSION_FUND = 5
     
     # ==================== 策略核心参数 ====================

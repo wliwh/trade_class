@@ -20,9 +20,11 @@ class Config:
         'others': '#c0c0c0'
     }
     Base_Code = '399303'
-    Min_Aver_Score = 55
+    Min_Aver_Score = 10
     Core_Indus = [k for k in JSG_Color_Map.keys() if k != 'others']
     Rank_Threshold = 2
+    Average_Score = 'aver'
+    Note_High = 75
 
 Config = Config()
 
@@ -101,7 +103,77 @@ def get_industries_dic(rank_df:pd.DataFrame):
     return ranks
 
 
-def _create_kline_chart(data, markpoint_data, title_opts, datazoom_opt, ma_lines=None, other_lines_data=None, shadow_highs=None, show_legend=True):
+def calc_zigzag(df: pd.DataFrame, threshold: float = 0.05) -> pd.Series:
+    """
+    Calculate ZigZag points.
+    """
+    if df.empty:
+        return pd.Series(dtype=float)
+    
+    dates = df.index
+    highs = df['High'].values
+    lows = df['Low'].values
+    
+    pivots = pd.Series(index=dates, dtype=float)
+    
+    # State: 1 for up, -1 for down, 0 for initial
+    trend = 0
+    last_pivot_idx = 0
+    last_pivot_val = highs[0] # or lows[0], init
+    
+    # Initialize first point
+    # Simple init: assume first point is a pivot (refined later if needed)
+    pivots.iloc[0] = (highs[0] + lows[0]) / 2 
+    last_pivot_val = pivots.iloc[0]
+    
+    for i in range(1, len(df)):
+        h = highs[i]
+        l = lows[i]
+        
+        if trend == 0:
+            if h > last_pivot_val * (1 + threshold):
+                trend = 1
+                last_pivot_idx = i
+                last_pivot_val = h
+                pivots.iloc[0] = lows[0] # Adjust start if we go up immediately
+            elif l < last_pivot_val * (1 - threshold):
+                trend = -1
+                last_pivot_idx = i
+                last_pivot_val = l
+                pivots.iloc[0] = highs[0] # Adjust start if we go down immediately
+        
+        elif trend == 1: # Up trend
+            if h > last_pivot_val:
+                # Higher high, update pivot
+                last_pivot_idx = i
+                last_pivot_val = h
+            elif l < last_pivot_val * (1 - threshold):
+                # Reversal
+                pivots.iloc[last_pivot_idx] = last_pivot_val
+                trend = -1
+                last_pivot_idx = i
+                last_pivot_val = l
+        
+        elif trend == -1: # Down trend
+            if l < last_pivot_val:
+                # Lower low, update pivot
+                last_pivot_idx = i
+                last_pivot_val = l
+            elif h > last_pivot_val * (1 + threshold):
+                # Reversal
+                pivots.iloc[last_pivot_idx] = last_pivot_val
+                trend = 1
+                last_pivot_idx = i
+                last_pivot_val = h
+                
+    # Set the final pivot
+    pivots.iloc[last_pivot_idx] = last_pivot_val
+    # Connect to the very last point
+    pivots.iloc[-1] = highs[-1] if trend == 1 else lows[-1]
+    return pivots
+
+
+def _create_kline_chart(data, markpoint_data, title_opts, datazoom_opt, ma_lines=None, other_lines_data=None, shadow_highs=None, show_legend=True, zigzag_data=None):
     # Base Kline
     kline = (
         Kline()
@@ -160,7 +232,22 @@ def _create_kline_chart(data, markpoint_data, title_opts, datazoom_opt, ma_lines
         line.add_yaxis(
             series_name="", y_axis=shadow_highs, is_smooth=True, is_symbol_show=False,
             linestyle_opts=opts.LineStyleOpts(width=0, opacity=0), label_opts=opts.LabelOpts(is_show=False)
+
         )
+
+    # ZigZag Line
+    if zigzag_data is not None:
+        line.add_yaxis(
+            series_name="ZigZag",
+            y_axis=zigzag_data.where(pd.notnull(zigzag_data), None).tolist(), # Convert NaNs to None for JSON
+            is_smooth=False,
+            is_symbol_show=False,
+            is_connect_nones=True,
+            linestyle_opts=opts.LineStyleOpts(width=1, color="purple", type_="dashed"),
+            label_opts=opts.LabelOpts(is_show=False),
+            z=10
+        )
+
 
     return kline.overlap(line)
 
@@ -206,7 +293,7 @@ def _create_additional_charts(other_tbs, ohlc_data, grids, grid_start_idx=2):
         if isinstance(tb, (list, tuple)):
             leg_pos, tb_clm_names, tbb = grids['others_legend'], tb, ohlc_data
         elif isinstance(tb, (str,int,float)):
-            leg_pos, tb_clm_names, tbb = [tb], [tb], ohlc_data
+            leg_pos, tb_clm_names, tbb = grids['others_legend'], [tb], ohlc_data
         elif isinstance(tb, pd.Series):
             leg_pos = grids['others_legend']
             tb_clm_names = [f'val{_i+1}'] if tb.name is None else [tb.name]
@@ -216,6 +303,8 @@ def _create_additional_charts(other_tbs, ohlc_data, grids, grid_start_idx=2):
             
         grid_idx = grid_start_idx + _i
         
+        show_legend = (len(leg_pos) > 1) and ('score' not in tb_clm_names)
+
         common_axis_opts = opts.AxisOpts(
             grid_index=grid_idx, split_number=3, axistick_opts=opts.AxisTickOpts(is_show=False),
             axislabel_opts=opts.LabelOpts(is_show=True), splitline_opts=opts.SplitLineOpts(is_show=False)
@@ -234,7 +323,7 @@ def _create_additional_charts(other_tbs, ohlc_data, grids, grid_start_idx=2):
             line.set_global_opts(
                 xaxis_opts=opts.AxisOpts(type_="category", grid_index=grid_idx, axislabel_opts=opts.LabelOpts(is_show=False)),
                 yaxis_opts=opts.AxisOpts(type_="value", grid_index=grid_idx, position='right', split_number=3),
-                legend_opts=opts.LegendOpts(is_show=(len(leg_pos)>1), pos_top=leg_pos[_i] if leg_pos else None)
+                legend_opts=opts.LegendOpts(is_show=show_legend, pos_top=leg_pos[_i] if len(leg_pos)>1 else None)
             )
             charts[-1] = line
             
@@ -248,7 +337,7 @@ def _create_additional_charts(other_tbs, ohlc_data, grids, grid_start_idx=2):
             bar.set_global_opts(
                 xaxis_opts=opts.AxisOpts(type_="category", grid_index=grid_idx, axislabel_opts=opts.LabelOpts(is_show=False)),
                 yaxis_opts=common_axis_opts,
-                legend_opts=opts.LegendOpts(is_show=(len(leg_pos)>1), pos_top=leg_pos[_i] if leg_pos else None)
+                legend_opts=opts.LegendOpts(is_show=show_legend, pos_top=leg_pos[_i] if len(leg_pos)>1 else None)
             )
             charts[-1] = bar
             
@@ -263,7 +352,8 @@ def make_candle_echarts(ohlc:pd.DataFrame,
                  plt_add_ma:Union[List,Tuple,None] = None,
                  plt_add_lines:Union[List,Tuple,None] = None,
                  plt_add_points:Union[List,Tuple,None] = None,
-                 other_tbs:Union[List,Tuple,None] = None):
+                 other_tbs:Union[List,Tuple,None] = None,
+                 plt_zigzag:Union[bool, float] = False):
     
     # 1. Prepare Data
     ohlc_tb = ohlc.copy()
@@ -309,14 +399,14 @@ def make_candle_echarts(ohlc:pd.DataFrame,
     if isinstance(plt_add_points, Iterable) and len(plt_add_points):
         _candle_points = [
             opts.MarkPointItem(
-                coord=[x, int(float(data.loc[x, 'High'])+30*(_show_note_n-j))],
+                coord=[x, int(float(data.loc[x, 'High'])+Config.Note_High*(_show_note_n-j))],
                 symbol='circle' if v[j] else 'rect', symbol_size=12,
                 itemstyle_opts=opts.ItemStyleOpts(color=Config.JSG_Color_Map[sorted(v[j])[-1]] if v[j] else Config.JSG_Color_Map['others'])
             ) for x,v in plt_add_points.items() if x in data.index for j in range(_show_note_n)]
         _markpoint_data = opts.MarkPointOpts(data=_candle_points)
         for d in data.index:
             h = float(data.loc[d, 'High'])
-            if d in plt_add_points: h += 30*_show_note_n
+            if d in plt_add_points: h += (5 + Config.Note_High*_show_note_n)
             shadow_highs.append(h)
 
     # 5. Create Components
@@ -325,7 +415,14 @@ def make_candle_echarts(ohlc:pd.DataFrame,
     ma_lines = [("MA"+str(d), ohlc_tb['Close'].rolling(d).mean().loc[beg:end].tolist()) for d in plt_add_ma] if plt_add_ma else None
     other_lines_data = [(cnm, ohlc_tb.loc[beg:end,cnm].tolist()) for cnm in plt_add_lines] if plt_add_lines else None
     
-    kline_chart = _create_kline_chart(data, _markpoint_data, _plt_titleopts, _datazoom_opt, ma_lines, other_lines_data, shadow_highs)
+    _zigzag_ser = None
+
+    if plt_zigzag:
+        th = 0.05 if isinstance(plt_zigzag, bool) else plt_zigzag
+        _zigzag_ser = calc_zigzag(data, threshold=th)
+
+    kline_chart = _create_kline_chart(data, _markpoint_data, _plt_titleopts, _datazoom_opt, ma_lines, other_lines_data, shadow_highs, zigzag_data=_zigzag_ser)
+
     
     vol_chart = _create_volume_chart(data, volume_ser) if plt_volume else None
     
@@ -384,9 +481,10 @@ def draw_future_echart(index_code = Config.Base_Code, tt = False, beg = None, en
                         'open close high low volume'.split(),
                         plt_title_opts={'is_show':tt} if tt==False else {'title':tt}, 
                         plt_volume=False,
-                        plt_add_ma=(10,20,60),
+                        plt_add_ma=(20,),
                         plt_add_points=p2_names,
-                        other_tbs=[{'bar': 'score'}, {'line': ('aver','sum')}])
+                        other_tbs=[{'bar': 'score'}, {'line': Config.Average_Score}],
+                        plt_zigzag=0.05)
     return tend
 
 
