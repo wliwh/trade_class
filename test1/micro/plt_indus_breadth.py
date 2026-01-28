@@ -21,10 +21,10 @@ class Config:
     }
     Base_Code = '399303'
     Min_Aver_Score = 10
+    Average_Score = 'aver'
     Core_Indus = [k for k in JSG_Color_Map.keys() if k != 'others']
     Rank_Threshold = 2
-    Average_Score = 'aver'
-    Note_High = 75
+    Note_Offset = 75
 
 Config = Config()
 
@@ -399,14 +399,14 @@ def make_candle_echarts(ohlc:pd.DataFrame,
     if isinstance(plt_add_points, Iterable) and len(plt_add_points):
         _candle_points = [
             opts.MarkPointItem(
-                coord=[x, int(float(data.loc[x, 'High'])+Config.Note_High*(_show_note_n-j))],
+                coord=[x, int(float(data.loc[x, 'High'])+Config.Note_Offset*(_show_note_n-j))],
                 symbol='circle' if v[j] else 'rect', symbol_size=12,
                 itemstyle_opts=opts.ItemStyleOpts(color=Config.JSG_Color_Map[sorted(v[j])[-1]] if v[j] else Config.JSG_Color_Map['others'])
             ) for x,v in plt_add_points.items() if x in data.index for j in range(_show_note_n)]
         _markpoint_data = opts.MarkPointOpts(data=_candle_points)
         for d in data.index:
             h = float(data.loc[d, 'High'])
-            if d in plt_add_points: h += (5 + Config.Note_High*_show_note_n)
+            if d in plt_add_points: h += (5 + Config.Note_Offset*_show_note_n)
             shadow_highs.append(h)
 
     # 5. Create Components
