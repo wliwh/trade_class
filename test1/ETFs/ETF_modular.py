@@ -55,7 +55,7 @@ class Config:
     INIT_LEN = 5          # 初始化动量窗口长度
 
     # --- 基础参数 ---
-    BENCHMARK = '513100.XSHG'
+    BENCHMARK = "513100.XSHG"
     M_DAYS = 25           # 动量参考天数
     STOCK_NUM = 1         # 持仓数量
     TREND_DAY = 250       # 交易日数

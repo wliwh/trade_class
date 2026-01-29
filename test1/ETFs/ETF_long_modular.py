@@ -1,6 +1,4 @@
 # 策略名称：核心资产轮动-添油加醋版（模块化重构）
-# 原始逻辑参考：ETF_long.py (原作者: wywy1995)
-# 重构作者：Antigravity
 # 说明：
 # 1. 核心逻辑：短期动量(25日) + 长期反转(200日) 结合打分。
 # 2. 独特风控：
@@ -13,25 +11,25 @@ import pandas as pd
 import math
 from jqdata import *
 
+EXECUTION_TIME_PLACEHOLDER = '9:30'
+EXECUTION_ETF_POOLS_PLACEHOLDER = ['518880.XSHG','513100.XSHG','159915.XSHE','510180.XSHG']
+
 class Config:
     # ==================== 交易环境设置 ====================
     AVOID_FUTURE_DATA = True
     USE_REAL_PRICE = True
     
-    # 费率设置 (采用接近真实的费率)
-    # 原策略: Slippage 0.002, Comm 0.0002
-    # 优化为: Slippage 0.0005 (半个Tick), Comm 0.0001 (万一)
-    SLIPPAGE_FUND = 0.0005
-    COMMISSION_FUND = 0.0001
+    BENCHMARK = "513100.XSHG"
+    
+    # 滑点与费率
+    SLIPPAGE_FUND = 0.001
+    SLIPPAGE_STOCK = 0.003
+    
+    COMMISSION_STOCK_OPEN = 0.0002
+    COMMISSION_STOCK_CLOSE = 0.0002
+    COMMISSION_MIN = 0
     
     # ==================== 策略核心参数 ====================
-    ETF_POOL = [
-        '518880.XSHG', # 黄金ETF（大宗商品）
-        '513100.XSHG', # 纳指100（海外资产）
-        '159915.XSHE', # 创业板100（成长股，科技股，中小盘）
-        '510180.XSHG', # 上证180（价值股，蓝筹股，中大盘）
-    ]
-    
     HOLD_COUNT = 1          # 持仓数量
     
     # 动量/反转参数
@@ -50,24 +48,30 @@ class Config:
 
 # ==================== 初始化 ====================
 def initialize(context):
-    set_benchmark('513100.XSHG')
+    set_benchmark(Config.BENCHMARK)
     set_option('use_real_price', Config.USE_REAL_PRICE)
     set_option("avoid_future_data", Config.AVOID_FUTURE_DATA)
     
-    log.set_level('system', 'error')
-    
-    set_slippage(FixedSlippage(Config.SLIPPAGE_FUND), type='fund')
+    set_slippage(FixedSlippage(Config.SLIPPAGE_FUND), type="fund")
+    set_slippage(FixedSlippage(Config.SLIPPAGE_STOCK), type="stock")
     set_order_cost(OrderCost(
         open_tax=0, close_tax=0, 
-        open_commission=Config.COMMISSION_FUND, 
-        close_commission=Config.COMMISSION_FUND, 
+        open_commission=Config.COMMISSION_STOCK_OPEN, 
+        close_commission=Config.COMMISSION_STOCK_CLOSE, 
+        close_today_commission=0, min_commission=Config.COMMISSION_MIN
+    ), type="stock")
+    set_order_cost(OrderCost(
+        open_tax=0, close_tax=0, 
+        open_commission=0, close_commission=0, 
         close_today_commission=0, min_commission=0
-    ), type='fund')
+    ), type="mmf")
+
+    log.set_level('system', 'error')
     
-    g.etf_pool = Config.ETF_POOL
+    g.etf_pool = EXECUTION_ETF_POOLS_PLACEHOLDER
     
     # 每日 09:30 执行 (跟原策略一致)
-    run_daily(trade, '9:30')
+    run_daily(trade, EXECUTION_TIME_PLACEHOLDER)
 
 # ==================== 逻辑计算模块 ====================
 def calculate_momentum_score(history_data):

@@ -16,14 +16,15 @@ class Config:
     # ==================== 交易环境设置 ====================
     AVOID_FUTURE_DATA = True
     USE_REAL_PRICE = True
+    BENCHMARK = "513100.XSHG"
     
     # 滑点与费率
-    SLIPPAGE_FUND = 0.0001
+    SLIPPAGE_FUND = 0.001
     SLIPPAGE_STOCK = 0.003
     
-    COMMISSION_STOCK_OPEN = 0.0003
-    COMMISSION_STOCK_CLOSE = 0.0003
-    COMMISSION_MIN = 5
+    COMMISSION_STOCK_OPEN = 0.0002
+    COMMISSION_STOCK_CLOSE = 0.0002
+    COMMISSION_MIN = 0
     
     # ==================== 策略核心参数 ====================
     ETF_POOL = [
@@ -94,6 +95,7 @@ class Config:
 
 # ==================== 初始化 ====================
 def initialize(context):
+    set_benchmark(Config.BENCHMARK)
     set_option("avoid_future_data", Config.AVOID_FUTURE_DATA)
     set_option("use_real_price", Config.USE_REAL_PRICE)
     
@@ -104,7 +106,7 @@ def initialize(context):
     set_slippage(FixedSlippage(Config.SLIPPAGE_STOCK), type="stock")
     
     set_order_cost(OrderCost(
-        open_tax=0, close_tax=0.001, 
+        open_tax=0, close_tax=0, # 0.001
         open_commission=Config.COMMISSION_STOCK_OPEN, 
         close_commission=Config.COMMISSION_STOCK_CLOSE, 
         close_today_commission=0, min_commission=Config.COMMISSION_MIN
