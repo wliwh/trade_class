@@ -207,11 +207,42 @@ gt = get_backtest(backtest_id)
     *   paused: 暂停
     *   deleted: 已删除
 *   gt.get\_params()：**获得回测参数**. 返回一个 dict, 包含调用 create\_backtest 时传入的所有信息. (注： algorithm\_id，initial\_positions，extras 只有在研究中创建的回测才能取到)
+    输出示例如下：
+    ```json
+    {'algorithm_id': '6e21bbaee8cc3f8423def84436a2bf49',
+    'end_date': '2026-01-10 23:59:59',
+    'extras': {},
+    'frequency': 'day',
+    'initial_cash': '100000',
+    'initial_positions': [],
+    'initial_value': None,
+    'name': 'ETF_wy03_opt',
+    'package_version': '1.0',
+    'python_version': '3',
+    'start_date': '2025-10-01 00:00:00',
+    'subportfolios': [{'account_type': 'stock',
+    'set_subportfolios': True,
+    'starting_cash': 100000.0,
+    'subAccountId': 0}]}
+    ```
 *   gt.get\_results()：**获得收益曲线**. 返回一个 list，每个交易日是一个 dict，键的含义如下：
     *   time: 时间
     *   returns: 收益
     *   benchmark\_returns: 基准收益
+    *   上面的收益都是将初期投入视为单位1计算的累积收益，
     *   如果没有收益则返回一个空的 list
+    *   例如：
+    ```json
+    [
+        {'benchmark_returns': 0.021063078958976522,
+        'returns': -0.010974204999999904,
+        'time': '2025-10-09 16:00:00'},
+        {'benchmark_returns': 0.0260255844728714,
+        'returns': -0.053674204999999864,
+        'time': '2025-10-10 16:00:00'},
+        ...
+    ]
+    ```
 *   gt.get\_positions(start\_date=None, end\_date=None)：**获得持仓详情**. 返回一个 list，默认取所有回测时间段内的数据。每个交易日为一个 dict，键的含义为：
     *   time: 时间
     *   amount: 持仓数量,
@@ -244,10 +275,10 @@ gt = get_backtest(backtest_id)
     *   time: 委托时间,
     *   type: 委托方式，市价单/限价单
     *   如果没有交易则返回一个空的 list
-*   gt.get\_records()：**获得所有 record 记录**. 返回一个 list，每个交易日为一个 dict，键是 time 以及调用 record() 函数时设置的值.
+*   gt.get\_records()：**获得所有 record 记录**. 返回一个 list，每个交易日为一个 dict，键是 time 以及调用 record() 函数时设置的值. 不设置record时返回一个空的 list
 *   gt.get\_risk()：**获得总的风险指标**. 返回一个 dict，键是各类收益指标数据，如果没有风险指标则返回一个空的 dict.
     输出示例如下：
-    ```
+    ```json
     {'__version': 101,
     'algorithm_return': -0.12025479399999961,
     'algorithm_volatility': 0.2706099326034811,
@@ -281,7 +312,31 @@ gt = get_backtest(backtest_id)
     'win_ratio': 0.25}
     ```
 *   gt.get\_period\_risks()：**获得分月计算的风险指标**. 返回一个 dict，键是各类指标, 值为一个 pandas.DataFrame. 如果没有风险指标则返回一个空的 dict.
+    *   键包括：'algorithm_return', 'benchmark_return', 'alpha', 'beta', 'sharpe', 'sortino', 'information', 'algorithm_volatility', 'benchmark_volatility', 'max_drawdown'。
+    *   第一个键'algorithm_return'对应的值类型为pandas.DataFrame，其形式如下
+    ```
+    one_month	three_month	six_month	twelve_month
+    2025-10	-0.134110	NaN	NaN	NaN
+    2025-11	-0.038404	NaN	NaN	NaN
+    2025-12	0.025574	-0.146069	NaN	NaN
+    2026-01	0.030230	0.016001	NaN	NaN
+    ```
 *   gt.get\_balances(start\_date=None, end\_date=None): **获取回测每日市值**. 返回一个 list，默认取所有回测时间段内的数据。每个交易日为一个 dict
+    *   其键包括：'net_value', 'cash', 'time', 'total_value', 'aval_cash'。 返回值示例：
+    ```json
+    [{'net_value': 98902.58,
+    'cash': 235.08,
+    'time': '2025-10-09 16:00:00',
+    'total_value': 98902.58,
+    'aval_cash': 235.08},
+    {'net_value': 94632.58,
+    'cash': 235.08,
+    'time': '2025-10-10 16:00:00',
+    'total_value': 94632.58,
+    'aval_cash': 235.08},
+    ...
+    ]
+    ```
 
 **示例：**
 
