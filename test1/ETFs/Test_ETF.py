@@ -7,6 +7,7 @@ from datetime import datetime
 
 # 缓存目录
 CACHE_DIR = 'test1/ETFs/backtest_cache'
+ACTIVE_TASKS_FILE = os.path.join(CACHE_DIR, 'active_tasks.json')
 
 # 策略文件路径映射
 STRATEGY_FILES = {
@@ -15,33 +16,76 @@ STRATEGY_FILES = {
     'yj15': 'test1/ETFs/ETF_yj15_modular.py'
 }
 
+def ensure_cache_dir():
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR, exist_ok=True)
+
 def get_task_hash(strategy_content, params, start_date, end_date, initial_cash, frequency):
     """计算任务唯一Hash"""
-    # 构造唯一标识串：策略内容 + 排序后的参数 + 时间区间 + 资金
     param_str = json.dumps(params, sort_keys=True)
     raw_str = f"{strategy_content}|{param_str}|{start_date}|{end_date}|{initial_cash}|{frequency}"
     return hashlib.md5(raw_str.encode('utf-8')).hexdigest()
 
+class ActiveTaskManager:
+    """管理活跃任务的持久化存储"""
+    @staticmethod
+    def _load_active_tasks():
+        ensure_cache_dir()
+        if os.path.exists(ACTIVE_TASKS_FILE):
+            try:
+                with open(ACTIVE_TASKS_FILE, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"Error loading active tasks: {e}")
+        return {}
+
+    @staticmethod
+    def _save_active_tasks(tasks):
+        ensure_cache_dir()
+        try:
+            with open(ACTIVE_TASKS_FILE, 'w', encoding='utf-8') as f:
+                json.dump(tasks, f, ensure_ascii=False, indent=4)
+        except Exception as e:
+            print(f"Error saving active tasks: {e}")
+
+    @classmethod
+    def get_task(cls, task_hash):
+        tasks = cls._load_active_tasks()
+        return tasks.get(task_hash)
+
+    @classmethod
+    def add_task(cls, task_hash, backtest_id, meta):
+        tasks = cls._load_active_tasks()
+        tasks[task_hash] = {
+            'id': backtest_id,
+            'meta': meta,
+            'status': 'running',
+            'update_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        cls._save_active_tasks(tasks)
+
+    @classmethod
+    def remove_task(cls, task_hash):
+        tasks = cls._load_active_tasks()
+        if task_hash in tasks:
+            del tasks[task_hash]
+            cls._save_active_tasks(tasks)
+
 def save_cache(task_hash, data):
     """保存回测结果到本地缓存"""
-    if not os.path.exists(CACHE_DIR):
-        try:
-            os.makedirs(CACHE_DIR)
-        except Exception as e:
-            print(f"Error creating cache dir: {e}")
-            return
-
+    ensure_cache_dir()
     file_path = os.path.join(CACHE_DIR, f"{task_hash}.json")
     try:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
-        print(f"Cache saved: {file_path}")
+        # print(f"Cache saved: {file_path}") # Optional logging
+        return file_path
     except Exception as e:
         print(f"Failed to save cache: {e}")
+        return None
 
-def load_cache(task_hash):
-    """读取本地缓存"""
-    file_path = os.path.join(CACHE_DIR, f"{task_hash}.json")
+def load_cache_meta(file_path):
+    """读取本地缓存文件"""
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -90,9 +134,26 @@ def generate_strategy_code(strategy_file_path, params):
         print(f"Error processing {strategy_file_path}: {e}")
         return ""
 
-def run_strategy_backtest(strategy_name, test_name, params, start_date, end_date, initial_cash=100000, frequency="day", force_run=False):
+def run_strategy_backtest(
+    strategy_name, 
+    test_name, 
+    params, 
+    start_date, 
+    end_date, 
+    initial_cash=100000, 
+    frequency="day", 
+    block=True
+):
     """
-    运行单个回测任务 (支持缓存)
+    运行单个回测任务 
+    block: True=阻塞直到完成, False=立即返回任务状态
+    Returns:
+        {
+            'status': 'done'|'running'|'failed',
+            'path': file_path (if done),
+            'id': backtest_id (if running),
+            'hash': task_hash
+        }
     """
     if strategy_name not in STRATEGY_FILES:
         print(f"Strategy {strategy_name} not found.")
@@ -100,7 +161,7 @@ def run_strategy_backtest(strategy_name, test_name, params, start_date, end_date
         
     file_path = STRATEGY_FILES[strategy_name]
     
-    # 1. 读取策略文件内容用于Hash计算和代码生成
+    # 1. 准备工作
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             strategy_content = f.read()
@@ -108,51 +169,75 @@ def run_strategy_backtest(strategy_name, test_name, params, start_date, end_date
         print(f"Error reading {file_path}: {e}")
         return None
 
-    # 2. 获取完整参数 (底稿 + 覆盖)
     current_params = get_empty_placeholders(file_path)
     current_params.update(params)
-    
-    # 3. 计算Hash
     task_hash = get_task_hash(strategy_content, current_params, start_date, end_date, initial_cash, frequency)
     
-    # 4. 检查缓存
-    if not force_run:
-        cached_data = load_cache(task_hash)
-        if cached_data:
-            print(f"Found cached result for [{test_name}] ({task_hash})")
-            return {
-                'status': 'cached',
-                'name': f"{strategy_name}_{test_name}",
-                'hash': task_hash,
-                'metrics': cached_data.get('metrics', {})
-            }
-
-    # 5. 生成新代码
-    code = generate_strategy_code(file_path, current_params)
-    if not code:
-        return None
-        
-    print(f"Creating backtest [{test_name}] for {strategy_name}...")
+    cache_path = os.path.join(CACHE_DIR, f"{task_hash}.json")
     
-    # 6. 创建回测
-    try:
-        bt_id = create_backtest(
-            algorithm_id=None, # 提供 code 时不需要 algorithm_id
-            start_date=start_date,
-            end_date=end_date,
-            frequency=frequency,
-            initial_cash=initial_cash,
-            code=code,
-            name=f"{strategy_name}_{test_name}",
-            python_version=3
-        )
-        print(f"Backtest created: {bt_id}")
-        return {
-            'status': 'running',
-            'id': bt_id,
-            'name': f"{strategy_name}_{test_name}",
-            'hash': task_hash,
-            'meta': {
+    # 2. Level 1: Check Local Cache
+    if os.path.exists(cache_path):
+        print(f"[{test_name}] Found local cache.")
+        return {'status': 'done', 'path': cache_path, 'hash': task_hash}
+
+    # 3. Level 2: Check Active Tasks
+    active_task = ActiveTaskManager.get_task(task_hash)
+    bt_id = None
+    
+    if active_task:
+        bt_id = active_task['id']
+        print(f"[{test_name}] Found active task: {bt_id}, checking status...")
+        
+        try:
+            gt = get_backtest(bt_id)
+            status = gt.get_status()
+            
+            if status == 'done':
+                # Task finished, retrieve and save
+                result_data = {
+                    'metrics': gt.get_risk(),
+                    'meta': active_task['meta'],
+                    'hash': task_hash
+                }
+                saved_path = save_cache(task_hash, result_data)
+                ActiveTaskManager.remove_task(task_hash)
+                print(f"[{test_name}] Task finished and saved.")
+                return {'status': 'done', 'path': saved_path, 'hash': task_hash}
+                
+            elif status in ['failed', 'canceled', 'deleted']:
+                print(f"\n[CRITICAL] Backtest {test_name} ({bt_id}) FAILED with status: {status}")
+                ActiveTaskManager.remove_task(task_hash)
+                # Fall through to create new task
+                bt_id = None 
+                
+            else: # running, none, paused
+                if not block:
+                    return {'status': 'running', 'id': bt_id, 'hash': task_hash}
+                # If blocking, we need to wait. Handled below.
+                
+        except Exception as e:
+            print(f"Error checking backtest {bt_id}: {e}")
+            ActiveTaskManager.remove_task(task_hash) # clean up bad record
+            bt_id = None
+
+    # 4. Create New Task (if needed)
+    if bt_id is None:
+        code = generate_strategy_code(file_path, current_params)
+        if not code: return None
+        
+        print(f"[{test_name}] Creating NEW backtest for {strategy_name}...")
+        try:
+            bt_id = create_backtest(
+                algorithm_id=None,
+                start_date=start_date,
+                end_date=end_date,
+                frequency=frequency,
+                initial_cash=initial_cash,
+                code=code,
+                name=f"{strategy_name}_{test_name}",
+                python_version=3
+            )
+            meta = {
                 'strategy_name': strategy_name,
                 'test_name': test_name,
                 'params': params,
@@ -162,133 +247,143 @@ def run_strategy_backtest(strategy_name, test_name, params, start_date, end_date
                 'initial_cash': initial_cash,
                 'create_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
-        }
-    except Exception as e:
-        print(f"Failed to create backtest: {e}")
-        return None
+            ActiveTaskManager.add_task(task_hash, bt_id, meta)
+            
+            if not block:
+                return {'status': 'running', 'id': bt_id, 'hash': task_hash}
+                
+        except Exception as e:
+            print(f"Failed to create backtest: {e}")
+            return None
+
+    # 5. Blocking Wait (Only reachable if block=True and task is running)
+    print(f"[{test_name}] Waiting for backtest {bt_id} to complete...")
+    while True:
+        try:
+            gt = get_backtest(bt_id)
+            status = gt.get_status()
+            
+            if status == 'done':
+                # Need to fetch meta again if we just recovered an active task or use the one we just created
+                # To be safe, rely on what we saved in active tasks or reconstruct
+                active_task = ActiveTaskManager.get_task(task_hash)
+                meta = active_task['meta'] if active_task else {}
+                
+                result_data = {
+                    'metrics': gt.get_risk(),
+                    'meta': meta,
+                    'hash': task_hash
+                }
+                saved_path = save_cache(task_hash, result_data)
+                ActiveTaskManager.remove_task(task_hash)
+                print(f"[{test_name}] Done.")
+                return {'status': 'done', 'path': saved_path, 'hash': task_hash}
+                
+            elif status in ['failed', 'canceled', 'deleted']:
+                print(f"\n[CRITICAL] Backtest {test_name} ({bt_id}) FAILED with status: {status}")
+                ActiveTaskManager.remove_task(task_hash)
+                return {'status': 'failed', 'hash': task_hash}
+                
+            time.sleep(5)
+        except Exception as e:
+            print(f"Error while waiting for {bt_id}: {e}")
+            time.sleep(5)
+
 
 # ==========================================
 # 批量回测与指标对比功能
 # ==========================================
 
-
 def compare_backtests(backtest_configs):
     """
-    批量运行回测并对比指标 (支持持久化)
+    批量运行回测并对比指标
     """
-    bt_results = []
+    # 1. Start/Resume all tasks (Non-blocking)
+    print(f"Initializing {len(backtest_configs)} tasks...")
     
-    # 1. 提交所有回测任务
-    print(f"Starting {len(backtest_configs)} backtests (checking cache)...")
-    for config in backtest_configs:
-        res = run_strategy_backtest(
-            strategy_name=config['strategy_name'],
-            test_name=config['test_name'],
-            params=config['params'],
-            start_date=config['start_date'],
-            end_date=config['end_date']
-        )
-        if res:
-            bt_results.append(res)
+    # We keep track of configs that are not yet done
+    pending_configs = backtest_configs[:] 
+    finished_results = []
+    
+    while pending_configs:
+        still_pending = []
+        
+        for config in pending_configs:
+            # Re-call run_strategy_backtest. 
+            # If it's running, it checks status. 
+            # If it finishes, it saves data and returns 'done'.
+            res = run_strategy_backtest(
+                strategy_name=config['strategy_name'],
+                test_name=config['test_name'],
+                params=config['params'],
+                start_date=config['start_date'],
+                end_date=config['end_date'],
+                block=False 
+            )
             
-    if not bt_results:
-        print("No backtests started.")
-        return
+            if res:
+                res['name'] = f"{config['strategy_name']}_{config['test_name']}"
+                
+                if res['status'] == 'done':
+                    finished_results.append(res)
+                    # print(f"Task {res['name']} finished.") # Optional, run_strategy_backtest already logs
+                elif res['status'] in ['failed', 'canceled', 'deleted']:
+                    # Already logged critical error in run_strategy_backtest
+                    pass 
+                else:
+                    # Still running (or other status), keep in pending
+                    still_pending.append(config)
+            else:
+                 # Error creating/checking, stop tracking this one
+                 print(f"Skipping failed config: {config.get('test_name')}")
 
-    # 2. 区分正在运行的和已缓存的
-    running_tasks = [t for t in bt_results if t['status'] == 'running']
-    cached_tasks = [t for t in bt_results if t['status'] == 'cached']
-
-    # 3. 轮询等待运行中的任务完成
-    if running_tasks:
-        print(f"\nWaiting for {len(running_tasks)} backtests to complete...")
-        all_done = False
-        while not all_done:
-            all_done = True
-            pending_count = 0
-            for task in running_tasks:
-                if task.get('final_status') in ['done', 'failed', 'canceled']:
-                    continue
-                    
-                try:
-                    gt = get_backtest(task['id'])
-                    status = gt.get_status()
-                    
-                    if status == 'done':
-                        task['final_status'] = 'done'
-                        # 获取结果并保存缓存
-                        risk = gt.get_risk()
-                        cache_data = {
-                            'hash': task['hash'],
-                            'meta': task['meta'],
-                            'metrics': risk,
-                            'status': 'done'
-                        }
-                        save_cache(task['hash'], cache_data)
-                        task['metrics'] = risk
-                        print(f"Task {task['name']} finished and cached.")
-                        
-                    elif status in ['failed', 'canceled', 'deleted']:
-                        task['final_status'] = status
-                        print(f"Task {task['name']} ended with status: {status}")
-                        
-                    else:
-                        all_done = False
-                        pending_count += 1
-                except Exception as e:
-                    print(f"Error checking status for {task['id']}: {e}")
-                    
-            if not all_done:
-                print(f"Running: {pending_count}/{len(running_tasks)}...", end='\r')
-                time.sleep(5)
-        print("\nAll running backtests finished.\n")
+        pending_configs = still_pending
+        
+        # Only sleep if we still have pending tasks
+        if pending_configs:
+            time.sleep(5)
     
-    # 4. 收集所有指标并展示
+    print("\nAll tasks completed validation.\n")
+
+    # 3. Collect Results
     metrics_list = []
-    # 合并 cached_tasks 和 finished running_tasks
-    all_tasks = cached_tasks + running_tasks
     
-    for task in all_tasks:
-        params_metrics = task.get('metrics')
-        if not params_metrics:
+    for task in finished_results:
+        data = load_cache_meta(task['path'])
+        if not data or 'metrics' not in data:
             continue
             
+        risk = data['metrics']
         try:
-            risk = params_metrics
             metrics = {
                 'Name': task['name'],
                 'Annual Return': f"{risk.get('annual_algo_return', 0):.2%}",
-                'Total Return': f"{risk.get('algorithm_return', 0):.2%}",
                 'Max Drawdown': f"{risk.get('max_drawdown', 0):.2%}",
                 'Sharpe': f"{risk.get('sharpe', 0):.2f}",
                 'Win Ratio': f"{risk.get('win_ratio', 0):.2%}",
                 'Profit/Loss Ratio': f"{risk.get('profit_loss_ratio', 0):.2f}",
-                'Total Returns': f"{risk.get('algorithm_return', 0):.2%}", # Field name consistency check, user used 'Total Return' in original, JQ has 'algorithm_return'
+                'Total Return': f"{risk.get('algorithm_return', 0):.2%}",
                 'Alpha': f"{risk.get('alpha', 0):.2f}",
                 'Beta': f"{risk.get('beta', 0):.2f}"
             }
-            # Fix column name consistency from original code
-            # Original: 'Total Return': f"{risk.get('algorithm_return', 0):.2%}"
-            metrics['Total Return'] = metrics.pop('Total Returns')
-            
             metrics_list.append(metrics)
         except Exception as e:
-            print(f"Error formulating metrics for {task['name']}: {e}")
-            
-    # 5. 生成对比表格
+             print(f"Error parsing metrics for {task['name']}: {e}")
+
+    # 4. Display Table
     if metrics_list:
         df = pd.DataFrame(metrics_list)
-        cols = ['Name', 'Annual Return', 'Max Drawdown', 'Sharpe', 'Win Ratio', 'Profit/Loss Ratio', 'Total Return', 'Alpha', 'Beta']
-        cols = [c for c in cols if c in df.columns]
-        df = df[cols]
+        # cols = ['Name', 'Annual Return', 'Max Drawdown', 'Sharpe', 'Win Ratio', 'Profit/Loss Ratio', 'Total Return', 'Alpha', 'Beta']
+        # df = df[cols] 
+        # (Auto column order is usually fine, specific order needs check if cols exist)
         
-        print("="*80)
-        print("STRATEGY PERFORMANCE COMPARISON (Cached + New)")
-        print("="*80)
+        print("="*100)
+        print("STRATEGY PERFORMANCE COMPARISON")
+        print("="*100)
         print(df.to_string(index=False))
-        print("="*80)
+        print("="*100)
     else:
-        print("No successful backtest results to display.")
+        print("No successful results to display.")
 
 def test_run_backtest():
     # 定义要对比的测试配置
