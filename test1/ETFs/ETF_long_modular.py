@@ -1,273 +1,229 @@
-# 策略名称：核心资产轮动-添油加醋版（模块化重构）
-# 说明：
-# 1. 核心逻辑：短期动量(25日) + 长期反转(200日) 结合打分。
-# 2. 独特风控：
-#    - 极值差离过滤 (Score Spread): 第一名和最后一名分差需在 [0.1, 15] 之间。
-#    - 个股RSRS择时: 每个ETF单独计算RSRS，若Beta低于阈值则认为是顶部不买入。
-# 3. 架构：Config -> Data -> Logic -> Execution
+# 风险及免责提示：该策略由聚宽用户在聚宽社区分享，仅供学习交流使用。
+# 原文一般包含策略说明，如有疑问请到原文和作者交流讨论。
+# 原文网址：https://www.joinquant.com/view/community/detail/44046
+# 标题：【回顾3】ETF策略之核心资产轮动-添油加醋
+# 
+# 本程序为原策略的向量化/模块化重构版本，逻辑与原版完全一致。
 
-import numpy as np
 import pandas as pd
+import numpy as np
 import math
 from jqdata import *
 
-EXECUTION_TIME_PLACEHOLDER = '9:30'
-EXECUTION_ETF_POOLS_PLACEHOLDER = ['518880.XSHG','513100.XSHG','159915.XSHE','510180.XSHG']
+class GlobalConfig:
+    # ETF池
+    ETF_POOL = [
+        '518880.XSHG', # 黄金ETF（大宗商品）
+        '513100.XSHG', # 纳指100（海外资产）
+        '159915.XSHE', # 创业板100（成长股，科技股，中小盘）
+        '510180.XSHG', # 上证180（价值股，蓝筹股，中大盘）
+    ]
+    
+    # 动量参数
+    MOMENTUM_DAYS = 25
+    REVERSAL_DAYS = 200
+    
+    # 交易时间
+    RUN_TIME = '9:30'
+    
+    # 筛选参数
+    TARGET_NUM = 1
+    SCORE_DIFF_MIN = 0.1
+    SCORE_DIFF_MAX = 15
+    
+    # RSRS参数
+    RSRS_REG_WINDOW = 18    # 计算当前Beta的窗口
+    RSRS_HIST_WINDOW = 250  # 计算Beta统计分布的历史长度
+    RSRS_ROLLING_WINDOW = 20 # 历史统计中Rolling Beta的窗口
+    RSRS_STD_MULTIPLIER = 2.0
 
-class Config:
-    # ==================== 交易环境设置 ====================
-    AVOID_FUTURE_DATA = True
-    USE_REAL_PRICE = True
-    
-    BENCHMARK = "513100.XSHG"
-    
-    # 滑点与费率
-    SLIPPAGE_FUND = 0.001
-    SLIPPAGE_STOCK = 0.003
-    
-    COMMISSION_STOCK_OPEN = 0.0002
-    COMMISSION_STOCK_CLOSE = 0.0002
-    COMMISSION_MIN = 0
-    
-    # ==================== 策略核心参数 ====================
-    HOLD_COUNT = 1          # 持仓数量
-    
-    # 动量/反转参数
-    M_DAYS = 25             # 短期动量天数
-    L_DAYS = 200            # 长期反转天数 (原策略 m_days * 8)
-    L_WEIGHT = 6            # 长期因子权重分母 (Score = Short - Long / 6)
-    
-    # 极值差离过滤
-    SPREAD_MIN = 0.1
-    SPREAD_MAX = 15.0
-    
-    # RSRS 参数
-    RSRS_N = 18             # RSRS回归周期
-    RSRS_M = 250            # RSRS均值标准差回溯周期
-    RSRS_STD_MULT = 2       # 阈值 = Mean - 2 * Std
+class DataPreparation:
+    @staticmethod
+    def fetch_price_history(security_list, days):
+        """
+        一次性获取所有标的的历史收盘价，用于打分
+        """
+        return history(days, '1d', 'close', security_list)
 
-# ==================== 初始化 ====================
+    @staticmethod
+    def fetch_high_low_history(security, days):
+        """
+        获取单只标的的高低价，用于RSRS计算
+        """
+        return attribute_history(security, days, '1d', ['high', 'low'])
+
+class Scoring:
+    @staticmethod
+    def calculate_slope_r2_vectorized(prices_df):
+        """
+        向量化计算多只ETF的斜率和R方
+        """
+        if prices_df.empty:
+            return pd.Series(), pd.Series()
+
+        n = len(prices_df)
+        x = np.arange(n)
+        
+        # 计算X的方差和均值
+        x_mean = np.mean(x)
+        
+        # 向量化计算
+        y_mean = prices_df.mean(axis=0)
+        
+        # Centering
+        x_center = x - x_mean
+        y_center = prices_df - y_mean
+        
+        # Covariance (unscaled)
+        cov_xy = np.sum(x_center[:, np.newaxis] * y_center, axis=0)
+        
+        # Slope
+        sum_sq_diff_x = np.sum(x_center**2)
+        if sum_sq_diff_x == 0:
+             return pd.Series(0, index=prices_df.columns), pd.Series(0, index=prices_df.columns)
+
+        slopes = cov_xy / sum_sq_diff_x
+        
+        # R-Squared
+        sst = np.sum(y_center**2, axis=0)          
+        r_squareds = (cov_xy / np.sqrt(sum_sq_diff_x * sst)) ** 2
+        
+        return slopes, r_squareds
+
+    @classmethod
+    def get_scores(cls, prices_df):
+        """
+        计算综合得分
+        """
+        # 取对数
+        log_prices = np.log(prices_df)
+        
+        # 1. 动量得分 (最近 Momentum_Days)
+        mom_df = log_prices.iloc[-GlobalConfig.MOMENTUM_DAYS:]
+        mom_slopes, mom_r2 = cls.calculate_slope_r2_vectorized(mom_df)
+        mom_annual_ret = np.power(np.exp(mom_slopes), 250) - 1
+        mom_score = mom_annual_ret * mom_r2
+        
+        # 2. 反转得分 (最近 Reversal_Days)
+        rev_df = log_prices.iloc[-GlobalConfig.REVERSAL_DAYS:]
+        rev_slopes, rev_r2 = cls.calculate_slope_r2_vectorized(rev_df)
+        rev_annual_ret = np.power(np.exp(rev_slopes), 250) - 1
+        rev_score = rev_annual_ret * rev_r2
+        
+        # 3. 综合得分: Mom - Rev / 6
+        final_scores = mom_score - rev_score / 6.0
+        return final_scores.sort_values(ascending=False)
+
+class PostFiltering:
+    @staticmethod
+    def filter_candidates(scores_series):
+        """
+        根据分差筛选
+        """
+        if len(scores_series) < 2:
+             return [] if scores_series.empty else [scores_series.index[0]]
+            
+        max_score = scores_series.iloc[0]
+        min_score = scores_series.iloc[-1]
+        diff = max_score - min_score
+        
+        if GlobalConfig.SCORE_DIFF_MIN < diff < GlobalConfig.SCORE_DIFF_MAX:
+            return list(scores_series.index[:GlobalConfig.TARGET_NUM])
+        else:
+            return []
+
+class RiskControl:
+    @staticmethod
+    def check_rsrs(context, target_list):
+        """
+        对目标ETF进行RSRS择时检查
+        """
+        real_target_list = []
+        for etf in target_list:
+            if RiskControl._is_safe(context, etf):
+                real_target_list.append(etf)
+        return real_target_list
+
+    @staticmethod
+    def _is_safe(context, etf):
+        # 1. 获取当前 Beta (18日)
+        curr_data = DataPreparation.fetch_high_low_history(etf, GlobalConfig.RSRS_REG_WINDOW)
+        # 简单检查数据长度
+        if len(curr_data) < 2: return False
+            
+        curr_beta = np.polyfit(curr_data.low, curr_data.high, 1)[0]
+        
+        # 2. 获取阈值
+        hist_data = DataPreparation.fetch_high_low_history(etf, GlobalConfig.RSRS_HIST_WINDOW)
+        betas = []
+        
+        lows = hist_data['low'].values
+        highs = hist_data['high'].values
+        
+        window = GlobalConfig.RSRS_ROLLING_WINDOW
+        limit_idx = len(hist_data) - GlobalConfig.RSRS_ROLLING_WINDOW - 1
+        
+        if limit_idx < 1: return False # 数据不足
+
+        for i in range(limit_idx):
+            y = highs[i:i+window]
+            x = lows[i:i+window]
+            beta = np.polyfit(x, y, 1)[0]
+            betas.append(beta)
+            
+        if not betas: return False
+            
+        beta_mean = np.mean(betas)
+        beta_std = np.std(betas)
+        
+        threshold = beta_mean - GlobalConfig.RSRS_STD_MULTIPLIER * beta_std
+        
+        return curr_beta > threshold
+
+class Execution:
+    @staticmethod
+    def execute(context, target_list):
+        current_holdings = list(context.portfolio.positions.keys())
+        
+        # 1. 卖出
+        for etf in current_holdings:
+            if etf not in target_list:
+                order_target_value(etf, 0)
+                
+        # 2. 买入
+        if not target_list:
+            return
+            
+        current_holdings_after_sell = [e for e in context.portfolio.positions if context.portfolio.positions[e].total_amount > 0]
+        
+        if len(current_holdings_after_sell) < GlobalConfig.TARGET_NUM:
+            slots_needed = GlobalConfig.TARGET_NUM - len(current_holdings_after_sell)
+            if slots_needed == 0: return
+
+            cash_per_slot = context.portfolio.available_cash / slots_needed
+            
+            for etf in target_list:
+                if context.portfolio.positions[etf].total_amount == 0:
+                    order_target_value(etf, cash_per_slot)
+
+# JQ 初始化与周期函数
+
 def initialize(context):
-    set_benchmark(Config.BENCHMARK)
-    set_option('use_real_price', Config.USE_REAL_PRICE)
-    set_option("avoid_future_data", Config.AVOID_FUTURE_DATA)
-    
-    set_slippage(FixedSlippage(Config.SLIPPAGE_FUND), type="fund")
-    set_slippage(FixedSlippage(Config.SLIPPAGE_STOCK), type="stock")
-    set_order_cost(OrderCost(
-        open_tax=0, close_tax=0, 
-        open_commission=Config.COMMISSION_STOCK_OPEN, 
-        close_commission=Config.COMMISSION_STOCK_CLOSE, 
-        close_today_commission=0, min_commission=Config.COMMISSION_MIN
-    ), type="stock")
-    set_order_cost(OrderCost(
-        open_tax=0, close_tax=0, 
-        open_commission=0, close_commission=0, 
-        close_today_commission=0, min_commission=0
-    ), type="mmf")
-
+    set_benchmark('513100.XSHG')
+    set_option('use_real_price', True)
+    set_option("avoid_future_data", True)
+    set_slippage(FixedSlippage(0.002))
+    set_order_cost(OrderCost(open_tax=0, close_tax=0, open_commission=0.0002, close_commission=0.0002, close_today_commission=0, min_commission=5), type='fund')
     log.set_level('system', 'error')
     
-    g.etf_pool = EXECUTION_ETF_POOLS_PLACEHOLDER
-    
-    # 每日 09:30 执行 (跟原策略一致)
-    run_daily(trade, EXECUTION_TIME_PLACEHOLDER)
+    run_daily(main_trade, GlobalConfig.RUN_TIME)
 
-# ==================== 逻辑计算模块 ====================
-def calculate_momentum_score(history_data):
-    """计算单个ETF的动量得分: Annualized Return * R2"""
-    try:
-        # 预处理
-        y = np.log(history_data['close'].values)
-        x = np.arange(len(y))
-        
-        # 线性回归
-        slope, intercept = np.polyfit(x, y, 1)
-        
-        # 计算年化收益
-        annualized_returns = math.pow(math.exp(slope), 250) - 1
-        
-        # 计算 R2
-        # 原策略公式: 1 - (SS_res / ((n-1) * var(y)))
-        # 注意: np.var(ddof=1) calculate unbiased variance
-        y_pred = slope * x + intercept
-        ss_res = np.sum((y - y_pred)**2)
-        var_y = np.var(y, ddof=1)
-        r_squared = 1 - (ss_res / ((len(y) - 1) * var_y)) if var_y > 0 else 0
-        
-        return annualized_returns * r_squared
-    except:
-        return 0
-
-def get_combined_scores(etf_pool):
-    """获取综合评分表 (短期动量 - 长期反转/6)"""
-    scores = {}
+def main_trade(context):
+    price_data = DataPreparation.fetch_price_history(GlobalConfig.ETF_POOL, GlobalConfig.REVERSAL_DAYS)
     
-    for etf in etf_pool:
-        # 1. 获取短期数据
-        df_short = attribute_history(etf, Config.M_DAYS, '1d', ['close'])
-        if len(df_short) < Config.M_DAYS:
-            scores[etf] = -999
-            continue
-        score_short = calculate_momentum_score(df_short)
+    if price_data.empty: return
         
-        # 2. 获取长期数据 (用于反转)
-        df_long = attribute_history(etf, Config.L_DAYS, '1d', ['close'])
-        if len(df_long) < Config.L_DAYS:
-            # 如果数据不够长，暂时用短期分代替或给低分，原逻辑隐含需要足够数据
-            scores[etf] = -999
-            continue
-        score_long = calculate_momentum_score(df_long)
-        
-        # 3. 综合得分: 动量 - 反转
-        final_score = score_short - (score_long / Config.L_WEIGHT)
-        scores[etf] = final_score
-        
-    return scores
-
-def calculate_beta(high_series, low_series):
-    """计算 Beta (High vs Low 斜率)"""
-    try:
-        # polyfit(x, y, 1) -> fits y = kx + b
-        # 这里 x=low, y=high
-        slope, _ = np.polyfit(low_series, high_series, 1)
-        return slope
-    except:
-        return 0
-
-def check_rsrs_filter(etf, context):
-    """
-    RSRS 择时检查 (个股)
-    Return: True(可买), False(到顶不可买)
-    """
-    try:
-        # 获取足够长的历史数据来计算 Beta 分布
-        # 需要 RSRS_M(250) 个样本，每个样本由 RSRS_N(18) 天数据回归得到
-        # 实际上如果每次rolling算比较慢。
-        # 原策略逻辑：
-        # 1. 取 250 天数据
-        # 2. 遍历每一天，取过去18天算beta，存入 betaList
-        # 3. 计算 betaList 的 mean 和 std
-        # 4. 当前 beta > mean - 2*std 则通过
-        
-        # 为了性能和数据完整性，我们取 M + 20 天以防万一
-        total_days = Config.RSRS_M + Config.RSRS_N
-        data = attribute_history(etf, total_days, '1d', ['high', 'low'])
-        if len(data) < total_days: return True # 数据不足默认通过? 或者False? 原策略其实会报错，这里默认过
-        
-        highs = data['high'].values
-        lows = data['low'].values
-        
-        beta_list = []
-        # 计算过去 M 个 Beta 值
-        # 比如今天要算 Beta(t), Beta(t-1) ... Beta(t-M)
-        # 倒序或者正序遍历
-        
-        # 优化：只取最近250个点作为分布参考? 原策略是从 i=0 到 len-21
-        # 原策略: attribute_history(250), loop (0, 250-21) -> 约230个样本
-        # 实际上是拿过去一年的Beta分布来衡量当前的Beta
-        
-        # 重新实现原逻辑的精准复刻：
-        # etf_data = attribute_history(etf, 250, '1d')
-        # loop i from 0 to len-21 (即 229次)
-        # slice i:i+20 (其实原代码写的是20，不是18? 让我们看Config)
-        # 原代码: hl = attribute_history(etf, 18...) (行95)用于当前
-        # 原代码: countBeta用的是 250天数据, slice 20天回归.
-        # 此时出现 参数不一致: 行96用的是18天High/Low回归，行130(countBeta)用的是20天
-        # 我们这里统一逻辑或严格照搬。
-        # 照搬: getBeta(Current)用18天，Threshold用20天rolling。
-        
-        # 1. 计算 Threshold
-        ref_data = attribute_history(etf, 250, '1d', ['high', 'low'])
-        ref_betas = []
-        for i in range(len(ref_data) - 21):
-            sub_h = ref_data['high'].iloc[i:i+20]
-            sub_l = ref_data['low'].iloc[i:i+20]
-            b = calculate_beta(sub_h, sub_l)
-            ref_betas.append(b)
-            
-        if not ref_betas: return True
-        
-        mu = np.mean(ref_betas)
-        sigma = np.std(ref_betas)
-        threshold = mu - Config.RSRS_STD_MULT * sigma
-        
-        # 2. 计算当前 Beta (用18天)
-        cur_data = attribute_history(etf, 18, '1d', ['high', 'low'])
-        cur_beta = calculate_beta(cur_data['high'], cur_data['low'])
-        
-        # 判决
-        if cur_beta > threshold:
-            return True
-        else:
-            # log.info(f"RSRS过滤 {etf}: Beta {cur_beta:.3f} <= Thr {threshold:.3f}")
-            return False
-            
-    except Exception as e:
-        log.warn(f"RSRS Error {etf}: {e}")
-        return True # 出错默认放行
-
-# ==================== 交易执行模块 ====================
-def trade(context):
-    # 1. 计算所有标的得分
-    scores_dict = get_combined_scores(g.etf_pool)
-    
-    # 排序
-    sorted_items = sorted(scores_dict.items(), key=lambda x: x[1], reverse=True)
-    if not sorted_items: return
-    
-    max_score = sorted_items[0][1]
-    min_score = sorted_items[-1][1]
-    score_spread = max_score - min_score
-    
-    # 2. 极值差离过滤 (亦即“枪打出头鸟”逻辑)
-    target_list = []
-    if Config.SPREAD_MIN < score_spread < Config.SPREAD_MAX:
-        # 取前 N 名
-        candidates = [x[0] for x in sorted_items[:Config.HOLD_COUNT]]
-        target_list = candidates
-        # log.info(f"分数差 {score_spread:.2f} 达标，初选: {target_list}")
-    else:
-        log.info(f"分数差 {score_spread:.2f} 异常，空仓")
-        target_list = []
-        
-    # 3. RSRS 择时过滤
-    final_targets = []
-    for etf in target_list:
-        if check_rsrs_filter(etf, context):
-            final_targets.append(etf)
-        else:
-            log.info(f"RSRS风控触发，剔除 {etf}")
-            
-    # log.info(f"最终目标: {final_targets}")
-    
-    # 4. 执行交易
-    current_holdings = list(context.portfolio.positions.keys())
-    
-    # 卖出不在目标里的
-    for etf in current_holdings:
-        if etf not in final_targets:
-            order_target_value(etf, 0)
-            
-    # 买入目标
-    buy_count = len(final_targets)
-    if buy_count > 0:
-        # 假设我们要持有 HOLD_COUNT 只，现在只有 buy_count 只达标
-        # 原逻辑: value = cash / (target_num - len(hold)) -> 动态补仓
-        # 简化逻辑: 平权分配现有资金
-        
-        # 原逻辑通过判断持仓数来补仓，比较复杂，我们采用标准的轮动买入逻辑：
-        # 如果都在列表里，根据权重调整；如果有新增，买入。
-        
-        total_value = context.portfolio.total_value
-        per_value = total_value / Config.HOLD_COUNT # 始终按目标持仓数分配仓位?
-        # 原逻辑行 112: value = available_cash / (target_num - len(hold_list))
-        # 这意味着它用剩余现金买新标的，不论旧标的涨跌，不做Rebalance。
-        # 我们采用更稳健的做法：对目标列表里的进行 Target Value 调整。
-        
-        # 调整为: 
-        # 如果通过筛选只有 0个 -> 空仓
-        # 如果有 1个 -> 满仓 (因为 HOLD_COUNT=1)
-        
-        for etf in final_targets:
-            order_target_value(etf, total_value / len(final_targets))
+    scores = Scoring.get_scores(price_data)
+    candidates = PostFiltering.filter_candidates(scores)
+    final_targets = RiskControl.check_rsrs(context, candidates)
+    Execution.execute(context, final_targets)

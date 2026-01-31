@@ -75,10 +75,22 @@ def save_cache(task_hash, data):
     """保存回测结果到本地缓存"""
     ensure_cache_dir()
     file_path = os.path.join(CACHE_DIR, f"{task_hash}.json")
+    
+    # 特殊处理 monthly_metrics: 保存CSV并转为dict以便JSON序列化
+    if 'monthly_metrics' in data and isinstance(data['monthly_metrics'], dict):
+        for key, val in data['monthly_metrics'].items():
+            if isinstance(val, pd.DataFrame):
+                # 1. 保存 CSV
+                # csv_path = os.path.join(CACHE_DIR, f"{task_hash}_{key}.csv")
+                # val.to_csv(csv_path, encoding='utf-8_sig')
+                # 2. 原地替换为 dict (JSON兼容)
+                data['monthly_metrics'][key] = val.to_dict(orient='list')
+                data['monthly_metrics'][key]['_index'] = val.index.tolist()
+            else:
+                data['monthly_metrics'][key] = val
     try:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
-        # print(f"Cache saved: {file_path}") # Optional logging
         return file_path
     except Exception as e:
         print(f"Failed to save cache: {e}")
@@ -196,6 +208,8 @@ def run_strategy_backtest(
                 # Task finished, retrieve and save
                 result_data = {
                     'metrics': gt.get_risk(),
+                    'daily_results': gt.get_results(),
+                    'monthly_metrics': gt.get_period_risks('month'),
                     'meta': active_task['meta'],
                     'hash': task_hash
                 }
@@ -269,8 +283,15 @@ def run_strategy_backtest(
                 active_task = ActiveTaskManager.get_task(task_hash)
                 meta = active_task['meta'] if active_task else {}
                 
+                try:
+                    monthly_metrics = gt.get_period_risks('month')
+                except:
+                    monthly_metrics = None
+                    
                 result_data = {
                     'metrics': gt.get_risk(),
+                    'daily_results': gt.get_results(),
+                    'monthly_metrics': monthly_metrics,
                     'meta': meta,
                     'hash': task_hash
                 }

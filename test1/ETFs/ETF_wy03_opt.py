@@ -44,7 +44,7 @@ def initialize(context):                   # 初始化函数
         open_commission=Config.COMMISSION_STOCK_OPEN, 
         close_commission=Config.COMMISSION_STOCK_CLOSE, 
         close_today_commission=0, min_commission=Config.COMMISSION_MIN
-    ), type="stock")
+    ), type="fund")
     set_order_cost(OrderCost(
         open_tax=0, close_tax=0, 
         open_commission=0, close_commission=0, 

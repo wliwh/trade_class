@@ -71,7 +71,7 @@ def option_qvix(symbol: str = '50ETF') -> pd.DataFrame:
     ]
     temp_df["date"] = pd.to_datetime(temp_df["date"]).dt.date
     temp_df.dropna(inplace=True)
-    temp_df.replace({'#NUM!':np.nan,'#VALUE!':np.nan},inplace=True)
+    temp_df.replace({'#NUM!':np.nan,'#VALUE!':np.nan,'#NAME?':np.nan},inplace=True)
     # temp_df.fillna(method='ffill',inplace=True)
     temp_df.ffill(inplace=True)
     return temp_df
@@ -150,11 +150,11 @@ class qvix_day_indicator(IndicatorGetter):
 
 if __name__=='__main__':
     # append_qvix_minute_file()
-    # print(option_qvix('50ETF'))
+    print(option_qvix('1000ETF'))
     # print(_option_call_put_positon(option_qvix('50ETF'),'510050'))
-    p1 = pd.DataFrame(pd.date_range('20250710',periods=10,freq='b'))
-    p1['date'] = p1[0]
-    print(_option_call_put_positon(p1,'510300'))
+    # p1 = pd.DataFrame(pd.date_range('20250710',periods=10,freq='b'))
+    # p1['date'] = p1[0]
+    # print(_option_call_put_positon(p1,'510300'))
     
     # getter_qvix_day('2024-05-20')
     # p1 = qvix_day_indicator()
