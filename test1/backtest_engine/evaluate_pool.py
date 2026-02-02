@@ -11,7 +11,7 @@ class PoolEvaluator:
         :param etf_list: list, 标的池代码列表
         :param price_field: str, 使用的价格字段
         """
-        print(f"Loading backtest data for ID: {backtest_id}...")
+        print(f"正在加载回测数据 ID: {backtest_id}...")
         self.gt = get_backtest(backtest_id)
         
         # 1. 获取策略收益 (Strategy Returns)
@@ -60,7 +60,7 @@ class PoolEvaluator:
         start_date = self.strategy_ret.index[0]
         end_date = self.strategy_ret.index[-1]
         
-        print(f"Fetching pool prices for {len(etf_list)} assets...")
+        print(f"正在获取 {len(etf_list)} 个标的池资产行情...")
         raw_data = get_price(list(etf_list), start_date=start_date, end_date=end_date, frequency='daily', fields=[price_field])
         
         # 处理 JQData 返回格式
@@ -107,10 +107,10 @@ class PoolEvaluator:
         ranks = combined.rank(axis=1, pct=True, ascending=True)
         strategy_rank = ranks['Strategy']
         
-        print(f"\n[Rolling Return Analysis (N={window})]")
-        print(f"Average Rank Percentile: {strategy_rank.mean():.2%}")
-        print(f"Time in Top 25%: {(strategy_rank >= 0.75).mean():.2%}")
-        print(f"Time in Bottom 25%: {(strategy_rank <= 0.25).mean():.2%}")
+        print(f"\n[滚动收益分析 (N={window}日)]")
+        print(f"平均排名百分位: {strategy_rank.mean():.2%}")
+        print(f"位列前25%的时间占比: {(strategy_rank >= 0.75).mean():.2%}")
+        print(f"位列后25%的时间占比: {(strategy_rank <= 0.25).mean():.2%}")
         if fig:
             self.plot_rolling_returns(window)
         
@@ -167,7 +167,7 @@ class PoolEvaluator:
         ax2.grid(True)
         
         plt.tight_layout()
-        print(f"\n[Rolling Plot] Generated plot for {window}-day rolling analysis.")
+        print(f"\n[滚动绘图] 已生成 {window}日 滚动收益分析图。")
 
     def evaluate_holding_attribution(self):
         """
@@ -188,19 +188,25 @@ class PoolEvaluator:
             asset_held = group_data.iloc[0]
             
             # 获取该时间段内的区间收益
-            period_prices = self.pool_prices.loc[start_date:end_date]
-            if len(period_prices) < 2:
+            # 使用 pct_change 数据计算累积收益: (1+r1)*(1+r2)... - 1
+            # 这样能包含 start_date 当天的收益
+            period_pool_rets = self.pool_rets.loc[start_date:end_date]
+            if len(period_pool_rets) < 1:
                 continue
             
             # 池内各资产的区间收益
-            period_ret = (period_prices.iloc[-1] / period_prices.iloc[0]) - 1
+            period_ret = (1 + period_pool_rets).prod() - 1
             
             # 策略持仓收益 Calculation
             if asset_held == "CASH":
                 # 计算策略在此期间的实际收益 (通常接近0或货币基金收益)
                 # 使用 cumprod 计算区间复合收益
                 strat_period_trace = (1 + self.strategy_ret.loc[start_date:end_date]).cumprod()
-                held_ret = strat_period_trace.iloc[-1] - 1
+                # 如果区间为空或只有1天，trace可能只有1个值
+                if len(strat_period_trace) > 0:
+                     held_ret = strat_period_trace.iloc[-1] - 1
+                else:
+                     held_ret = 0.0
             else:
                  # 依然使用标的理论收益 (Pure Signal)，也可改为 actual strategy return
                  # 这里保持一致性，使用标的收益
@@ -243,16 +249,100 @@ class PoolEvaluator:
         df_res = pd.DataFrame(results)
         
         if df_res.empty:
-            print("\n[Holding Attribution] No valid holding periods found.")
+            print("\n[持仓归因] 未找到有效的持仓周期。")
             return df_res
 
-        print(f"\n[Holding Attribution Analysis]")
-        print(f"Total Periods: {len(df_res)}")
-        print(f"Hit Rate (Picked Best Asset): {df_res['Is_Best'].mean():.2%}")
-        print(f"Win Rate (Beat Pool Avg): {df_res['Beats_Avg'].mean():.2%}")
-        print(f"Avg Excess Return vs Pool Avg: {(df_res['Held_Return'] - df_res['Pool_Avg']).mean():.2%}")
+        print(f"\n[持仓归因分析]")
+        print(f"总持仓段数: {len(df_res)}")
+        print(f"命中率 (选中最优标的): {df_res['Is_Best'].mean():.2%}")
+        print(f"胜率 (跑赢池均值): {df_res['Beats_Avg'].mean():.2%}")
+        print(f"平均超额收益 (vs 池均值): {(df_res['Held_Return'] - df_res['Pool_Avg']).mean():.2%}")
         
         return df_res
+
+        return df_res
+
+    def evaluate_switching_effect(self):
+        """
+        方法4: 换仓效果分析 (Switching Effectiveness)
+        分析每一次换仓 (Asset A -> Asset B) 后，新持仓是否跑赢了旧持仓？
+        """
+        pos = self.strategy_positions
+        # 找到换仓点: 今天持仓 != 昨天持仓
+        # shift(1) 是昨天
+        trades = pos[pos != pos.shift(1)]
+        
+        # 移除第一天 (因为没有"前一持仓")
+        if len(trades) > 0 and trades.index[0] == self.strategy_ret.index[0]:
+            trades = trades.iloc[1:]
+            
+        switching_results = []
+        
+        for date, new_asset in trades.items():
+            # 获取前一天的持仓 (Old Asset)
+            # 注意: pos.shift(1) 在 date 这一天的值就是 "Yesterday's Position"
+            old_asset = pos.shift(1).loc[date]
+            
+            # 确定本次持仓的结束时间 (Next Switch Date)
+            # 在 trades 中找到大于 date 的第一个日期
+            next_dates = trades.index[trades.index > date]
+            if len(next_dates) > 0:
+                end_date = next_dates[0] 
+                # 持仓期不包括下一次换仓日当天 (当天已经换了) -> 实际上是到 end_date 的前一天
+                # 但为了计算简单，且通常日线数据包含当天，我们取 slice: prices.loc[date : end_date]
+                # 然后计算区间涨幅。
+            else:
+                end_date = self.strategy_ret.index[-1]
+            
+            # 计算区间收益 (使用 pool_rets)
+            period_pool_rets = self.pool_rets.loc[date:end_date]
+            if len(period_pool_rets) < 1:
+                continue
+                
+            # 计算期间各资产累计涨幅 (Compound Return)
+            period_comp_ret = (1 + period_pool_rets).prod() - 1
+
+            # 计算 "新资产" 在此期间的收益
+            if new_asset == "CASH":
+                ret_new = 0.0 # 简化为0
+            elif new_asset in period_comp_ret:
+                ret_new = period_comp_ret[new_asset]
+            else:
+                ret_new = 0.0
+                
+            # 计算 "旧资产" 在此期间的收益 (如果不卖会怎样?)
+            if old_asset == "CASH":
+                ret_old = 0.0
+            elif old_asset in period_comp_ret:
+                ret_old = period_comp_ret[old_asset]
+            else:
+                ret_old = 0.0
+                
+            switch_alpha = ret_new - ret_old
+            
+            switching_results.append({
+                'Date': date,
+                'Old_Asset': old_asset,
+                'New_Asset': new_asset,
+                'New_Return': ret_new,
+                'Old_Return': ret_old,
+                'Switch_Alpha': switch_alpha,
+                'Is_Correct': (switch_alpha > 0)
+            })
+            
+        df_switch = pd.DataFrame(switching_results)
+        
+        if df_switch.empty:
+            print("\n[换仓分析] 未发现换仓操作。")
+            return df_switch
+            
+        print(f"\n[换仓效果分析]")
+        print(f"总换仓次数: {len(df_switch)}")
+        print(f"换仓成功率 (新>旧): {df_switch['Is_Correct'].mean():.2%}")
+        print(f"平均换仓Alpha: {df_switch['Switch_Alpha'].mean():.2%}")
+        print(f"累计换仓Alpha: {df_switch['Switch_Alpha'].sum():.2%}")
+        
+        return df_switch
 
     def plot_relative_strength(self):
         """
@@ -268,7 +358,7 @@ class PoolEvaluator:
         plt.legend()
         plt.grid(True)
         # plt.show() # Uncomment to show locally
-        print("\n[Relative Strength] Plot generated (RS Curve). slope > 0 implies Alpha.")
+        print("\n[相对强弱] 已生成RS曲线 (斜率>0 意味着存在Alpha)。")
         return rs
 
 # ==========================================
@@ -305,7 +395,7 @@ if __name__ == "__main__":
         return MockBacktest()
 
     # Demo
-    print("Running Demo with Mock Backtest ID...")
+    print("正在运行模拟数据的演示...")
     
     backtest_id = "mock_bt_id_12345"
     assets = ['510300.XSHG', '510500.XSHG']
@@ -318,6 +408,9 @@ if __name__ == "__main__":
     
     # Method 2 (Auto-fetches positions)
     evaluator.evaluate_holding_attribution()
+    
+    # Method 4 (Switching Effect)
+    evaluator.evaluate_switching_effect()
     
     # Method 3
     rs = evaluator.plot_relative_strength()
