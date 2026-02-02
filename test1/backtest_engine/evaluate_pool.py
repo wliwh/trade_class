@@ -57,6 +57,9 @@ class PoolEvaluator:
             self.strategy_positions = pd.Series("CASH", index=self.strategy_ret.index)
 
         # 3. 获取标的池数据 (Pool Data)
+        # 用策略收益的起止时间来获取行情
+        # 注意：如果 strategy_ret 有缺失（如空仓期没记录），range 可能短
+        # 但通常 Backtest 是连续日期的。如果不连续，我们以获取到的 Price Index 为主 (Market Calendar)
         start_date = self.strategy_ret.index[0]
         end_date = self.strategy_ret.index[-1]
         
@@ -73,8 +76,24 @@ class PoolEvaluator:
              else:
                  self.pool_prices = raw_data
         
-        # 确保日期对齐
+        # 确保日期对齐：以 Pool Index (交易所日历) 为准
         self.pool_prices.index = pd.to_datetime(self.pool_prices.index).normalize()
+        
+        # 强制对齐：Backtest 数据缺失的日期 (空仓 gap) 填补为 0 / CASH
+        # intersection 可能会把 gap 扔掉，所以我们这里用 pool_prices.index 来 reindex strategy
+        market_index = self.pool_prices.index
+        
+        # Clip strategy data to market range
+        # (Start/End might vary slightly, so we intersect first to clean bounds, then reindex to fill internal gaps)
+        # 实际上，只要取 Range 内的所有交易日即可
+        
+        # Reindex Strategy Returns: 填充 0 (假设 gap 是无收益的空仓)
+        self.strategy_ret = self.strategy_ret.reindex(market_index).fillna(0.0)
+        
+        # Reindex Strategy Positions: 填充 "CASH" (假设 gap 是空仓)
+        self.strategy_positions = self.strategy_positions.reindex(market_index).fillna("CASH")
+        
+        # 再次确保对齐 (理论上已经齐了)
         common_index = self.strategy_ret.index.intersection(self.pool_prices.index)
         
         self.strategy_ret = self.strategy_ret.loc[common_index]
