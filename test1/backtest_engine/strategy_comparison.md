@@ -1,13 +1,15 @@
 # ETF 策略逻辑对比文档
 
-本文档概述并对比了五种 ETF 轮动策略的逻辑差异。
+论坛上流行的ETF轮动策略，自2023年的wy的“核心资产轮动”，陆续出现大批。。。
+
+现在，选了五种 ETF 轮动策略，对比了它们的逻辑差异和实际绩效，包括下面几种。
 
 **涉及策略：**
-1.  `ETF_wy03.py` (祖版/基准)
-2.  `ETF_atr_modular.py` (ATR稳健版)
-3.  `ETF_gao_modular.py` (高收益版)
-4.  `ETF_long_modular.py` (长短结合版)
-5.  `ETF_yj15_modular.py` (综合择时版)
+1.  `wy03`，[原版](https://www.joinquant.com/post/42673)，2023年6月
+2.  `long`，[长短期动量结合版](https://www.joinquant.com/view/community/detail/44046)，2023年9月
+3.  `yj15`，[综合择时版](https://www.joinquant.com/view/community/detail/41718)，2023年4月
+4.  `atr`，ATR稳健版
+5.  `gao`，高收益版
 
 ---
 

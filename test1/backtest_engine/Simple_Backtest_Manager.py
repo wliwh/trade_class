@@ -2,14 +2,23 @@ import os
 import json
 import hashlib
 import time
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 from datetime import datetime
+from backtest_analyse import BacktestAnalyzer
 
 # ==========================================
 # 配置部分
 # ==========================================
 
+# {'wy03_DEFAULT': 'aa25f58dd566d7227ad2fb0027634b10',
+#  'long_DEFAULT': 'ac461aa8ecb9917f805c3b4ae4d8e5da',
+#  'yj15_DEFAULT': '57cf965913040b40c1811f60f4e11388'}
+
 # 注册表文件路径 (保存已运行回测的记录)
 REGISTRY_FILE = 'test1/ETFs/backtest_registry.json'
+STANDARD_BACKTEST_ID = '59111111111111111111111111111111'
 
 # 策略文件路径映射
 STRATEGY_FILES = {
@@ -138,7 +147,7 @@ class SimpleBacktestManager:
 
             full_name = f"{s_name}_{t_name}"
             bt_id = create_backtest(
-                algorithm_id=None, # 使用 code 模式
+                algorithm_id=STANDARD_BACKTEST_ID, # 使用 code 模式
                 start_date=start_date,
                 end_date=end_date,
                 frequency=frequency,
@@ -154,6 +163,7 @@ class SimpleBacktestManager:
                 'name': full_name,
                 'strategy': s_name,
                 'test_name': t_name,
+                'file_path': file_path,
                 'params': params,
                 'range': [start_date, end_date],
                 'create_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -168,6 +178,116 @@ class SimpleBacktestManager:
         except Exception as e:
             print(f"[{t_name}] Failed to create backtest: {e}")
             return None
+
+    def get_running_count(self):
+        """获取当前正在运行回测的数量"""
+        count = 0
+        has_update = False
+        
+        # 遍历注册表检查状态
+        for task_hash, record in self.registry.items():
+            # 只检查可能活跃的状态
+            if record.get('status') in ['created', 'running']:
+                bt_id = record.get('id')
+                if not bt_id:
+                    continue
+                
+                try:
+                    # 尝试获取最新状态
+                    if 'get_backtest' in globals():
+                        bt = get_backtest(bt_id)
+                        status = bt.get_status()
+                        
+                        # 如果状态变了，更新它
+                        if status != record.get('status'):
+                            record['status'] = status
+                            has_update = True
+                        
+                        if status in ['running', 'created']:
+                            count += 1
+                    else:
+                        # 无法获取状态，假设它占位
+                        count += 1
+                        
+                except Exception as e:
+                    # 获取状态失败，保守起见不算作减少，或者打印警告
+                    print(f"Warning: Could not check status for {bt_id}: {e}")
+                    # 如果出错了，假设它还在运行? 或者忽略? 
+                    # 这里暂且算作运行中，避免疯狂创建
+                    count += 1 
+
+        if has_update:
+            self._save_registry()
+            
+        return count
+
+    def run_batch(self, configs, max_concurrent=2, check_seconds=30):
+        """
+        批量运行回测配置，带有并发控制
+        """
+        print(f"Starting batch execution with max_concurrent={max_concurrent}...")
+        
+        for i, config in enumerate(configs):
+            t_name = config.get('test_name', 'unnamed')
+            
+            while True:
+                # 检查当前运行数量
+                running = self.get_running_count()
+                if running < max_concurrent:
+                    break
+                
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] Max concurrent limit reached ({running}/{max_concurrent}). Waiting {check_seconds}s...")
+                time.sleep(check_seconds)
+            
+            # 执行回测
+            print(f"[{i+1}/{len(configs)}] Processing {t_name}...")
+            self.run_backtest(config)
+            time.sleep(1)
+
+    def check_strategies_status(self):
+        """
+        探查并更新所有已注册策略的状态
+        """
+        # 检查运行环境
+        print(f"Checking status for {len(self.registry)} strategies...")
+        updated = False
+        
+        # 打印表头
+        print(f"{'ID':<34} | {'Name':<30} | {'Status':<10} | {'Created':<20}")
+        print("-" * 105)
+
+        for task_hash, record in self.registry.items():
+            bt_id = record.get('id')
+            if not bt_id:
+                continue
+                
+            try:
+                bt = get_backtest(bt_id)
+                status = bt.get_status()
+                
+                # 如果状态发生变化，则更新
+                old_status = record.get('status')
+                if old_status != status:
+                    record['status'] = status
+                    updated = True
+
+                name = record.get('name', 'Unknown')
+                if len(name) > 28:
+                    name = name[:25] + "..."
+                    
+                create_time = record.get('create_time', '')
+                print(f"{bt_id:<34} | {name:<30} | {status:<10} | {create_time:<20}")
+                
+            except Exception as e:
+                print(f"{bt_id:<34} | Error checking status: {e}")
+
+        if updated:
+            self._save_registry()
+            print("\nRegistry updated with latest statuses.")
+        else:
+            print("\nNo status changes detected.")
+
+
 
 # ==========================================
 # 使用示例 / 主程序
@@ -219,8 +339,26 @@ def main():
     ]
 
     print(f"Processing {len(configs)} backtest configurations...")
-    for cfg in configs:
-        manager.run_backtest(cfg)
+    # 使用带并发控制的批量运行
+    manager.run_batch(configs, max_concurrent=3)
+    
+    # Update statuses
+    print("\nUpdating statuses...")
+    manager.check_strategies_status()
+    
+    # Compare results
+    print("\nComparing results...")
+    analyzer = BacktestAnalyzer(manager.registry)
+    analyzer.compare_results()
+    
+    # Plot curves
+    print("\nPlotting curves...")
+    analyzer.plot_curves()
+
+    # Show monthly returns
+    print("\nShowing monthly returns...")
+    analyzer.show_monthly_returns()
+
     print("All done.")
 
 if __name__ == "__main__":
